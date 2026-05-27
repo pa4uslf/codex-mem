@@ -4,7 +4,7 @@ import { Database } from 'bun:sqlite';
 import { homedir } from 'os';
 import { join } from 'path';
 
-const DB_PATH = join(homedir(), '.claude-mem', 'claude-mem.db');
+const DB_PATH = join(homedir(), '.codex-mem', 'codex-mem.db');
 
 const TIME_WINDOW_MODES = {
   strict: 5,      // 5 seconds - only exact duplicates from same batch
@@ -44,7 +44,7 @@ function main() {
   const batchWindowSeconds = TIME_WINDOW_MODES[windowMode];
 
   console.log('='.repeat(60));
-  console.log('Claude-Mem Duplicate Observation Cleanup');
+  console.log('Codex-Mem Duplicate Observation Cleanup');
   console.log('='.repeat(60));
   console.log(`Mode: ${dryRun ? 'DRY RUN (use --execute to delete)' : 'EXECUTE'}`);
   console.log(`Database: ${DB_PATH}`);

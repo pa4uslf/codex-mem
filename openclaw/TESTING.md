@@ -1,4 +1,4 @@
-# OpenClaw Claude-Mem Plugin — Testing Guide
+# OpenClaw Codex-Mem Plugin — Testing Guide
 
 ## Quick Start (Docker)
 
@@ -55,7 +55,7 @@ This is the most comprehensive test. It:
 1. Uses the official `ghcr.io/openclaw/openclaw:main` Docker image
 2. Installs the plugin via `openclaw plugins install` (same as a real user)
 3. Enables the plugin via `openclaw plugins enable`
-4. Starts a mock claude-mem worker on port 37777
+4. Starts a mock codex-mem worker on port 37777
 5. Starts the OpenClaw gateway with plugin config
 6. Verifies the plugin loads, connects to SSE, and processes events
 
@@ -79,26 +79,26 @@ This drops you into a fully-configured OpenClaw container with the plugin pre-in
 
 ```bash
 node openclaw.mjs plugins list
-node openclaw.mjs plugins info claude-mem
+node openclaw.mjs plugins info codex-mem
 node openclaw.mjs plugins doctor
 ```
 
 **Expected:**
-- `claude-mem` appears in the plugins list as "enabled" or "loaded"
-- Info shows version 1.0.0, source at `/home/node/.openclaw/extensions/claude-mem/`
+- `codex-mem` appears in the plugins list as "enabled" or "loaded"
+- Info shows version 1.0.0, source at `/home/node/.openclaw/extensions/codex-mem/`
 - Doctor reports no issues
 
 #### 2. Inspect plugin files
 
 ```bash
-ls -la /home/node/.openclaw/extensions/claude-mem/
-cat /home/node/.openclaw/extensions/claude-mem/openclaw.plugin.json
-cat /home/node/.openclaw/extensions/claude-mem/package.json
+ls -la /home/node/.openclaw/extensions/codex-mem/
+cat /home/node/.openclaw/extensions/codex-mem/openclaw.plugin.json
+cat /home/node/.openclaw/extensions/codex-mem/package.json
 ```
 
 **Expected:**
 - `dist/index.js` exists (compiled plugin)
-- `openclaw.plugin.json` has `"id": "claude-mem"` and `"kind": "memory"`
+- `openclaw.plugin.json` has `"id": "codex-mem"` and `"kind": "memory"`
 - `package.json` has `openclaw.extensions` field pointing to `./dist/index.js`
 
 #### 3. Start mock worker
@@ -132,10 +132,10 @@ cat > /home/node/.openclaw/openclaw.json << 'EOF'
   },
   "plugins": {
     "slots": {
-      "memory": "claude-mem"
+      "memory": "codex-mem"
     },
     "entries": {
-      "claude-mem": {
+      "codex-mem": {
         "enabled": true,
         "config": {
           "workerPort": 37777,
@@ -155,10 +155,10 @@ node openclaw.mjs gateway --allow-unconfigured --verbose --token e2e-test-token
 ```
 
 **Expected in gateway logs:**
-- `[claude-mem] OpenClaw plugin loaded — v1.0.0`
-- `[claude-mem] Observation feed starting — channel: telegram, target: test-chat-id-12345`
-- `[claude-mem] Connecting to SSE stream at http://localhost:37777/stream`
-- `[claude-mem] Connected to SSE stream`
+- `[codex-mem] OpenClaw plugin loaded — v1.0.0`
+- `[codex-mem] Observation feed starting — channel: telegram, target: test-chat-id-12345`
+- `[codex-mem] Connecting to SSE stream at http://localhost:37777/stream`
+- `[codex-mem] Connected to SSE stream`
 
 #### 5. Run automated verification (optional)
 
@@ -172,12 +172,12 @@ From a second shell in the container (or after stopping the gateway):
 
 ## Manual E2E (Real OpenClaw + Real Worker)
 
-For testing with a real claude-mem worker and real messaging channel:
+For testing with a real codex-mem worker and real messaging channel:
 
 ### Prerequisites
 
 - OpenClaw gateway installed and configured
-- Claude-Mem worker running on port 37777
+- Codex-Mem worker running on port 37777
 - Plugin built: `cd openclaw && npm run build`
 
 ### 1. Install the plugin
@@ -190,7 +190,7 @@ cd openclaw && npm run build
 openclaw plugins install .
 
 # Enable it
-openclaw plugins enable claude-mem
+openclaw plugins enable codex-mem
 ```
 
 ### 2. Configure
@@ -201,7 +201,7 @@ Edit `~/.openclaw/openclaw.json` to add plugin config:
 {
   "plugins": {
     "entries": {
-      "claude-mem": {
+      "codex-mem": {
         "enabled": true,
         "config": {
           "workerPort": 37777,
@@ -226,19 +226,19 @@ openclaw restart
 ```
 
 **Look for in logs:**
-- `[claude-mem] OpenClaw plugin loaded — v1.0.0`
-- `[claude-mem] Connected to SSE stream`
+- `[codex-mem] OpenClaw plugin loaded — v1.0.0`
+- `[codex-mem] Connected to SSE stream`
 
 ### 4. Trigger an observation
 
-Start a Claude Code session with claude-mem enabled and perform any action. The worker will emit a `new_observation` SSE event.
+Start a Codex Code session with codex-mem enabled and perform any action. The worker will emit a `new_observation` SSE event.
 
 ### 5. Verify delivery
 
 Check the target messaging channel for:
 
 ```
-🧠 Claude-Mem Observation
+🧠 Codex-Mem Observation
 **Observation Title**
 Optional subtitle
 ```
@@ -252,7 +252,7 @@ The plugin was built against the wrong API. Ensure `src/index.ts` uses `api.logg
 
 ### Worker not running
 - **Symptom:** `SSE stream error: fetch failed. Reconnecting in 1s`
-- **Fix:** Start the worker: `cd /path/to/claude-mem && npm run build-and-sync`
+- **Fix:** Start the worker: `cd /path/to/codex-mem && npm run build-and-sync`
 
 ### Port mismatch
 - **Fix:** Ensure `workerPort` in config matches the worker's actual port (default: 37777)
@@ -276,4 +276,4 @@ The plugin was built against the wrong API. Ensure `src/index.ts` uses `api.logg
 
 ### Memory slot conflict
 - **Symptom:** `plugin disabled (memory slot set to "memory-core")`
-- **Fix:** Add `"slots": { "memory": "claude-mem" }` to plugins config
+- **Fix:** Add `"slots": { "memory": "codex-mem" }` to plugins config

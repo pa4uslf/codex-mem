@@ -1,13 +1,13 @@
 # Hook IO Discipline — Stop Conflating stdout / stderr / Exit Codes
 
-**Goal:** Establish a single, typed IO discipline across claude-mem's 6 lifecycle hooks (Setup, SessionStart, UserPromptSubmit, PreToolUse:Read, PostToolUse, Stop). Every emit point must declare an *intent* (DIAGNOSTIC, MODEL_CONTEXT, USER_HINT, BLOCKING_FEEDBACK, EXIT_SIGNAL) and route through a wrapper module that maps intent → channel correctly. Fix issue #2292 (recordWorkerUnreachable diagnostic silently swallowed) along the way.
+**Goal:** Establish a single, typed IO discipline across codex-mem's 6 lifecycle hooks (Setup, SessionStart, UserPromptSubmit, PreToolUse:Read, PostToolUse, Stop). Every emit point must declare an *intent* (DIAGNOSTIC, MODEL_CONTEXT, USER_HINT, BLOCKING_FEEDBACK, EXIT_SIGNAL) and route through a wrapper module that maps intent → channel correctly. Fix issue #2292 (recordWorkerUnreachable diagnostic silently swallowed) along the way.
 
 **Net effect:**
 - `process.stderr.write` is no longer monkey-patched at the boundary. Diagnostic stderr (logger, fail-loud counter, bun-runner #2188) reaches the user as the hook contract intends.
 - Handlers become *pure*: they return a `HookResult` and never touch process streams directly.
 - A single `src/cli/hook-io.ts` module is the only place that calls `console.log`, `process.stderr.write`, and `process.exit` for the hook execution path. `hookCommand` orchestrates that module.
 - Adapter `formatOutput` shapes are validated once at the emit boundary.
-- The CLAUDE.md exit-code strategy (worker/hook errors exit 0 to prevent Windows Terminal tab pileup) is preserved verbatim and codified in the wrapper.
+- The CODEX.md exit-code strategy (worker/hook errors exit 0 to prevent Windows Terminal tab pileup) is preserved verbatim and codified in the wrapper.
 - A grep-based CI check forbids direct stream writes in `src/cli/handlers/**` and `src/cli/adapters/**`.
 
 **Out of scope:**
@@ -27,7 +27,7 @@ The orchestrator did the discovery during planning; subsequent phases cite by li
 | Item | Location | What to copy |
 |---|---|---|
 | Existing exit-code constants | `src/shared/hook-constants.ts:15–20` | `HOOK_EXIT_CODES = { SUCCESS: 0, FAILURE: 1, BLOCKING_ERROR: 2, USER_MESSAGE_ONLY: 3 }` — no new constants needed. |
-| Adapter `formatOutput` contract | `src/cli/types.ts:39–42` and `src/cli/adapters/claude-code.ts:27–41` | `formatOutput(result: HookResult): unknown` — the new `emitModelContext` MUST call this and `JSON.stringify` the result, exactly once. |
+| Adapter `formatOutput` contract | `src/cli/types.ts:39–42` and `src/cli/adapters/codex-code.ts:27–41` | `formatOutput(result: HookResult): unknown` — the new `emitModelContext` MUST call this and `JSON.stringify` the result, exactly once. |
 | `HookResult` shape (already supports `systemMessage`) | `src/cli/types.ts:23–37` | `systemMessage` is the *existing* field for user-visible advisory. New work adds an explicit `userHint` only if `systemMessage` semantics differ per platform — see Phase 3. |
 | Logger fallback write | `src/utils/logger.ts:271,274` | `process.stderr.write` happens here when log file write fails and as the normal stderr fallback when no log file is configured. Phase 4 routes both through `emitDiagnostic`. |
 | Fail-loud counter | `src/shared/worker-utils.ts:401–417` | `recordWorkerUnreachable` is the canonical "must surface to user" path. The threshold-triggered branch (lines 410–415) is the *only* current call site that legitimately writes to stderr + exits non-zero. The plan keeps that intent but routes through `emitBlockingError`. |
@@ -39,9 +39,9 @@ The orchestrator did the discovery during planning; subsequent phases cite by li
 - There is no existing `hook-io.ts` module — Phase 3 creates it.
 - There is no `userHint` field on `HookResult` today (`src/cli/types.ts`). Phase 3 decides whether to add one or reuse `systemMessage`. Recommendation: **reuse `systemMessage`** — every adapter already routes it. Adding `userHint` would force adapter changes for no gain.
 - `console.warn` and `console.info` are NOT used in `src/cli/`; do not introduce them. Stay with `logger.*` for diagnostics.
-- `process.stdout.write` is NOT used in the hook path; the only stdout emit is `console.log(JSON.stringify(...))` in `hook-command.ts:66,86,94`. Do not switch to `process.stdout.write` — `console.log` adds the trailing newline that Claude Code's parser expects.
-- Do not "fix" the swallow by deleting it without an audit. Phase 1 first, Phase 2 second. Some libraries imported by handlers (e.g. `@anthropic-ai/sdk` retries) DO write to stderr unprompted, and that *is* what the swallow was originally guarding against.
-- The exit-0-on-error strategy is non-negotiable per CLAUDE.md ("Worker/hook errors exit with code 0 to prevent Windows Terminal tab accumulation. The wrapper/plugin layer handles restart logic."). Any phase that proposes exit 1/2 must justify it as either (a) blocking feedback the model must see, or (b) the existing fail-loud counter that already does this.
+- `process.stdout.write` is NOT used in the hook path; the only stdout emit is `console.log(JSON.stringify(...))` in `hook-command.ts:66,86,94`. Do not switch to `process.stdout.write` — `console.log` adds the trailing newline that Codex Code's parser expects.
+- Do not "fix" the swallow by deleting it without an audit. Phase 1 first, Phase 2 second. Some libraries imported by handlers (e.g. `@codex-ai/sdk` retries) DO write to stderr unprompted, and that *is* what the swallow was originally guarding against.
+- The exit-0-on-error strategy is non-negotiable per CODEX.md ("Worker/hook errors exit with code 0 to prevent Windows Terminal tab accumulation. The wrapper/plugin layer handles restart logic."). Any phase that proposes exit 1/2 must justify it as either (a) blocking feedback the model must see, or (b) the existing fail-loud counter that already does this.
 
 ### File inventory used by this plan
 
@@ -55,7 +55,7 @@ The orchestrator did the discovery during planning; subsequent phases cite by li
 | `src/cli/handlers/file-context.ts` | 248 | Light edit (Phase 4 — confirm pure) |
 | `src/cli/handlers/session-init.ts` | 124 | Light edit (Phase 4 — confirm pure) |
 | `src/cli/handlers/summarize.ts` | 90 | Light edit (Phase 4 — confirm pure) |
-| `src/cli/adapters/claude-code.ts` | 43 | Light edit (Phase 4 — confirm `formatOutput` returns plain object) |
+| `src/cli/adapters/codex-code.ts` | 43 | Light edit (Phase 4 — confirm `formatOutput` returns plain object) |
 | `src/cli/adapters/codex.ts`, `cursor.ts`, `gemini-cli.ts`, `raw.ts`, `windsurf.ts`, `codex-file-context.ts` | misc | Confirm-only (Phase 4 audit pass) |
 | `src/shared/worker-utils.ts` | ~600 | Edited (Phase 4 — recordWorkerUnreachable routes through `emitBlockingError`) |
 | `src/utils/logger.ts` | ~310 | Edited (Phase 4 — stderr fallback routes through `emitDiagnostic`) |
@@ -66,7 +66,7 @@ The orchestrator did the discovery during planning; subsequent phases cite by li
 | `tests/hook-io.test.ts` | NEW | CREATED (Phase 5) |
 | `tests/hook-stream-discipline.test.ts` | NEW | CREATED (Phase 5) |
 | `scripts/check-hook-io-discipline.cjs` | NEW | CREATED (Phase 6 — grep-based CI check) |
-| `CLAUDE.md` | misc | Edited (Phase 6 — Exit Code Strategy section) |
+| `CODEX.md` | misc | Edited (Phase 6 — Exit Code Strategy section) |
 
 ---
 
@@ -98,7 +98,7 @@ plugin/hooks/hooks.json                   # the bash dispatchers' echo + exit 1
 - `DIAGNOSTIC` — operator-visible logs, never reaches the model. Stderr.
 - `MODEL_CONTEXT` — content the assistant should consume. Stdout JSON only.
 - `USER_HINT` — short advisory shown to the human user (e.g. "OAuth token stale"). Stderr OR `systemMessage` field, NEVER mixed with model context.
-- `BLOCKING_FEEDBACK` — error message Claude Code feeds back to the model (per its hook contract: stderr + exit 2).
+- `BLOCKING_FEEDBACK` — error message Codex Code feeds back to the model (per its hook contract: stderr + exit 2).
 - `EXIT_SIGNAL` — pure status, no payload (e.g. `process.exit(0)`).
 
 **Pre-populated audit findings** (the orchestrator already grepped — copy this into the PR and verify each row before Phase 2):
@@ -109,31 +109,31 @@ plugin/hooks/hooks.json                   # the bash dispatchers' echo + exit 1
 | `src/cli/hook-command.ts:69` | `process.exit(exitCode)` | EXIT_SIGNAL | exit | OS | ok |
 | `src/cli/hook-command.ts:75–76` | replace `process.stderr.write` with no-op | (defensive guard) | n/a | n/a | **#2292: swallows ALL stderr including legitimate diagnostic + fail-loud** |
 | `src/cli/hook-command.ts:86,94` | `console.log(JSON.stringify({continue:true,suppressOutput:true}))` | MODEL_CONTEXT | stdout | model | ok |
-| `src/cli/hook-command.ts:88,96,103` | `process.exit(SUCCESS)` | EXIT_SIGNAL | exit | OS | ok per CLAUDE.md |
+| `src/cli/hook-command.ts:88,96,103` | `process.exit(SUCCESS)` | EXIT_SIGNAL | exit | OS | ok per CODEX.md |
 | `src/cli/hook-command.ts:108` | `logger.error('HOOK', …)` | DIAGNOSTIC | stderr (via logger) | operator | **swallowed by lines 75–76** |
 | `src/cli/hook-command.ts:110` | `process.exit(BLOCKING_ERROR)` | BLOCKING_FEEDBACK | exit (no stderr msg!) | model | **gap: model gets exit 2 but no stderr message — useless** |
 | `src/cli/hook-command.ts:114` | restore `process.stderr.write` | (cleanup) | n/a | n/a | only runs after exit; restore is dead code in production |
-| `src/cli/handlers/user-message.ts:27` | `process.stderr.write("…Claude-Mem Context Loaded…")` | USER_HINT (banner) | stderr | user (Claude Code shows stderr inline) | **mixed concern: handler is not pure; bypasses HookResult shape** |
+| `src/cli/handlers/user-message.ts:27` | `process.stderr.write("…Codex-Mem Context Loaded…")` | USER_HINT (banner) | stderr | user (Codex Code shows stderr inline) | **mixed concern: handler is not pure; bypasses HookResult shape** |
 | `src/cli/handlers/context.ts:74–80` | return `hookSpecificOutput.additionalContext` + `systemMessage` | MODEL_CONTEXT + USER_HINT | result object | model + user | ok in shape, but no enforcement that handlers can't ALSO write stderr |
 | `src/cli/handlers/observation.ts` | (pure — only `logger.*` calls) | DIAGNOSTIC | stderr (logger) | operator | swallowed by hookCommand wrapper |
 | `src/cli/handlers/file-context.ts` | (pure — only `logger.*` calls) | DIAGNOSTIC | stderr (logger) | operator | swallowed |
 | `src/cli/handlers/session-init.ts` | (pure — only `logger.*` calls) | DIAGNOSTIC | stderr (logger) | operator | swallowed |
 | `src/cli/handlers/summarize.ts` | (pure — only `logger.*` calls) | DIAGNOSTIC | stderr (logger) | operator | swallowed |
-| `src/cli/adapters/claude-code.ts:27–41` | `formatOutput` returns plain object | (data shape) | n/a | model (via stdout JSON) | ok |
-| `src/shared/worker-utils.ts:411` | `process.stderr.write('claude-mem worker unreachable for N consecutive hooks.\n')` | BLOCKING_FEEDBACK / USER_HINT (the one message that MUST surface) | stderr | user + model | **#2292: swallowed by hookCommand wrapper** |
+| `src/cli/adapters/codex-code.ts:27–41` | `formatOutput` returns plain object | (data shape) | n/a | model (via stdout JSON) | ok |
+| `src/shared/worker-utils.ts:411` | `process.stderr.write('codex-mem worker unreachable for N consecutive hooks.\n')` | BLOCKING_FEEDBACK / USER_HINT (the one message that MUST surface) | stderr | user + model | **#2292: swallowed by hookCommand wrapper** |
 | `src/shared/worker-utils.ts:414` | `process.exit(BLOCKING_ERROR)` | BLOCKING_FEEDBACK | exit 2 | model | exits 2 but stderr is swallowed → model gets nothing |
 | `src/shared/worker-utils.ts:469,479…` | `logger.warn('SYSTEM', …)` | DIAGNOSTIC | stderr (logger) | operator | swallowed |
 | `src/utils/logger.ts:271` | `process.stderr.write('[LOGGER] Failed to write to log file…')` | DIAGNOSTIC | stderr | operator | swallowed when called inside hook |
 | `src/utils/logger.ts:274` | `process.stderr.write(logLine + '\n')` | DIAGNOSTIC | stderr | operator | swallowed when called inside hook |
 | `src/services/worker-service.ts:850–853` | `console.error('Usage: …')` + `process.exit(1)` | DIAGNOSTIC + EXIT_SIGNAL | stderr + exit 1 | operator (CLI misuse, not a hook) | ok — this is CLI usage, not the hook lifecycle |
-| `plugin/scripts/bun-runner.js:172` | `console.error(diagnostic)` (issue #2188 empty-stdin) | USER_HINT (visible) + DIAGNOSTIC (logged) | stderr | user (Claude Code shows it) | ok — bun-runner is BEFORE hookCommand swallow; runs in its own node process |
+| `plugin/scripts/bun-runner.js:172` | `console.error(diagnostic)` (issue #2188 empty-stdin) | USER_HINT (visible) + DIAGNOSTIC (logged) | stderr | user (Codex Code shows it) | ok — bun-runner is BEFORE hookCommand swallow; runs in its own node process |
 | `plugin/scripts/bun-runner.js:186` | `console.error('[bun-runner] failed to persist diagnostic…')` | DIAGNOSTIC | stderr | operator | ok |
-| `plugin/scripts/bun-runner.js:191` | `process.exit(0)` | EXIT_SIGNAL | exit 0 | OS | ok per CLAUDE.md (Windows Terminal rationale documented inline at lines 174–178) |
-| `plugin/scripts/bun-runner.js:196–198` | `console.error('Failed to start Bun…')` + `process.exit(1)` | BLOCKING_FEEDBACK | stderr + exit 1 | user | **gap: exit 1 violates exit-0-on-error policy. Bun-not-found is a *user* problem, not a hook bug — exit 1 is arguably correct here, but CLAUDE.md says exit 0. Decide in Phase 2.** |
+| `plugin/scripts/bun-runner.js:191` | `process.exit(0)` | EXIT_SIGNAL | exit 0 | OS | ok per CODEX.md (Windows Terminal rationale documented inline at lines 174–178) |
+| `plugin/scripts/bun-runner.js:196–198` | `console.error('Failed to start Bun…')` + `process.exit(1)` | BLOCKING_FEEDBACK | stderr + exit 1 | user | **gap: exit 1 violates exit-0-on-error policy. Bun-not-found is a *user* problem, not a hook bug — exit 1 is arguably correct here, but CODEX.md says exit 0. Decide in Phase 2.** |
 | `plugin/scripts/bun-runner.js:204` | `process.exit(code || 0)` | EXIT_SIGNAL | exit | OS | ok — propagates child exit code |
 | `plugin/scripts/version-check.js:24,32` | `console.log(JSON.stringify({hookSpecificOutput:…}))` for Codex; `console.error(message)` for default | MODEL_CONTEXT (Codex path) / USER_HINT (default path) | stdout / stderr | model / user | ok in intent, but the dual-channel branch is duplicated logic — extract or document |
-| `plugin/hooks/hooks.json` Setup line 11 | `echo "claude-mem: version-check.js not found" >&2; exit 1` | BLOCKING_FEEDBACK (resolution failure) | stderr + exit 1 | user | gap: exit 1 here is correct (we cannot run; user MUST see). Document the exception. |
-| `plugin/hooks/hooks.json` other hook lines | `echo "claude-mem: plugin scripts not found" >&2; exit 1` | BLOCKING_FEEDBACK | stderr + exit 1 | user | same — document exception |
+| `plugin/hooks/hooks.json` Setup line 11 | `echo "codex-mem: version-check.js not found" >&2; exit 1` | BLOCKING_FEEDBACK (resolution failure) | stderr + exit 1 | user | gap: exit 1 here is correct (we cannot run; user MUST see). Document the exception. |
+| `plugin/hooks/hooks.json` other hook lines | `echo "codex-mem: plugin scripts not found" >&2; exit 1` | BLOCKING_FEEDBACK | stderr + exit 1 | user | same — document exception |
 | `plugin/hooks/hooks.json` SessionStart line 24 | `echo '{"continue":true,"suppressOutput":true}'` | MODEL_CONTEXT | stdout | model | ok |
 
 **Verification checklist:**
@@ -160,7 +160,7 @@ Three options were considered:
 |---|---|---|---|
 | (a) Drop swallow entirely | Simplest. Fixes #2292 immediately. | Reverts the guard against noisy library writes (e.g. SDK retry warnings, `node:util` deprecation prints). Those WILL leak to model context if any handler imports a chatty library. | Reject — leaves a regression door open. |
 | (b) Stream-filter proxy via sentinel marker | Preserves selective filtering. | Requires every legitimate diagnostic site to opt in (logger, fail-loud, bun-runner). Sentinel detection is fragile; a missed prefix = silent loss. | Reject — too easy to forget the sentinel. |
-| (c) Capture buffer + typed bypass | All `process.stderr.write` calls go to a buffer instead of the real fd. The buffer is FLUSHED to real stderr only on `emitDiagnostic`/`emitBlockingError` (i.e. when claude-mem CHOSE to surface). On graceful exit (exit 0, success), buffer is dropped (current behavior preserved). | Slightly more state. | **Accept** — gives us the swallow behavior on success and the surface behavior on legitimate diagnostics, with no per-call sentinel discipline. |
+| (c) Capture buffer + typed bypass | All `process.stderr.write` calls go to a buffer instead of the real fd. The buffer is FLUSHED to real stderr only on `emitDiagnostic`/`emitBlockingError` (i.e. when codex-mem CHOSE to surface). On graceful exit (exit 0, success), buffer is dropped (current behavior preserved). | Slightly more state. | **Accept** — gives us the swallow behavior on success and the surface behavior on legitimate diagnostics, with no per-call sentinel discipline. |
 
 ### Edit 2A — Refactor `hookCommand` to use a buffered stderr
 
@@ -169,7 +169,7 @@ File: `src/cli/hook-command.ts`
 - Lines 75–76: replace direct no-op assignment with a call into the new `installHookStderrBuffer()` helper from `src/cli/hook-io.ts` (created in Phase 3). Helper returns a `{ flush(): void; restore(): void; drop(): void }` controller.
 - Lines 113–115: replace `process.stderr.write = originalStderrWrite` with `controller.restore()`.
 - Lines 100–106 (worker-unavailable branch): call `controller.flush()` BEFORE `process.exit(SUCCESS)` so any `recordWorkerUnreachable` write that fired during this hook surfaces. (Currently the `recordWorkerUnreachable` *path* runs INSIDE `executeWithWorkerFallback`, which is invoked from the handler call inside `executeHookPipeline` — so the write happens during the buffered window. Without flush, it stays buffered.)
-- Lines 108–112 (catch-all error branch): call `controller.flush()` BEFORE `process.exit(BLOCKING_ERROR)` so the model receives the `logger.error` line as blocking feedback per Claude Code's hook contract (exit 2 + stderr).
+- Lines 108–112 (catch-all error branch): call `controller.flush()` BEFORE `process.exit(BLOCKING_ERROR)` so the model receives the `logger.error` line as blocking feedback per Codex Code's hook contract (exit 2 + stderr).
 
 ### Edit 2B — Document the rationale at the call site
 
@@ -189,23 +189,23 @@ Add a comment block immediately above the new `installHookStderrBuffer()` call i
 
 ### Edit 2C — Decide bun-runner.js exit-1-on-Bun-not-found
 
-(From audit row `bun-runner.js:196–198`.) The current code exits 1 when Bun cannot be spawned. Per CLAUDE.md exit-code strategy, hook errors should exit 0. But this is *before* any hook runs — Bun is the prerequisite, not the hook itself.
+(From audit row `bun-runner.js:196–198`.) The current code exits 1 when Bun cannot be spawned. Per CODEX.md exit-code strategy, hook errors should exit 0. But this is *before* any hook runs — Bun is the prerequisite, not the hook itself.
 
 **Decision:** Keep `exit 1` for the Bun-not-found case (and `exit 1` for the missing-arg usage at line 83). Justification: this is BLOCKING_FEEDBACK to the *user* (their environment is broken), not a transient hook failure. Document the exception inline:
 
 ```js
-// EXCEPTION to CLAUDE.md exit-0-on-error: Bun-not-found is a user environment
-// problem, not a hook execution failure. Surfacing exit 1 here forces Claude
+// EXCEPTION to CODEX.md exit-0-on-error: Bun-not-found is a user environment
+// problem, not a hook execution failure. Surfacing exit 1 here forces Codex
 // Code to display the stderr message rather than silently retrying.
 ```
 
 **Verification checklist:**
 - [ ] `grep -n "process.stderr.write = " src/cli/hook-command.ts` returns no direct assignment (the no-op replacement is gone)
 - [ ] `installHookStderrBuffer` is the ONLY symbol that mutates `process.stderr.write` in `src/`
-- [ ] Manual: invoke a hook with `CLAUDE_MEM_HOOK_FAIL_LOUD_THRESHOLD=1`, kill the worker, observe the "claude-mem worker unreachable" message on stderr (it was previously swallowed)
+- [ ] Manual: invoke a hook with `CODEX_MEM_HOOK_FAIL_LOUD_THRESHOLD=1`, kill the worker, observe the "codex-mem worker unreachable" message on stderr (it was previously swallowed)
 
 **Anti-pattern guards:**
-- Do not flush the buffer on every handler call. Buffering is the whole point — flush only when claude-mem code explicitly chooses to surface.
+- Do not flush the buffer on every handler call. Buffering is the whole point — flush only when codex-mem code explicitly chooses to surface.
 - Do not move the buffer install into `executeHookPipeline` — it must wrap the catch block too.
 - Do not export the buffer controller from `hook-io.ts` for handler use. Handlers don't need it; they use `emitDiagnostic` instead.
 
@@ -254,13 +254,13 @@ export function emitModelContext(adapter: PlatformAdapter, result: HookResult): 
  * User-visible advisory routed via the HookResult.systemMessage path. This
  * function does NOT write to a stream — it returns a HookResult mutation
  * that the caller MUST merge into the result before emitModelContext.
- * Reason: systemMessage is platform-specific (claude-code surfaces it,
+ * Reason: systemMessage is platform-specific (codex-code surfaces it,
  * codex ignores it) and must go through the adapter.
  */
 export function withUserHint(result: HookResult, hint: string): HookResult;
 
 /**
- * Stderr message + exit 2. The model receives `msg` per Claude Code's hook
+ * Stderr message + exit 2. The model receives `msg` per Codex Code's hook
  * contract. Flushes the stderr buffer first so any logger.error lines
  * preceding this call also reach the model.
  */
@@ -330,16 +330,16 @@ The `logger.error('HOOK', …)` at line 108 stays — it routes through `emitDia
 
 ### Edit 4A — `src/cli/handlers/user-message.ts` (drop direct stderr write)
 
-Currently lines 27–33 do `process.stderr.write("…Claude-Mem Context Loaded…")` to surface the banner inline. This is a USER_HINT that bypasses HookResult.
+Currently lines 27–33 do `process.stderr.write("…Codex-Mem Context Loaded…")` to surface the banner inline. This is a USER_HINT that bypasses HookResult.
 
-**Replace with:** Build the banner string, return it via `systemMessage` on the HookResult. The `formatOutput` of the claude-code adapter already maps `systemMessage` to the platform JSON shape (see `src/cli/adapters/claude-code.ts:31–33,37–39`).
+**Replace with:** Build the banner string, return it via `systemMessage` on the HookResult. The `formatOutput` of the codex-code adapter already maps `systemMessage` to the platform JSON shape (see `src/cli/adapters/codex-code.ts:31–33,37–39`).
 
 Specifically:
 - Drop lines 27–33 entirely.
 - Build the same string as `bannerText`.
 - Return `{ exitCode: HOOK_EXIT_CODES.SUCCESS, systemMessage: bannerText }`.
 
-This makes the handler PURE. The adapter routes `systemMessage` to the right field; Claude Code surfaces it identically to a stderr write but inside the contract.
+This makes the handler PURE. The adapter routes `systemMessage` to the right field; Codex Code surfaces it identically to a stderr write but inside the contract.
 
 ### Edit 4B — `src/cli/handlers/context.ts` (annotate intent, no behavior change)
 
@@ -362,7 +362,7 @@ For each, add the same IO-discipline docstring as 4B. Audit confirms these handl
 
 Audit each adapter's `formatOutput` and confirm:
 1. Returns a plain object (not a promise, not a string).
-2. Every field corresponds to a documented Claude Code / Codex / Cursor / Gemini hook output field.
+2. Every field corresponds to a documented Codex Code / Codex / Cursor / Gemini hook output field.
 3. Does not call `console.*` or `process.*`.
 
 This is a CONFIRM-ONLY pass. The adapters are clean today; the goal is to lock that in via the Phase 6 grep CI check.
@@ -371,7 +371,7 @@ This is a CONFIRM-ONLY pass. The adapters are clean today; the goal is to lock t
 
 Current behavior:
 - Increments persistent counter.
-- If counter ≥ threshold: writes `'claude-mem worker unreachable for N consecutive hooks.\n'` to stderr, then `process.exit(BLOCKING_ERROR)`.
+- If counter ≥ threshold: writes `'codex-mem worker unreachable for N consecutive hooks.\n'` to stderr, then `process.exit(BLOCKING_ERROR)`.
 
 **Edit:** Replace the direct `process.stderr.write` + `process.exit` with `emitBlockingError` from `src/cli/hook-io.ts`:
 
@@ -380,7 +380,7 @@ import { emitBlockingError } from '../cli/hook-io.js';
 // …
 if (next.consecutiveFailures >= threshold) {
   emitBlockingError(
-    `claude-mem worker unreachable for ${next.consecutiveFailures} consecutive hooks.`
+    `codex-mem worker unreachable for ${next.consecutiveFailures} consecutive hooks.`
   );
 }
 return next.consecutiveFailures;
@@ -427,15 +427,15 @@ Add a comment block above line 846:
 
 ### Edit 4H — `plugin/scripts/bun-runner.js` (annotate)
 
-No behavior change. Add a comment block above line 159 explaining that the issue-#2188 diagnostic is intentionally USER_HINT-on-stderr + persistent-marker-file (dual channel), and exit 0 is intentional per CLAUDE.md.
+No behavior change. Add a comment block above line 159 explaining that the issue-#2188 diagnostic is intentionally USER_HINT-on-stderr + persistent-marker-file (dual channel), and exit 0 is intentional per CODEX.md.
 
 The existing comment at lines 174–178 already documents this; expand it slightly to reference Phase 1's intent vocabulary:
 
 ```js
 // IO discipline:
-// - stderr write here is a USER_HINT (Claude Code surfaces it inline).
+// - stderr write here is a USER_HINT (Codex Code surfaces it inline).
 // - CAPTURE_BROKEN marker file is a DIAGNOSTIC durable signal for the next session.
-// - exit 0 is the EXIT_SIGNAL per CLAUDE.md (Windows Terminal tab management);
+// - exit 0 is the EXIT_SIGNAL per CODEX.md (Windows Terminal tab management);
 //   the marker file, not the exit code, is the durable failure signal.
 ```
 
@@ -450,7 +450,7 @@ The current `emitUpgradeHint` function (lines 22–33) already handles the dual-
 ```js
 // IO discipline:
 // - Codex hook contract: hookSpecificOutput JSON on stdout (MODEL_CONTEXT path)
-// - All other platforms: bare stderr (USER_HINT — Claude Code surfaces inline)
+// - All other platforms: bare stderr (USER_HINT — Codex Code surfaces inline)
 // This dual-channel emit is the version-check.js way of being polyglot
 // across hook frameworks. Other plugin scripts should copy this pattern
 // rather than invent a new one.
@@ -460,9 +460,9 @@ No code change required beyond the comment. (If Phase 6's CI check flags this fi
 
 ### Edit 4J — `plugin/hooks/hooks.json` (confirm bash dispatcher echo+exit)
 
-Confirm-only. The `echo "claude-mem: … not found" >&2; exit 1` pattern in each hook's bash command is correct BLOCKING_FEEDBACK: if the plugin scripts can't be located, the user MUST see the error and Claude Code MUST stop trying to run the hook.
+Confirm-only. The `echo "codex-mem: … not found" >&2; exit 1` pattern in each hook's bash command is correct BLOCKING_FEEDBACK: if the plugin scripts can't be located, the user MUST see the error and Codex Code MUST stop trying to run the hook.
 
-This is the only legitimate `exit 1` in the hook execution path. Document the rationale in CLAUDE.md (Phase 6).
+This is the only legitimate `exit 1` in the hook execution path. Document the rationale in CODEX.md (Phase 6).
 
 **Verification checklist:**
 - [ ] `grep -n "process.stderr.write\|console\\.error\|console\\.log" src/cli/handlers/` returns ONLY logger calls (none)
@@ -475,7 +475,7 @@ This is the only legitimate `exit 1` in the hook execution path. Document the ra
 **Anti-pattern guards:**
 - Do not introduce `process.stdout.write` anywhere. Stay with `console.log` (which `emitModelContext` uses internally).
 - Do not change `bun-runner.js` exit codes — the `exit 0` semantics are load-bearing for Windows Terminal.
-- Do not "tidy" `version-check.js` by collapsing the dual-channel emit. The Codex/Claude Code split is intentional.
+- Do not "tidy" `version-check.js` by collapsing the dual-channel emit. The Codex/Codex Code split is intentional.
 - Do not add a stderr write inside `withUserHint` — it's a pure result-mutation function.
 - Do not migrate `worker-service.ts:850–853` to `emitDiagnostic` — those are CLI usage errors, not hook errors. They run before the buffer is installed.
 
@@ -519,7 +519,7 @@ interface HookOutcome {
 }
 
 async function runHook(
-  platform: 'claude-code' | 'codex' | 'cursor' | 'gemini-cli' | 'raw',
+  platform: 'codex-code' | 'codex' | 'cursor' | 'gemini-cli' | 'raw',
   event: 'context' | 'session-init' | 'observation' | 'file-context' | 'summarize' | 'user-message',
   stdinJson: object,
   envOverrides: Record<string, string> = {},
@@ -549,16 +549,16 @@ For each `event` ∈ {context, session-init, observation, file-context, summariz
 
 | Scenario | Setup | Assertions |
 |---|---|---|
-| (a) Success | Worker running, valid input | `exitCode === 0`. `stdout` parses as JSON. `stdout` contains no diagnostic strings (`'[INFO]'`, `'[WARN]'`, `'claude-mem worker unreachable'`). `stderr` may contain DIAGNOSTIC lines — that's fine. The MODEL_CONTEXT field structure matches the adapter's `formatOutput` shape. |
-| (b) Worker unreachable below threshold | Worker not running, `CLAUDE_MEM_HOOK_FAIL_LOUD_THRESHOLD=10`, counter starts at 0 | `exitCode === 0`. `stdout` is empty OR contains `{continue:true, suppressOutput:true}`. `stderr` is silent (no fail-loud message yet). |
-| (c) Worker unreachable at fail-loud threshold | Worker not running, `CLAUDE_MEM_HOOK_FAIL_LOUD_THRESHOLD=1`, counter forced to threshold | `exitCode === 2`. `stderr` contains `'claude-mem worker unreachable for'`. **This is the #2292 regression test.** Today this test FAILS (stderr is empty); after Phase 2/4 it passes. |
+| (a) Success | Worker running, valid input | `exitCode === 0`. `stdout` parses as JSON. `stdout` contains no diagnostic strings (`'[INFO]'`, `'[WARN]'`, `'codex-mem worker unreachable'`). `stderr` may contain DIAGNOSTIC lines — that's fine. The MODEL_CONTEXT field structure matches the adapter's `formatOutput` shape. |
+| (b) Worker unreachable below threshold | Worker not running, `CODEX_MEM_HOOK_FAIL_LOUD_THRESHOLD=10`, counter starts at 0 | `exitCode === 0`. `stdout` is empty OR contains `{continue:true, suppressOutput:true}`. `stderr` is silent (no fail-loud message yet). |
+| (c) Worker unreachable at fail-loud threshold | Worker not running, `CODEX_MEM_HOOK_FAIL_LOUD_THRESHOLD=1`, counter forced to threshold | `exitCode === 2`. `stderr` contains `'codex-mem worker unreachable for'`. **This is the #2292 regression test.** Today this test FAILS (stderr is empty); after Phase 2/4 it passes. |
 
 **Additional cross-cutting tests:**
 
 | Scenario | Setup | Assertions |
 |---|---|---|
 | (d) Adapter rejection (invalid cwd) | Send `{ cwd: '/no/such/path' }` | `exitCode === 0`. `stdout` parses as `{continue:true, suppressOutput:true}`. `stderr` contains the warn line about adapter rejection. |
-| (e) Unknown event | Run `hook claude-code blarghhh` | `exitCode === 0` (the dispatcher returns a no-op handler — see worker-service.cjs `cne` function). `stderr` contains `'Unknown event type: blarghhh'`. |
+| (e) Unknown event | Run `hook codex-code blarghhh` | `exitCode === 0` (the dispatcher returns a no-op handler — see worker-service.cjs `cne` function). `stderr` contains `'Unknown event type: blarghhh'`. |
 | (f) Unrecoverable handler error | Mock the worker to throw on `/api/sessions/observations` | `exitCode === 2`. `stderr` contains `'Hook error:'` from `logger.error`. Model receives the error message per the hook contract. |
 | (g) Banner from user-message handler | Run user-message with worker up | `stdout` JSON contains `systemMessage` field with the banner text (NOT `process.stderr.write` of the banner). `stderr` does NOT contain the banner emoji 📝 line. **This is the Edit 4A regression test.** |
 | (h) Stream separation invariant | Run any hook that returns hookSpecificOutput | `stderr` MUST NOT contain the substring of `additionalContext`. The model-bound text must not leak to stderr. |
@@ -568,7 +568,7 @@ For each `event` ∈ {context, session-init, observation, file-context, summariz
 The Windows Terminal tab-accumulation behavior cannot be tested cross-platform in CI. Add a comment block at the top of `hook-stream-discipline.test.ts`:
 
 ```ts
-// Windows Terminal tab-accumulation rationale (per CLAUDE.md):
+// Windows Terminal tab-accumulation rationale (per CODEX.md):
 // Hooks that fail with non-zero exit codes cause Windows Terminal to keep
 // the tab open in an error state, which accumulates over time. The exit-0-
 // on-error policy is intentional. These tests assert exit codes match the
@@ -599,16 +599,16 @@ Spin up `createHookEmitter`, call `emitModelContext` twice, assert it throws. Al
 
 ## Phase 6 — Docs + lint
 
-**What to implement:** Update CLAUDE.md, add a grep-based CI check, add a hook author guide section.
+**What to implement:** Update CODEX.md, add a grep-based CI check, add a hook author guide section.
 
-### Edit 6A — Update `CLAUDE.md` Exit Code Strategy section
+### Edit 6A — Update `CODEX.md` Exit Code Strategy section
 
 Locate the existing section ("Exit Code Strategy"). Replace the body with:
 
 ```md
 ## Exit Code Strategy
 
-Claude-mem hooks use specific exit codes per Claude Code's hook contract:
+Codex-mem hooks use specific exit codes per Codex Code's hook contract:
 
 - **Exit 0**: Success or graceful shutdown (Windows Terminal closes tabs).
 - **Exit 1**: Pre-hook environment failure (Bun missing, plugin scripts not found). Reserved for the bash dispatchers in `plugin/hooks/hooks.json` and the bun-runner.js Bun-not-found path. Hook handlers themselves NEVER exit 1.
@@ -672,7 +672,7 @@ If `README.md` mentions hook authoring or has a "for contributors" section, link
 **Verification checklist:**
 - [ ] `node scripts/check-hook-io-discipline.cjs` exits 0 on this branch
 - [ ] `node scripts/check-hook-io-discipline.cjs` exits non-zero if you intentionally add `console.error('test')` to `src/cli/handlers/observation.ts`
-- [ ] `CLAUDE.md`'s Exit Code Strategy section reflects the new helper functions
+- [ ] `CODEX.md`'s Exit Code Strategy section reflects the new helper functions
 - [ ] Hook author guide exists and covers all 6 lifecycle hooks
 - [ ] `npm test` is still green
 - [ ] CI pipeline runs the new lint check (visible in PR checks)
@@ -680,7 +680,7 @@ If `README.md` mentions hook authoring or has a "for contributors" section, link
 **Anti-pattern guards:**
 - Do not allowlist individual handlers or adapters. The whole point is the rule has no exceptions for those directories.
 - Do not write the lint check in TypeScript — it should run before any compile step. Pure CJS or pure JS via `node` directly.
-- Do not edit CHANGELOG.md (per CLAUDE.md).
+- Do not edit CHANGELOG.md (per CODEX.md).
 - Do not add `// eslint-disable` style escape hatches to the new ESLint rule (if ESLint chosen over grep). Use `// HOOK_IO_BYPASS` only on the deliberate bypass paths in `worker-utils.ts` / `logger.ts` if any remain.
 
 ---
@@ -710,16 +710,16 @@ Expected outcomes:
 ### Edit 7C — Manual verification
 
 1. **#2292 regression check:**
-   - Stop the worker: `claude-mem stop` (or kill the daemon).
-   - Set `CLAUDE_MEM_HOOK_FAIL_LOUD_THRESHOLD=1` in the shell.
-   - In Claude Code, send a prompt that triggers UserPromptSubmit.
-   - **Expected:** stderr message `claude-mem worker unreachable for 1 consecutive hooks.` is visible.
+   - Stop the worker: `codex-mem stop` (or kill the daemon).
+   - Set `CODEX_MEM_HOOK_FAIL_LOUD_THRESHOLD=1` in the shell.
+   - In Codex Code, send a prompt that triggers UserPromptSubmit.
+   - **Expected:** stderr message `codex-mem worker unreachable for 1 consecutive hooks.` is visible.
    - **Pre-fix behavior:** message was silently swallowed.
 
 2. **Banner relocation check (user-message handler):**
-   - Trigger a user-message hook on claude-code platform.
-   - **Expected:** banner ("📝 Claude-Mem Context Loaded …") appears via `systemMessage` in the JSON envelope, NOT as a stderr write.
-   - Inspect via `claude-mem hook claude-code user-message < fixture.json` and observe stdout vs stderr separately.
+   - Trigger a user-message hook on codex-code platform.
+   - **Expected:** banner ("📝 Codex-Mem Context Loaded …") appears via `systemMessage` in the JSON envelope, NOT as a stderr write.
+   - Inspect via `codex-mem hook codex-code user-message < fixture.json` and observe stdout vs stderr separately.
 
 3. **Windows Terminal tab behavior:**
    - On Windows (or WSL with Windows Terminal): kill the worker, send several prompts under threshold, observe NO tab accumulation (exit 0 path).
@@ -730,7 +730,7 @@ Expected outcomes:
    - **Expected:** stdout JSON `{continue:true,suppressOutput:true}`, exit 0, stderr has the warn line.
 
 5. **Logger fallback:**
-   - Set `CLAUDE_MEM_DATA_DIR` to a path the user cannot write to.
+   - Set `CODEX_MEM_DATA_DIR` to a path the user cannot write to.
    - Trigger any hook.
    - **Expected:** the `[LOGGER] Failed to write to log file:` message appears on stderr (via `emitDiagnostic`).
 
@@ -773,7 +773,7 @@ Per the standard PR creation flow. Don't auto-merge; this is a cross-cutting ref
 | Confirm-only | `plugin/hooks/hooks.json` | 4J |
 | Created | `tests/hook-io.test.ts` | 5A |
 | Created | `tests/hook-stream-discipline.test.ts` | 5B |
-| Edited | `CLAUDE.md` | 6A |
+| Edited | `CODEX.md` | 6A |
 | Created | `docs/architecture/hook-author-guide.md` (or section in hooks-architecture.mdx) | 6B |
 | Created | `scripts/check-hook-io-discipline.cjs` | 6C |
 | Edited | `package.json` (add `lint:hook-io` script) | 6C |
@@ -791,7 +791,7 @@ Estimated diff: **+650 / −80 lines** (net addition; mostly new tests and the w
 | Tests rely on a running worker; CI doesn't have one | High | Use `executeWithWorkerFallback`'s natural fall-through (worker unreachable returns the fallback object); test scenarios (b) and (c) rely on this. Scenarios (a) and (g) need a fixture worker — sketch one in `tests/fixtures/fake-worker.ts`. |
 | Phase 4 dependency direction breaks build | Medium | `tsc --noEmit` after each handler edit catches this immediately. |
 | `console.log` inside `emitModelContext` adds extra newlines that break Codex's JSON parser | Low | Codex adapter test in scenario (a) catches this. If broken, switch to `process.stdout.write(JSON.stringify(...) + '\n')`. |
-| The Windows Terminal tab-accumulation rationale gets argued away in review | Medium | CLAUDE.md preserves it; Phase 6 doc edit reinforces. Cite the rationale in PR description. |
+| The Windows Terminal tab-accumulation rationale gets argued away in review | Medium | CODEX.md preserves it; Phase 6 doc edit reinforces. Cite the rationale in PR description. |
 
 ---
 
@@ -802,7 +802,7 @@ Estimated diff: **+650 / −80 lines** (net addition; mostly new tests and the w
 - [ ] `recordWorkerUnreachable` calls `emitBlockingError` (#2292 fixed)
 - [ ] No handler or adapter calls `process.*` or `console.*` directly
 - [ ] `emitModelContext` is the ONLY stdout JSON emitter; called exactly once per hook
-- [ ] CLAUDE.md Exit Code Strategy section reflects the new helpers
+- [ ] CODEX.md Exit Code Strategy section reflects the new helpers
 - [ ] CI lint check is wired and green
 - [ ] All 18 + 5 integration tests pass (3 scenarios × 6 hooks + 5 cross-cutting)
 - [ ] Manual #2292 reproduction confirms the diagnostic surfaces

@@ -311,7 +311,7 @@ export class BullMqObservationQueueEngine
     const health = await this.getHealth();
     if (health.redis.status !== 'ok') {
       throw new Error(
-        `CLAUDE_MEM_QUEUE_ENGINE=bullmq requires Redis/Valkey at ${health.redis.host}:${health.redis.port}; ${health.redis.error ?? 'ping failed'}`
+        `CODEX_MEM_QUEUE_ENGINE=bullmq requires Redis/Valkey at ${health.redis.host}:${health.redis.port}; ${health.redis.error ?? 'ping failed'}`
       );
     }
   }
@@ -357,7 +357,7 @@ export class BullMqObservationQueueEngine
       return existing;
     }
 
-    const name = `claude_mem_session_${sessionDbId}`;
+    const name = `codex_mem_session_${sessionDbId}`;
     const queueOptions: QueueOptions = {
       connection: this.config.connection,
       prefix: this.config.prefix,
@@ -506,12 +506,12 @@ export class BullMqObservationQueueEngine
   }
 
   private createToken(sessionDbId: number): string {
-    return `claude-mem-${process.pid}-${sessionDbId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return `codex-mem-${process.pid}-${sessionDbId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 
   private toRedisUnavailableError(error: unknown): Error {
     const message = error instanceof Error ? error.message : String(error);
-    return new Error(`BullMQ queue operation failed; Redis/Valkey is required when CLAUDE_MEM_QUEUE_ENGINE=bullmq: ${message}`);
+    return new Error(`BullMQ queue operation failed; Redis/Valkey is required when CODEX_MEM_QUEUE_ENGINE=bullmq: ${message}`);
   }
 }
 

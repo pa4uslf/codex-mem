@@ -8,7 +8,7 @@ export const geminiCliAdapter: PlatformAdapter = {
     const cwd = r.cwd
       ?? process.env.GEMINI_CWD
       ?? process.env.GEMINI_PROJECT_DIR
-      ?? process.env.CLAUDE_PROJECT_DIR
+      ?? process.env.CODEX_PROJECT_DIR
       ?? process.cwd();
     if (!isValidCwd(cwd)) {
       throw new AdapterRejectedInput('invalid_cwd');

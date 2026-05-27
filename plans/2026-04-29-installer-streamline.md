@@ -1,11 +1,11 @@
 # Installer Streamline — Eliminate 30s Silent Dead Air
 
-**Goal:** Move all heavy install work (Bun/uv install, `bun install` in plugin cache) into the `npx claude-mem install` flow with a visible spinner. Make hooks runtime-only — never installers.
+**Goal:** Move all heavy install work (Bun/uv install, `bun install` in plugin cache) into the `npx codex-mem install` flow with a visible spinner. Make hooks runtime-only — never installers.
 
 **Net effect:**
-- `smart-install.js` runs in normal Claude Code lifecycle: 3 → 0 (or 1 via `npx claude-mem repair` after `claude plugin update`)
+- `smart-install.js` runs in normal Codex Code lifecycle: 3 → 0 (or 1 via `npx codex-mem repair` after `codex plugin update`)
 - 30s silent dead air → visible spinner during `npx`
-- `npx claude-mem repair` becomes the canonical recovery entry point
+- `npx codex-mem repair` becomes the canonical recovery entry point
 - ~420 lines of code deleted (smart-install.js × 2 + tests + docs)
 
 **Out of scope:** `bun-runner.js` deletion (independent rework with Windows/stdin verification needs — ship later).
@@ -22,7 +22,7 @@ These facts came from a discovery agent + direct file reads. Each implementation
 |---|---|---|
 | NPX command dispatcher | `src/npx-cli/index.ts:39–141` | Manual `switch (command)` on `process.argv.slice(2)`. Each case dynamic-imports its handler. |
 | `install` case (template for `repair`) | `src/npx-cli/index.ts:46–52` | `const { runInstallCommand } = await import('./commands/install.js'); await runInstallCommand({ ide: ideValue });` |
-| Plugin cache dir helper | `src/npx-cli/utils/paths.ts:32–34` | `pluginCacheDirectory(version)` → `~/.claude/plugins/cache/thedotmack/claude-mem/{version}/` |
+| Plugin cache dir helper | `src/npx-cli/utils/paths.ts:32–34` | `pluginCacheDirectory(version)` → `~/.codex/plugins/cache/thedotmack/codex-mem/{version}/` |
 | `.install-version` marker readers | `src/services/context/ContextBuilder.ts:36,45` and `src/services/worker/BranchManager.ts:173,228` | These read/delete the marker. Marker schema (`{ version, bun, uv, installedAt }`) MUST be preserved. |
 | `clack` task pattern | `src/npx-cli/commands/install.ts:604–664` | `runTasks([{ title, task: async (message) => { … return 'Done OK' } }])` |
 
@@ -32,7 +32,7 @@ These facts came from a discovery agent + direct file reads. Each implementation
 - `package.json#files` already globs `plugin/scripts/*.js` (line 50), so deleting `plugin/scripts/smart-install.js` requires no `package.json` change.
 - `scripts/smart-install.js` and `plugin/scripts/smart-install.js` are **both source files** kept in sync manually — there is no build step that copies one to the other. Both must be deleted in Phase 5.
 - `runSmartInstall()` (install.ts:325–345) shells `node smart-install.js`. After Phase 1 you can call the new module directly — do NOT shell out.
-- The `claude plugin install` exec at install.ts:113 has **only one caller** in the entire repo. Safe to remove.
+- The `codex plugin install` exec at install.ts:113 has **only one caller** in the entire repo. Safe to remove.
 
 ### File inventory used by this plan
 
@@ -101,7 +101,7 @@ export function isInstallCurrent(targetDir: string, expectedVersion: string): bo
 
 ## Phase 2 — Rework `src/npx-cli/commands/install.ts`
 
-**What to implement:** Drop `needsManualInstall` gating (always run copy/register/enable for every IDE), add a new unconditional "Setting up runtime" task before `setupIDEs`, neuter the claude-code `execSync` shell-out, delete `runSmartInstall()`, and add a `runRepairCommand()` export.
+**What to implement:** Drop `needsManualInstall` gating (always run copy/register/enable for every IDE), add a new unconditional "Setting up runtime" task before `setupIDEs`, neuter the codex-code `execSync` shell-out, delete `runSmartInstall()`, and add a `runRepairCommand()` export.
 
 **File to edit:** `src/npx-cli/commands/install.ts`
 
@@ -127,7 +127,7 @@ import {
 
 **Line 589** currently reads:
 ```ts
-const needsManualInstall = selectedIDEs.some((id) => id !== 'claude-code');
+const needsManualInstall = selectedIDEs.some((id) => id !== 'codex-code');
 ```
 **Delete line 589.** Update line 593's `if (needsManualInstall) {` to just `{` (or unwrap the block — preferred). The `runTasks` block at lines 604–664 now runs unconditionally.
 
@@ -159,20 +159,20 @@ Replace the deleted "Setting up Bun and uv" task (lines 656–663) with:
 
 Place this AFTER the "Installing dependencies" (npm install) task — same ordering position the deleted task occupied.
 
-### Edit 2E — Neuter the claude-code shell-out in `setupIDEs`
+### Edit 2E — Neuter the codex-code shell-out in `setupIDEs`
 
 **Lines 110–123 currently:**
 ```ts
-case 'claude-code': {
+case 'codex-code': {
   try {
     execSync(
-      'claude plugin marketplace add thedotmack/claude-mem && claude plugin install claude-mem',
+      'codex plugin marketplace add thedotmack/codex-mem && codex plugin install codex-mem',
       { stdio: 'inherit' },
     );
-    log.success('Claude Code: plugin installed via CLI.');
+    log.success('Codex Code: plugin installed via CLI.');
   } catch (error: unknown) {
-    console.error('[install] Claude Code plugin install error:', …);
-    log.error('Claude Code: plugin install failed. Is `claude` CLI on your PATH?');
+    console.error('[install] Codex Code plugin install error:', …);
+    log.error('Codex Code: plugin install failed. Is `codex` CLI on your PATH?');
     failedIDEs.push(ideId);
   }
   break;
@@ -181,13 +181,13 @@ case 'claude-code': {
 
 **Replace with:**
 ```ts
-case 'claude-code': {
-  log.success('Claude Code: plugin registered (cache + settings written by npx).');
+case 'codex-code': {
+  log.success('Codex Code: plugin registered (cache + settings written by npx).');
   break;
 }
 ```
 
-The cache dir, marketplace registration, plugin registration, and `enabledPlugins` flag have all been written by the (now ungated) runTasks block before `setupIDEs` is called. `claude plugin install` was duplicating that work and triggering the silent Setup hook — both reasons to drop it.
+The cache dir, marketplace registration, plugin registration, and `enabledPlugins` flag have all been written by the (now ungated) runTasks block before `setupIDEs` is called. `codex plugin install` was duplicating that work and triggering the silent Setup hook — both reasons to drop it.
 
 ### Edit 2F — Add `runRepairCommand()` export
 
@@ -199,9 +199,9 @@ export async function runRepairCommand(): Promise<void> {
   const cacheDir = pluginCacheDirectory(version);
 
   if (isInteractive) {
-    p.intro(pc.bgCyan(pc.black(' claude-mem repair ')));
+    p.intro(pc.bgCyan(pc.black(' codex-mem repair ')));
   } else {
-    console.log('claude-mem repair');
+    console.log('codex-mem repair');
   }
   log.info(`Version: ${pc.cyan(version)}`);
 
@@ -223,9 +223,9 @@ export async function runRepairCommand(): Promise<void> {
   ]);
 
   if (isInteractive) {
-    p.outro(pc.green('claude-mem repair complete.'));
+    p.outro(pc.green('codex-mem repair complete.'));
   } else {
-    console.log('claude-mem repair complete.');
+    console.log('codex-mem repair complete.');
   }
 }
 ```
@@ -235,19 +235,19 @@ export async function runRepairCommand(): Promise<void> {
 **Verification checklist:**
 - [ ] `grep -n "needsManualInstall" src/npx-cli/commands/install.ts` returns nothing
 - [ ] `grep -n "runSmartInstall" src/npx-cli/commands/install.ts` returns nothing
-- [ ] `grep -n "claude plugin install" src/npx-cli/commands/install.ts` returns nothing
-- [ ] `grep -n "claude plugin marketplace add" src/npx-cli/commands/install.ts` returns nothing
+- [ ] `grep -n "codex plugin install" src/npx-cli/commands/install.ts` returns nothing
+- [ ] `grep -n "codex plugin marketplace add" src/npx-cli/commands/install.ts` returns nothing
 - [ ] `runRepairCommand` is exported and TypeScript compiles
 - [ ] `runInstallCommand` still exports the same `InstallOptions` shape (Phase 3 needs it untouched)
 
 **Anti-pattern guards:**
 - ❌ Do not delete `runNpmInstallInMarketplace()` — it's still needed for the marketplace dir copy step (other IDEs use that dir).
-- ❌ Do not delete `copyPluginToMarketplace()` — non-claude-code IDEs read from `marketplaceDirectory()`.
+- ❌ Do not delete `copyPluginToMarketplace()` — non-codex-code IDEs read from `marketplaceDirectory()`.
 - ❌ Do not delete the `if (alreadyInstalled)` overwrite-confirm block (lines 538–562) — user-facing UX preserved.
 
 ---
 
-## Phase 3 — Wire `npx claude-mem repair`
+## Phase 3 — Wire `npx codex-mem repair`
 
 **What to implement:** Add a `repair` case to the npx-cli command dispatcher.
 
@@ -269,11 +269,11 @@ Place it adjacent to the `install` case for discoverability.
 
 ### Edit 3B — Help text update (if applicable)
 
-If `src/npx-cli/index.ts` has a help/usage block (look for `case 'help':` or default case), add `repair` to the list of commands with description: `Repair claude-mem runtime (re-runs Bun/uv setup and bun install in plugin cache).`
+If `src/npx-cli/index.ts` has a help/usage block (look for `case 'help':` or default case), add `repair` to the list of commands with description: `Repair codex-mem runtime (re-runs Bun/uv setup and bun install in plugin cache).`
 
 **Verification checklist:**
-- [ ] `npx claude-mem repair --help` (after build) shows the command
-- [ ] `npx claude-mem repair` runs `runRepairCommand` end to end on a corrupted cache (delete `.install-version` then run; should reinstall)
+- [ ] `npx codex-mem repair --help` (after build) shows the command
+- [ ] `npx codex-mem repair` runs `runRepairCommand` end to end on a corrupted cache (delete `.install-version` then run; should reinstall)
 - [ ] Help/usage output (if it exists) lists `repair`
 
 **Anti-pattern guards:**
@@ -297,8 +297,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 function resolveRoot() {
-  if (process.env.CLAUDE_PLUGIN_ROOT) {
-    const root = process.env.CLAUDE_PLUGIN_ROOT;
+  if (process.env.CODEX_PLUGIN_ROOT) {
+    const root = process.env.CODEX_PLUGIN_ROOT;
     if (existsSync(join(root, 'package.json'))) return root;
   }
   try {
@@ -316,22 +316,22 @@ try {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
   const markerPath = join(ROOT, '.install-version');
   if (!existsSync(markerPath)) {
-    console.error('claude-mem: runtime not yet set up — run: npx claude-mem repair');
+    console.error('codex-mem: runtime not yet set up — run: npx codex-mem repair');
     process.exit(0);
   }
   const marker = JSON.parse(readFileSync(markerPath, 'utf-8'));
   if (marker.version !== pkg.version) {
-    console.error(`claude-mem: upgraded to v${pkg.version} — run: npx claude-mem repair`);
+    console.error(`codex-mem: upgraded to v${pkg.version} — run: npx codex-mem repair`);
   }
 } catch {
-  console.error('claude-mem: install marker unreadable — run: npx claude-mem repair');
+  console.error('codex-mem: install marker unreadable — run: npx codex-mem repair');
 }
 process.exit(0);
 ```
 
 **Behavior:**
 - Sub-100ms (two synchronous file reads + JSON.parse + string compare).
-- Always exits 0 (non-blocking) per the project's exit-code strategy in CLAUDE.md.
+- Always exits 0 (non-blocking) per the project's exit-code strategy in CODEX.md.
 - Stderr message tells the user exactly what to run if a mismatch is detected.
 
 ### Edit 4B — Rewrite Setup hook command in `plugin/hooks/hooks.json`
@@ -345,7 +345,7 @@ Concretely: the only change to line 11 is the trailing `smart-install.js` → `v
 **Lines 17–40** — the SessionStart hook array currently has THREE hook entries:
 1. `node "$_R/scripts/smart-install.js"` (lines 21–26) — DELETE this entire entry
 2. `node "$_R/scripts/bun-runner.js" "$_R/scripts/worker-service.cjs" start` (lines 27–32) — KEEP
-3. `node "$_R/scripts/bun-runner.js" "$_R/scripts/worker-service.cjs" hook claude-code context` (lines 33–38) — KEEP
+3. `node "$_R/scripts/bun-runner.js" "$_R/scripts/worker-service.cjs" hook codex-code context` (lines 33–38) — KEEP
 
 After edit, the SessionStart `hooks` array has 2 entries instead of 3.
 
@@ -354,10 +354,10 @@ After edit, the SessionStart `hooks` array has 2 entries instead of 3.
 - [ ] `cat plugin/hooks/hooks.json | jq '.hooks.SessionStart[0].hooks | length'` returns `2`
 - [ ] `grep -c "smart-install" plugin/hooks/hooks.json` returns `0`
 - [ ] `node plugin/scripts/version-check.js` exits 0 in <500ms (time it)
-- [ ] On a fresh checkout (no `.install-version` marker), version-check stderr says "run: npx claude-mem repair"
+- [ ] On a fresh checkout (no `.install-version` marker), version-check stderr says "run: npx codex-mem repair"
 
 **Anti-pattern guards:**
-- ❌ Do not change the exit code from 0 — Windows Terminal tab management depends on it (CLAUDE.md exit-code strategy).
+- ❌ Do not change the exit code from 0 — Windows Terminal tab management depends on it (CODEX.md exit-code strategy).
 - ❌ Do not call out to Bun in version-check.js — Node-only, since this runs before we know Bun exists.
 - ❌ Do not add fancy logic (semver compare, partial recovery). String equality is correct: any version mismatch warrants a repair.
 
@@ -411,7 +411,7 @@ If you skip this, document why in the PR description.
 
 ### Edit 6A — `docs/architecture-overview.md:36`
 
-Update reference to smart-install. New copy: "On first install, `npx claude-mem install` sets up Bun and uv globally and runs `bun install` in the plugin cache. The Setup hook then runs a sub-100ms version check on every Claude Code startup; if the plugin was upgraded externally, the user is prompted to run `npx claude-mem repair`."
+Update reference to smart-install. New copy: "On first install, `npx codex-mem install` sets up Bun and uv globally and runs `bun install` in the plugin cache. The Setup hook then runs a sub-100ms version check on every Codex Code startup; if the plugin was upgraded externally, the user is prompted to run `npx codex-mem repair`."
 
 ### Edit 6B — `docs/public/configuration.mdx:139,163` and `docs/public/development.mdx:42`
 
@@ -427,7 +427,7 @@ Same pattern — replace smart-install lifecycle description with the npx-instal
 
 ### Edit 6E — Skip CHANGELOG
 
-CLAUDE.md says: "No need to edit the changelog ever, it's generated automatically." Don't touch it.
+CODEX.md says: "No need to edit the changelog ever, it's generated automatically." Don't touch it.
 
 ### Edit 6F — Skip historical incident-report backfills
 
@@ -468,26 +468,26 @@ Must be green. Likely failures to anticipate:
 
 ### Edit 7C — Manual fresh-install verification
 
-1. On a clean machine (or after `rm -rf ~/.claude/plugins/marketplaces/thedotmack ~/.claude/plugins/cache/thedotmack ~/.claude-mem`):
+1. On a clean machine (or after `rm -rf ~/.codex/plugins/marketplaces/thedotmack ~/.codex/plugins/cache/thedotmack ~/.codex-mem`):
    ```bash
-   npx claude-mem install
+   npx codex-mem install
    ```
    Confirm:
    - Spinner says "Setting up runtime (first install can take ~30s)"
    - No silent dead air
    - Worker starts at the end
-2. Open Claude Code in any project. Confirm:
+2. Open Codex Code in any project. Confirm:
    - Setup hook fires fast (<200ms total)
    - SessionStart fires fast (no smart-install delay)
-   - No "claude plugin install" output
+   - No "codex plugin install" output
 3. Simulate a stale install:
    ```bash
-   rm ~/.claude/plugins/cache/thedotmack/claude-mem/<version>/.install-version
+   rm ~/.codex/plugins/cache/thedotmack/codex-mem/<version>/.install-version
    ```
-   Open a new Claude Code session. Confirm version-check.js prints the "run: npx claude-mem repair" message to stderr.
+   Open a new Codex Code session. Confirm version-check.js prints the "run: npx codex-mem repair" message to stderr.
 4. Run repair:
    ```bash
-   npx claude-mem repair
+   npx codex-mem repair
    ```
    Confirm spinner runs through Bun/uv check + bun install + marker write, then exits clean.
 
@@ -500,7 +500,7 @@ Per the PR creation flow in the user's outer task. Don't auto-merge; the user wa
 - [ ] `npm test` exits 0
 - [ ] Manual fresh install completes with visible spinner, no silent dead air
 - [ ] Setup hook fires <200ms after rebuild
-- [ ] `npx claude-mem repair` runs end-to-end
+- [ ] `npx codex-mem repair` runs end-to-end
 
 **Anti-pattern guards:**
 - ❌ Do not skip the manual verification — the whole point of this PR is UX (eliminating dead air). Type checks won't catch a regression.

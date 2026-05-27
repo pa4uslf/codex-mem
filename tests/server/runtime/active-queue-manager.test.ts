@@ -54,7 +54,7 @@ describe('ActiveServerBetaQueueManager', () => {
   });
 
   it('refuses construction when engine is not bullmq', () => {
-    expect(() => new ActiveServerBetaQueueManager(sqliteConfig)).toThrow(/CLAUDE_MEM_QUEUE_ENGINE=bullmq/);
+    expect(() => new ActiveServerBetaQueueManager(sqliteConfig)).toThrow(/CODEX_MEM_QUEUE_ENGINE=bullmq/);
   });
 
   it('reports active health with all four lanes when constructed against bullmq', () => {

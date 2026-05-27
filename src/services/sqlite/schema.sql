@@ -1,4 +1,4 @@
--- claude-mem SQLite schema
+-- codex-mem SQLite schema
 --
 -- Authoritative shape of the database after all migrations through
 -- runner.ts have been applied (current tip = migration 34). Fresh
@@ -23,14 +23,14 @@ CREATE TABLE IF NOT EXISTS schema_versions (
 );
 
 -- ─────────────────────────────────────────────────────────────────────
--- sdk_sessions: one row per Claude/Codex session observed by claude-mem.
+-- sdk_sessions: one row per Codex/Codex session observed by codex-mem.
 -- ─────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS sdk_sessions (
   id                  INTEGER PRIMARY KEY AUTOINCREMENT,
   content_session_id  TEXT    UNIQUE NOT NULL,
   memory_session_id   TEXT    UNIQUE,
   project             TEXT    NOT NULL,
-  platform_source     TEXT    NOT NULL DEFAULT 'claude',
+  platform_source     TEXT    NOT NULL DEFAULT 'codex',
   user_prompt         TEXT,
   started_at          TEXT    NOT NULL,
   started_at_epoch    INTEGER NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS sdk_sessions (
   prompt_counter      INTEGER DEFAULT 0,
   custom_title        TEXT
 );
-CREATE INDEX IF NOT EXISTS idx_sdk_sessions_claude_id        ON sdk_sessions(content_session_id);
+CREATE INDEX IF NOT EXISTS idx_sdk_sessions_codex_id        ON sdk_sessions(content_session_id);
 CREATE INDEX IF NOT EXISTS idx_sdk_sessions_sdk_id           ON sdk_sessions(memory_session_id);
 CREATE INDEX IF NOT EXISTS idx_sdk_sessions_project          ON sdk_sessions(project);
 CREATE INDEX IF NOT EXISTS idx_sdk_sessions_status           ON sdk_sessions(status);
@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS pending_messages (
 );
 CREATE INDEX IF NOT EXISTS idx_pending_messages_session        ON pending_messages(session_db_id);
 CREATE INDEX IF NOT EXISTS idx_pending_messages_status         ON pending_messages(status);
-CREATE INDEX IF NOT EXISTS idx_pending_messages_claude_session ON pending_messages(content_session_id);
+CREATE INDEX IF NOT EXISTS idx_pending_messages_codex_session ON pending_messages(content_session_id);
 CREATE UNIQUE INDEX IF NOT EXISTS ux_pending_session_tool
   ON pending_messages(content_session_id, tool_use_id)
   WHERE tool_use_id IS NOT NULL;
@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS user_prompts (
   created_at_epoch   INTEGER NOT NULL,
   FOREIGN KEY(content_session_id) REFERENCES sdk_sessions(content_session_id) ON DELETE CASCADE
 );
-CREATE INDEX IF NOT EXISTS idx_user_prompts_claude_session ON user_prompts(content_session_id);
+CREATE INDEX IF NOT EXISTS idx_user_prompts_codex_session ON user_prompts(content_session_id);
 CREATE INDEX IF NOT EXISTS idx_user_prompts_created        ON user_prompts(created_at_epoch DESC);
 CREATE INDEX IF NOT EXISTS idx_user_prompts_prompt_number  ON user_prompts(prompt_number);
 CREATE INDEX IF NOT EXISTS idx_user_prompts_lookup         ON user_prompts(content_session_id, prompt_number);

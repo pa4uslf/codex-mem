@@ -3,11 +3,11 @@
 ---
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -46,7 +46,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center">Tartós memória tömörítési rendszer a <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> számára.</h4>
+<h4 align="center">Tartós memória tömörítési rendszer a <a href="https://codex.com/codex-code" target="_blank">Codex Code</a> számára.</h4>
 
 <p align="center">
   <a href="LICENSE">
@@ -58,17 +58,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -76,9 +76,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -94,22 +94,22 @@
 </p>
 
 <p align="center">
-  A Claude-Mem zökkenőmentesen megőrzi a kontextust munkamenetek között azáltal, hogy automatikusan rögzíti az eszközhasználati megfigyeléseket, szemantikus összefoglalókat generál, és elérhetővé teszi azokat a jövőbeli munkamenetekben. Ez lehetővé teszi Claude számára, hogy fenntartsa a projektekkel kapcsolatos tudás folytonosságát még a munkamenetek befejezése vagy újracsatlakozása után is.
+  A Codex-Mem zökkenőmentesen megőrzi a kontextust munkamenetek között azáltal, hogy automatikusan rögzíti az eszközhasználati megfigyeléseket, szemantikus összefoglalókat generál, és elérhetővé teszi azokat a jövőbeli munkamenetekben. Ez lehetővé teszi Codex számára, hogy fenntartsa a projektekkel kapcsolatos tudás folytonosságát még a munkamenetek befejezése vagy újracsatlakozása után is.
 </p>
 
 ---
 
 ## Gyors kezdés
 
-Indítson el egy új Claude Code munkamenetet a terminálban, és írja be a következő parancsokat:
+Indítson el egy új Codex Code munkamenetet a terminálban, és írja be a következő parancsokat:
 
 ```
-> /plugin marketplace add thedotmack/claude-mem
+> /plugin marketplace add thedotmack/codex-mem
 
-> /plugin install claude-mem
+> /plugin install codex-mem
 ```
 
-Indítsa újra a Claude Code-ot. A korábbi munkamenetek kontextusa automatikusan megjelenik az új munkamenetekben.
+Indítsa újra a Codex Code-ot. A korábbi munkamenetek kontextusa automatikusan megjelenik az új munkamenetekben.
 
 **Főbb jellemzők:**
 
@@ -117,7 +117,7 @@ Indítsa újra a Claude Code-ot. A korábbi munkamenetek kontextusa automatikusa
 - 📊 **Progresszív felfedés** - Többrétegű memória-visszakeresés token költség láthatósággal
 - 🔍 **Skill-alapú keresés** - Lekérdezheti projekt előzményeit a mem-search skill segítségével
 - 🖥️ **Webes megjelenítő felület** - Valós idejű memória stream a http://localhost:37777 címen
-- 💻 **Claude Desktop Skill** - Memória keresése Claude Desktop beszélgetésekből
+- 💻 **Codex Desktop Skill** - Memória keresése Codex Desktop beszélgetésekből
 - 🔒 **Adatvédelmi kontroll** - Használja a `<private>` címkéket az érzékeny tartalom kizárásához
 - ⚙️ **Kontextus konfiguráció** - Finomhangolt kontroll afelett, hogy milyen kontextus kerül beillesztésre
 - 🤖 **Automatikus működés** - Nincs szükség manuális beavatkozásra
@@ -128,35 +128,35 @@ Indítsa újra a Claude Code-ot. A korábbi munkamenetek kontextusa automatikusa
 
 ## Dokumentáció
 
-📚 **[Teljes dokumentáció megtekintése](https://docs.claude-mem.ai/)** - Böngészés a hivatalos weboldalon
+📚 **[Teljes dokumentáció megtekintése](https://docs.codex-mem.ai/)** - Böngészés a hivatalos weboldalon
 
 ### Első lépések
 
-- **[Telepítési útmutató](https://docs.claude-mem.ai/installation)** - Gyors indítás és haladó telepítés
-- **[Használati útmutató](https://docs.claude-mem.ai/usage/getting-started)** - Hogyan működik automatikusan a Claude-Mem
-- **[Keresési eszközök](https://docs.claude-mem.ai/usage/search-tools)** - Projekt előzmények lekérdezése természetes nyelvvel
-- **[Béta funkciók](https://docs.claude-mem.ai/beta-features)** - Kísérleti funkciók, mint az Endless Mode kipróbálása
+- **[Telepítési útmutató](https://docs.codex-mem.ai/installation)** - Gyors indítás és haladó telepítés
+- **[Használati útmutató](https://docs.codex-mem.ai/usage/getting-started)** - Hogyan működik automatikusan a Codex-Mem
+- **[Keresési eszközök](https://docs.codex-mem.ai/usage/search-tools)** - Projekt előzmények lekérdezése természetes nyelvvel
+- **[Béta funkciók](https://docs.codex-mem.ai/beta-features)** - Kísérleti funkciók, mint az Endless Mode kipróbálása
 
 ### Bevált gyakorlatok
 
-- **[Kontextus tervezés](https://docs.claude-mem.ai/context-engineering)** - AI ügynök kontextus optimalizálási elvek
-- **[Progresszív felfedés](https://docs.claude-mem.ai/progressive-disclosure)** - A Claude-Mem kontextus előkészítési stratégiájának filozófiája
+- **[Kontextus tervezés](https://docs.codex-mem.ai/context-engineering)** - AI ügynök kontextus optimalizálási elvek
+- **[Progresszív felfedés](https://docs.codex-mem.ai/progressive-disclosure)** - A Codex-Mem kontextus előkészítési stratégiájának filozófiája
 
 ### Architektúra
 
-- **[Áttekintés](https://docs.claude-mem.ai/architecture/overview)** - Rendszerkomponensek és adatfolyam
-- **[Architektúra fejlődés](https://docs.claude-mem.ai/architecture-evolution)** - Az út a v3-tól a v5-ig
-- **[Hooks architektúra](https://docs.claude-mem.ai/hooks-architecture)** - Hogyan használja a Claude-Mem az életciklus hookokat
-- **[Hooks referencia](https://docs.claude-mem.ai/architecture/hooks)** - 7 hook szkript magyarázata
-- **[Worker szolgáltatás](https://docs.claude-mem.ai/architecture/worker-service)** - HTTP API és Bun kezelés
-- **[Adatbázis](https://docs.claude-mem.ai/architecture/database)** - SQLite séma és FTS5 keresés
-- **[Keresési architektúra](https://docs.claude-mem.ai/architecture/search-architecture)** - Hibrid keresés Chroma vektor adatbázissal
+- **[Áttekintés](https://docs.codex-mem.ai/architecture/overview)** - Rendszerkomponensek és adatfolyam
+- **[Architektúra fejlődés](https://docs.codex-mem.ai/architecture-evolution)** - Az út a v3-tól a v5-ig
+- **[Hooks architektúra](https://docs.codex-mem.ai/hooks-architecture)** - Hogyan használja a Codex-Mem az életciklus hookokat
+- **[Hooks referencia](https://docs.codex-mem.ai/architecture/hooks)** - 7 hook szkript magyarázata
+- **[Worker szolgáltatás](https://docs.codex-mem.ai/architecture/worker-service)** - HTTP API és Bun kezelés
+- **[Adatbázis](https://docs.codex-mem.ai/architecture/database)** - SQLite séma és FTS5 keresés
+- **[Keresési architektúra](https://docs.codex-mem.ai/architecture/search-architecture)** - Hibrid keresés Chroma vektor adatbázissal
 
 ### Konfiguráció és fejlesztés
 
-- **[Konfiguráció](https://docs.claude-mem.ai/configuration)** - Környezeti változók és beállítások
-- **[Fejlesztés](https://docs.claude-mem.ai/development)** - Építés, tesztelés, hozzájárulás
-- **[Hibaelhárítás](https://docs.claude-mem.ai/troubleshooting)** - Gyakori problémák és megoldások
+- **[Konfiguráció](https://docs.codex-mem.ai/configuration)** - Környezeti változók és beállítások
+- **[Fejlesztés](https://docs.codex-mem.ai/development)** - Építés, tesztelés, hozzájárulás
+- **[Hibaelhárítás](https://docs.codex-mem.ai/troubleshooting)** - Gyakori problémák és megoldások
 
 ---
 
@@ -171,17 +171,17 @@ Indítsa újra a Claude Code-ot. A korábbi munkamenetek kontextusa automatikusa
 5. **mem-search Skill** - Természetes nyelvi lekérdezések progresszív felfedéssel
 6. **Chroma vektor adatbázis** - Hibrid szemantikus + kulcsszó keresés intelligens kontextus visszakereséshez
 
-További részletekért lásd az [Architektúra áttekintést](https://docs.claude-mem.ai/architecture/overview).
+További részletekért lásd az [Architektúra áttekintést](https://docs.codex-mem.ai/architecture/overview).
 
 ---
 
 ## mem-search Skill
 
-A Claude-Mem intelligens keresést biztosít a mem-search skillen keresztül, amely automatikusan aktiválódik, amikor múltbeli munkáról kérdez:
+A Codex-Mem intelligens keresést biztosít a mem-search skillen keresztül, amely automatikusan aktiválódik, amikor múltbeli munkáról kérdez:
 
 **Hogyan működik:**
 - Csak kérdezzen természetesen: *"Mit csináltunk az előző munkamenetben?"* vagy *"Javítottuk már ezt a hibát korábban?"*
-- Claude automatikusan meghívja a mem-search skillet a releváns kontextus megtalálásához
+- Codex automatikusan meghívja a mem-search skillet a releváns kontextus megtalálásához
 
 **Elérhető keresési műveletek:**
 
@@ -206,22 +206,22 @@ A Claude-Mem intelligens keresést biztosít a mem-search skillen keresztül, am
 "Mi történt, amikor hozzáadtuk a megjelenítő felületet?"
 ```
 
-Részletes példákért lásd a [Keresési eszközök útmutatót](https://docs.claude-mem.ai/usage/search-tools).
+Részletes példákért lásd a [Keresési eszközök útmutatót](https://docs.codex-mem.ai/usage/search-tools).
 
 ---
 
 ## Béta funkciók
 
-A Claude-Mem **béta csatornát** kínál kísérleti funkciókkal, mint az **Endless Mode** (biomimetikus memória architektúra hosszabb munkamenetekhez). Váltson a stabil és béta verziók között a webes megjelenítő felületről a http://localhost:37777 → Settings címen.
+A Codex-Mem **béta csatornát** kínál kísérleti funkciókkal, mint az **Endless Mode** (biomimetikus memória architektúra hosszabb munkamenetekhez). Váltson a stabil és béta verziók között a webes megjelenítő felületről a http://localhost:37777 → Settings címen.
 
-További részletekért az Endless Mode-ról és annak kipróbálásáról lásd a **[Béta funkciók dokumentációt](https://docs.claude-mem.ai/beta-features)**.
+További részletekért az Endless Mode-ról és annak kipróbálásáról lásd a **[Béta funkciók dokumentációt](https://docs.codex-mem.ai/beta-features)**.
 
 ---
 
 ## Rendszerkövetelmények
 
 - **Node.js**: 18.0.0 vagy újabb
-- **Claude Code**: Legújabb verzió plugin támogatással
+- **Codex Code**: Legújabb verzió plugin támogatással
 - **Bun**: JavaScript futtatókörnyezet és folyamatkezelő (automatikusan települ, ha hiányzik)
 - **uv**: Python csomagkezelő vektor kereséshez (automatikusan települ, ha hiányzik)
 - **SQLite 3**: Tartós tároláshoz (mellékelve)
@@ -230,23 +230,23 @@ További részletekért az Endless Mode-ról és annak kipróbálásáról lásd
 
 ## Konfiguráció
 
-A beállítások a `~/.claude-mem/settings.json` fájlban kezelhetők (automatikusan létrejön alapértelmezett értékekkel az első futtatáskor). Konfigurálható az AI modell, worker port, adatkönyvtár, naplózási szint és kontextus beillesztési beállítások.
+A beállítások a `~/.codex-mem/settings.json` fájlban kezelhetők (automatikusan létrejön alapértelmezett értékekkel az első futtatáskor). Konfigurálható az AI modell, worker port, adatkönyvtár, naplózási szint és kontextus beillesztési beállítások.
 
-Az összes elérhető beállításért és példákért lásd a **[Konfigurációs útmutatót](https://docs.claude-mem.ai/configuration)**.
+Az összes elérhető beállításért és példákért lásd a **[Konfigurációs útmutatót](https://docs.codex-mem.ai/configuration)**.
 
 ---
 
 ## Fejlesztés
 
-Az építési utasításokért, tesztelésért és hozzájárulási munkafolyamatért lásd a **[Fejlesztési útmutatót](https://docs.claude-mem.ai/development)**.
+Az építési utasításokért, tesztelésért és hozzájárulási munkafolyamatért lásd a **[Fejlesztési útmutatót](https://docs.codex-mem.ai/development)**.
 
 ---
 
 ## Hibaelhárítás
 
-Problémák esetén írja le a problémát Claude-nak, és a troubleshoot skill automatikusan diagnosztizálja és javítási megoldásokat kínál.
+Problémák esetén írja le a problémát Codex-nak, és a troubleshoot skill automatikusan diagnosztizálja és javítási megoldásokat kínál.
 
-Gyakori problémákért és megoldásokért lásd a **[Hibaelhárítási útmutatót](https://docs.claude-mem.ai/troubleshooting)**.
+Gyakori problémákért és megoldásokért lásd a **[Hibaelhárítási útmutatót](https://docs.codex-mem.ai/troubleshooting)**.
 
 ---
 
@@ -255,7 +255,7 @@ Gyakori problémákért és megoldásokért lásd a **[Hibaelhárítási útmuta
 Átfogó hibajelentések készítése az automatikus generátorral:
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 
@@ -269,7 +269,7 @@ A hozzájárulásokat szívesen fogadjuk! Kérjük:
 4. Frissítse a dokumentációt
 5. Nyújtson be egy Pull Requestet
 
-A hozzájárulási munkafolyamatért lásd a [Fejlesztési útmutatót](https://docs.claude-mem.ai/development).
+A hozzájárulási munkafolyamatért lásd a [Fejlesztési útmutatót](https://docs.codex-mem.ai/development).
 
 ---
 
@@ -291,10 +291,10 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## Támogatás
 
 - **Dokumentáció**: [docs/](docs/)
-- **Hibák**: [GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **Tároló**: [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
+- **Hibák**: [GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **Tároló**: [github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
 - **Szerző**: Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**Claude Agent SDK-val építve** | **Claude Code által hajtva** | **TypeScript-tel készítve**
+**Codex Agent SDK-val építve** | **Codex Code által hajtva** | **TypeScript-tel készítve**

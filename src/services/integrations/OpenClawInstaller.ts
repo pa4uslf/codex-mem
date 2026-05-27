@@ -21,8 +21,8 @@ export function getOpenClawExtensionsDirectory(): string {
   return path.join(getOpenClawConfigDirectory(), 'extensions');
 }
 
-export function getOpenClawClaudeMemExtensionDirectory(): string {
-  return path.join(getOpenClawExtensionsDirectory(), 'claude-mem');
+export function getOpenClawCodexMemExtensionDirectory(): string {
+  return path.join(getOpenClawExtensionsDirectory(), 'codex-mem');
 }
 
 export function getOpenClawConfigFilePath(): string {
@@ -32,7 +32,7 @@ export function getOpenClawConfigFilePath(): string {
 export function findPreBuiltPluginDirectory(): string | null {
   const possibleRoots = [
     path.join(
-      process.env.CLAUDE_CONFIG_DIR || path.join(homedir(), '.claude'),
+      process.env.CODEX_CONFIG_DIR || path.join(homedir(), '.codex'),
       'plugins', 'marketplaces', 'thedotmack',
     ),
     process.cwd(),
@@ -52,7 +52,7 @@ export function findPreBuiltPluginDirectory(): string | null {
 export function findPluginManifestPath(): string | null {
   const possibleRoots = [
     path.join(
-      process.env.CLAUDE_CONFIG_DIR || path.join(homedir(), '.claude'),
+      process.env.CODEX_CONFIG_DIR || path.join(homedir(), '.codex'),
       'plugins', 'marketplaces', 'thedotmack',
     ),
     process.cwd(),
@@ -71,7 +71,7 @@ export function findPluginManifestPath(): string | null {
 export function findPluginSkillsDirectory(): string | null {
   const possibleRoots = [
     path.join(
-      process.env.CLAUDE_CONFIG_DIR || path.join(homedir(), '.claude'),
+      process.env.CODEX_CONFIG_DIR || path.join(homedir(), '.codex'),
       'plugins', 'marketplaces', 'thedotmack',
     ),
     process.cwd(),
@@ -116,10 +116,10 @@ function registerPluginInOpenClawConfig(
   if (!config.plugins.slots) config.plugins.slots = {};
   if (!config.plugins.entries) config.plugins.entries = {};
 
-  config.plugins.slots.memory = 'claude-mem';
+  config.plugins.slots.memory = 'codex-mem';
 
-  if (!config.plugins.entries['claude-mem']) {
-    config.plugins.entries['claude-mem'] = {
+  if (!config.plugins.entries['codex-mem']) {
+    config.plugins.entries['codex-mem'] = {
       enabled: true,
       config: {
         workerPort,
@@ -128,11 +128,11 @@ function registerPluginInOpenClawConfig(
       },
     };
   } else {
-    config.plugins.entries['claude-mem'].enabled = true;
-    if (!config.plugins.entries['claude-mem'].config) {
-      config.plugins.entries['claude-mem'].config = {};
+    config.plugins.entries['codex-mem'].enabled = true;
+    if (!config.plugins.entries['codex-mem'].config) {
+      config.plugins.entries['codex-mem'].config = {};
     }
-    const existingPluginConfig = config.plugins.entries['claude-mem'].config;
+    const existingPluginConfig = config.plugins.entries['codex-mem'].config;
     if (existingPluginConfig.workerPort === undefined) existingPluginConfig.workerPort = workerPort;
     if (existingPluginConfig.project === undefined) existingPluginConfig.project = project;
     if (existingPluginConfig.syncMemoryFile === undefined) existingPluginConfig.syncMemoryFile = syncMemoryFile;
@@ -147,11 +147,11 @@ function unregisterPluginFromOpenClawConfig(): void {
 
   const config = readOpenClawConfig();
 
-  if (config.plugins?.entries?.['claude-mem']) {
-    delete config.plugins.entries['claude-mem'];
+  if (config.plugins?.entries?.['codex-mem']) {
+    delete config.plugins.entries['codex-mem'];
   }
 
-  if (config.plugins?.slots?.memory === 'claude-mem') {
+  if (config.plugins?.slots?.memory === 'codex-mem') {
     delete config.plugins.slots.memory;
   }
 
@@ -167,14 +167,14 @@ export function installOpenClawPlugin(): number {
     return 1;
   }
 
-  const extensionDirectory = getOpenClawClaudeMemExtensionDirectory();
+  const extensionDirectory = getOpenClawCodexMemExtensionDirectory();
   const destinationDistDirectory = path.join(extensionDirectory, 'dist');
 
   const manifestPath = findPluginManifestPath();
   const skillsDirectory = findPluginSkillsDirectory();
 
   const extensionPackageJson = {
-    name: 'claude-mem',
+    name: 'codex-mem',
     version: '1.0.0',
     type: 'module',
     main: 'dist/index.js',
@@ -221,7 +221,7 @@ function copyPluginFilesAndRegister(
     'utf-8',
   );
 
-  const workerPort = SettingsDefaultsManager.getInt('CLAUDE_MEM_WORKER_PORT');
+  const workerPort = SettingsDefaultsManager.getInt('CODEX_MEM_WORKER_PORT');
   registerPluginInOpenClawConfig(workerPort);
   console.log(`  Registered in openclaw.json`);
 
@@ -231,7 +231,7 @@ function copyPluginFilesAndRegister(
 export function uninstallOpenClawPlugin(): number {
   let hasErrors = false;
 
-  const extensionDirectory = getOpenClawClaudeMemExtensionDirectory();
+  const extensionDirectory = getOpenClawCodexMemExtensionDirectory();
   if (existsSync(extensionDirectory)) {
     try {
       rmSync(extensionDirectory, { recursive: true, force: true });
@@ -256,10 +256,10 @@ export function uninstallOpenClawPlugin(): number {
 }
 
 export function checkOpenClawStatus(): number {
-  console.log('\nClaude-Mem OpenClaw Integration Status\n');
+  console.log('\nCodex-Mem OpenClaw Integration Status\n');
 
   const configDirectory = getOpenClawConfigDirectory();
-  const extensionDirectory = getOpenClawClaudeMemExtensionDirectory();
+  const extensionDirectory = getOpenClawCodexMemExtensionDirectory();
   const configFilePath = getOpenClawConfigFilePath();
   const pluginEntryPoint = path.join(extensionDirectory, 'dist', 'index.js');
 
@@ -275,9 +275,9 @@ export function checkOpenClawStatus(): number {
   console.log(`Config (openclaw.json): ${configFilePath}`);
   if (existsSync(configFilePath)) {
     const config = readOpenClawConfig();
-    const isRegistered = config.plugins?.entries?.['claude-mem'] !== undefined;
-    const isEnabled = config.plugins?.entries?.['claude-mem']?.enabled === true;
-    const isMemorySlot = config.plugins?.slots?.memory === 'claude-mem';
+    const isRegistered = config.plugins?.entries?.['codex-mem'] !== undefined;
+    const isEnabled = config.plugins?.entries?.['codex-mem']?.enabled === true;
+    const isMemorySlot = config.plugins?.slots?.memory === 'codex-mem';
 
     console.log(`  Exists: yes`);
     console.log(`  Registered: ${isRegistered ? 'yes' : 'no'}`);
@@ -285,7 +285,7 @@ export function checkOpenClawStatus(): number {
     console.log(`  Memory slot: ${isMemorySlot ? 'yes' : 'no'}`);
 
     if (isRegistered) {
-      const pluginConfig = config.plugins.entries['claude-mem'].config;
+      const pluginConfig = config.plugins.entries['codex-mem'].config;
       if (pluginConfig) {
         console.log(`  Worker port: ${pluginConfig.workerPort ?? 'default'}`);
         console.log(`  Project: ${pluginConfig.project ?? 'default'}`);
@@ -301,14 +301,14 @@ export function checkOpenClawStatus(): number {
 }
 
 export async function installOpenClawIntegration(): Promise<number> {
-  console.log('\nInstalling Claude-Mem for OpenClaw...\n');
+  console.log('\nInstalling Codex-Mem for OpenClaw...\n');
 
   const pluginResult = installOpenClawPlugin();
   if (pluginResult !== 0) {
     return pluginResult;
   }
 
-  const extensionDirectory = getOpenClawClaudeMemExtensionDirectory();
+  const extensionDirectory = getOpenClawCodexMemExtensionDirectory();
 
   console.log(`
 Installation complete!
@@ -317,7 +317,7 @@ Plugin installed to: ${extensionDirectory}
 Config updated: ${getOpenClawConfigFilePath()}
 
 Next steps:
-  1. Start claude-mem worker: npx claude-mem start
+  1. Start codex-mem worker: npx codex-mem start
   2. Restart OpenClaw to load the plugin
   3. Memory capture is automatic from then on
 `);

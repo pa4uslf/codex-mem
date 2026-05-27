@@ -7,7 +7,7 @@ import { homedir } from 'os';
 import { dirname, join } from 'path';
 import { SettingsDefaultsManager, type SettingsDefaults } from '../../shared/SettingsDefaultsManager.js';
 import { USER_SETTINGS_PATH } from '../../shared/paths.js';
-import { loadClaudeMemEnv, saveClaudeMemEnv } from '../../shared/EnvManager.js';
+import { loadCodexMemEnv, saveCodexMemEnv } from '../../shared/EnvManager.js';
 import { ensureWorkerStarted, type WorkerStartResult } from '../../services/worker-spawner.js';
 import {
   ensureBun,
@@ -70,7 +70,7 @@ const log = {
   error: (msg: string) => isInteractive ? p.log.error(msg) : console.error(`  ${msg}`),
 };
 import {
-  claudeSettingsPath,
+  codexSettingsPath,
   ensureDirectoryExists,
   installedPluginsPath,
   IS_WINDOWS,
@@ -93,7 +93,7 @@ function registerMarketplace(): void {
   knownMarketplaces['thedotmack'] = {
     source: {
       source: 'github',
-      repo: 'thedotmack/claude-mem',
+      repo: 'thedotmack/codex-mem',
     },
     installLocation: marketplaceDirectory(),
     lastUpdated: new Date().toISOString(),
@@ -113,7 +113,7 @@ function registerPlugin(version: string): void {
   const cachePath = pluginCacheDirectory(version);
   const now = new Date().toISOString();
 
-  installedPlugins.plugins['claude-mem@thedotmack'] = [
+  installedPlugins.plugins['codex-mem@thedotmack'] = [
     {
       scope: 'user',
       installPath: cachePath,
@@ -126,37 +126,37 @@ function registerPlugin(version: string): void {
   writeJsonFileAtomic(installedPluginsPath(), installedPlugins);
 }
 
-function enablePluginInClaudeSettings(): void {
-  const settings = readJsonSafe<Record<string, any>>(claudeSettingsPath(), {});
+function enablePluginInCodexSettings(): void {
+  const settings = readJsonSafe<Record<string, any>>(codexSettingsPath(), {});
 
   if (!settings.enabledPlugins) settings.enabledPlugins = {};
-  settings.enabledPlugins['claude-mem@thedotmack'] = true;
+  settings.enabledPlugins['codex-mem@thedotmack'] = true;
 
-  writeJsonFileAtomic(claudeSettingsPath(), settings);
+  writeJsonFileAtomic(codexSettingsPath(), settings);
 }
 
 /**
- * Disable Claude Code's built-in auto-memory by setting CLAUDE_CODE_DISABLE_AUTO_MEMORY=1
- * in ~/.claude/settings.json `env` block. claude-mem provides its own persistent memory
+ * Disable Codex Code's built-in auto-memory by setting CODEX_CODE_DISABLE_AUTO_MEMORY=1
+ * in ~/.codex/settings.json `env` block. codex-mem provides its own persistent memory
  * via plugin hooks; the built-in MEMORY.md system creates shadow state outside the user's
- * control and competes with claude-mem for context window tokens.
+ * control and competes with codex-mem for context window tokens.
  *
- * Per anthropics/claude-code#23544, the env var is the only supported toggle.
+ * Per codexs/codex-code#23544, the env var is the only supported toggle.
  *
  * Idempotent: only writes when not already set, preserves existing env vars and other
  * settings keys, and merges atomically. Returns true when a write happened (for the
  * caller to surface in the install summary).
  */
-export function disableClaudeAutoMemory(): boolean {
-  const settings = readJsonSafe<Record<string, any>>(claudeSettingsPath(), {});
+export function disableCodexAutoMemory(): boolean {
+  const settings = readJsonSafe<Record<string, any>>(codexSettingsPath(), {});
   const env = (settings.env && typeof settings.env === 'object') ? settings.env : {};
 
-  if (env.CLAUDE_CODE_DISABLE_AUTO_MEMORY === '1') {
+  if (env.CODEX_CODE_DISABLE_AUTO_MEMORY === '1') {
     return false;
   }
 
-  settings.env = { ...env, CLAUDE_CODE_DISABLE_AUTO_MEMORY: '1' };
-  writeJsonFileAtomic(claudeSettingsPath(), settings);
+  settings.env = { ...env, CODEX_CODE_DISABLE_AUTO_MEMORY: '1' };
+  writeJsonFileAtomic(codexSettingsPath(), settings);
   return true;
 }
 
@@ -169,10 +169,10 @@ function makeIDETask(ideId: string, failedIDEs: string[], pendingErrors: string[
   };
 
   switch (ideId) {
-    case 'claude-code': {
+    case 'codex-code': {
       return {
-        title: 'Claude Code: registering plugin',
-        task: async () => `Claude Code: plugin registered ${pc.green('OK')}`,
+        title: 'Codex Code: registering plugin',
+        task: async () => `Codex Code: plugin registered ${pc.green('OK')}`,
       };
     }
 
@@ -193,7 +193,7 @@ function makeIDETask(ideId: string, failedIDEs: string[], pendingErrors: string[
           if (mcpResult === 0) {
             return `Cursor: hooks + MCP installed ${pc.green('OK')}`;
           }
-          return `Cursor: hooks installed; MCP setup failed — run \`npx claude-mem cursor mcp\` ${pc.yellow('!')}`;
+          return `Cursor: hooks installed; MCP setup failed — run \`npx codex-mem cursor mcp\` ${pc.yellow('!')}`;
         },
       };
     }
@@ -363,21 +363,21 @@ function detectShellConfigFile(): { path: string; shell: 'zsh' | 'bash' | 'fish'
   return { path: join(home, '.bashrc'), shell: 'bash' };
 }
 
-function applyClaudeCodePathSetupIfNeeded(): void {
+function applyCodexCodePathSetupIfNeeded(): void {
   const home = homedir();
-  const claudeBinDir = join(home, '.local', 'bin');
-  const claudeBinary = join(claudeBinDir, 'claude');
+  const codexBinDir = join(home, '.local', 'bin');
+  const codexBinary = join(codexBinDir, 'codex');
 
-  if (!existsSync(claudeBinary)) return;
+  if (!existsSync(codexBinary)) return;
 
   const currentPath = process.env.PATH ?? '';
   const pathEntries = currentPath.split(':');
-  if (pathEntries.includes(claudeBinDir)) return;
+  if (pathEntries.includes(codexBinDir)) return;
 
   const { path: configFile, shell } = detectShellConfigFile();
   const binPathLiteral = '$HOME/.local/bin';
   const exportLine = shell === 'fish'
-    ? `set -gx PATH ${claudeBinDir} $PATH`
+    ? `set -gx PATH ${codexBinDir} $PATH`
     : `export PATH="${binPathLiteral}:$PATH"`;
 
   let existing = '';
@@ -395,14 +395,14 @@ function applyClaudeCodePathSetupIfNeeded(): void {
     }
   }
 
-  if (existing.includes(claudeBinDir) || existing.includes(binPathLiteral)) {
-    log.info(`Claude Code PATH already configured in ${configFile}`);
+  if (existing.includes(codexBinDir) || existing.includes(binPathLiteral)) {
+    log.info(`Codex Code PATH already configured in ${configFile}`);
   } else {
     try {
       const trailing = existing.length === 0 || existing.endsWith('\n') ? '' : '\n';
-      const block = `${trailing}\n# Added by claude-mem installer for Claude Code\n${exportLine}\n`;
+      const block = `${trailing}\n# Added by codex-mem installer for Codex Code\n${exportLine}\n`;
       writeFileSync(configFile, existing + block, 'utf-8');
-      log.success(`Added Claude Code to PATH in ${configFile}`);
+      log.success(`Added Codex Code to PATH in ${configFile}`);
     } catch (error: unknown) {
       log.warn(`Could not update ${configFile}: ${error instanceof Error ? error.message : String(error)}`);
       log.info(`Run manually: echo '${exportLine}' >> ${configFile}`);
@@ -410,16 +410,16 @@ function applyClaudeCodePathSetupIfNeeded(): void {
     }
   }
 
-  process.env.PATH = `${claudeBinDir}:${currentPath}`;
+  process.env.PATH = `${codexBinDir}:${currentPath}`;
 }
 
-async function installClaudeCode(): Promise<boolean> {
+async function installCodexCode(): Promise<boolean> {
   const command = IS_WINDOWS
-    ? 'powershell -ExecutionPolicy ByPass -c "irm https://claude.ai/install.ps1 | iex"'
-    : 'curl -fsSL https://claude.ai/install.sh | bash';
+    ? 'powershell -ExecutionPolicy ByPass -c "irm https://codex.ai/install.ps1 | iex"'
+    : 'curl -fsSL https://codex.ai/install.sh | bash';
 
   const spinner = isInteractive ? p.spinner() : null;
-  spinner?.start('Installing Claude Code (this can take a few minutes — downloading the native build)…');
+  spinner?.start('Installing Codex Code (this can take a few minutes — downloading the native build)…');
 
   return new Promise<boolean>((resolve) => {
     let captured = '';
@@ -432,26 +432,26 @@ async function installClaudeCode(): Promise<boolean> {
     child.stderr?.on('data', (chunk: Buffer) => { captured += chunk.toString(); });
 
     child.on('error', (error: Error) => {
-      spinner?.stop('Claude Code install failed', 1);
+      spinner?.stop('Codex Code install failed');
       if (captured) process.stderr.write(captured);
-      log.error(`Claude Code install failed: ${error.message}`);
-      log.info('You can install it manually later: https://claude.ai/install.sh');
+      log.error(`Codex Code install failed: ${error.message}`);
+      log.info('You can install it manually later: https://codex.ai/install.sh');
       resolve(false);
     });
 
     child.on('exit', (code) => {
       if (code !== 0) {
-        spinner?.stop('Claude Code install failed', 1);
+        spinner?.stop('Codex Code install failed');
         if (captured) process.stderr.write(captured);
-        log.error(`Claude Code install failed (exit ${code ?? 'unknown'})`);
-        log.info('You can install it manually later: https://claude.ai/install.sh');
+        log.error(`Codex Code install failed (exit ${code ?? 'unknown'})`);
+        log.info('You can install it manually later: https://codex.ai/install.sh');
         resolve(false);
         return;
       }
-      spinner?.stop('Claude Code installed');
+      spinner?.stop('Codex Code installed');
       if (!IS_WINDOWS) {
         try {
-          applyClaudeCodePathSetupIfNeeded();
+          applyCodexCodePathSetupIfNeeded();
         } catch (error: unknown) {
           log.warn(`Could not auto-apply PATH setup: ${error instanceof Error ? error.message : String(error)}`);
         }
@@ -463,14 +463,14 @@ async function installClaudeCode(): Promise<boolean> {
 
 async function promptForIDESelection(): Promise<string[]> {
   let detectedIDEs = detectInstalledIDEs();
-  const claudeCodeInfo = detectedIDEs.find((ide) => ide.id === 'claude-code');
+  const codexCodeInfo = detectedIDEs.find((ide) => ide.id === 'codex-code');
 
-  if (claudeCodeInfo && !claudeCodeInfo.detected) {
-    log.warn('Claude Code is not installed. Claude-mem works best in Claude Code, but also works with the IDEs below.');
+  if (codexCodeInfo && !codexCodeInfo.detected) {
+    log.warn('Codex Code is not installed. Codex-mem works best in Codex Code, but also works with the IDEs below.');
     const choice = await p.select<'install' | 'skip' | 'cancel'>({
-      message: 'Install Claude Code now?',
+      message: 'Install Codex Code now?',
       options: [
-        { value: 'install', label: 'Yes — install Claude Code (recommended)' },
+        { value: 'install', label: 'Yes — install Codex Code (recommended)' },
         { value: 'skip', label: 'No — pick another IDE below' },
         { value: 'cancel', label: 'Cancel installation' },
       ],
@@ -481,7 +481,7 @@ async function promptForIDESelection(): Promise<string[]> {
       process.exit(0);
     }
     if (choice === 'install') {
-      if (await installClaudeCode()) {
+      if (await installCodexCode()) {
         detectedIDEs = detectInstalledIDEs();
       }
     }
@@ -615,9 +615,9 @@ function mergeSettings(updates: Record<string, string>): boolean {
   }
 }
 
-type ProviderId = 'claude' | 'gemini' | 'openrouter';
-type ClaudeAccessMode = 'subscription' | 'api-key';
-type ClaudeApiMode = 'direct' | 'gateway';
+type ProviderId = 'codex' | 'gemini' | 'openrouter';
+type CodexAccessMode = 'subscription' | 'api-key';
+type CodexApiMode = 'direct' | 'gateway';
 type RuntimeId = 'worker' | 'server-beta';
 
 function readRawStoredAuthMethod(): 'subscription' | 'api-key' | 'gateway' | undefined {
@@ -625,7 +625,7 @@ function readRawStoredAuthMethod(): 'subscription' | 'api-key' | 'gateway' | und
     if (!existsSync(USER_SETTINGS_PATH)) return undefined;
     const raw = JSON.parse(readFileSync(USER_SETTINGS_PATH, 'utf-8')) as Record<string, unknown>;
     const flat = (raw.env && typeof raw.env === 'object' ? raw.env : raw) as Record<string, unknown>;
-    const value = flat.CLAUDE_MEM_CLAUDE_AUTH_METHOD;
+    const value = flat.CODEX_MEM_CODEX_AUTH_METHOD;
     if (value === 'subscription' || value === 'api-key' || value === 'gateway') return value;
     return undefined;
   } catch {
@@ -633,23 +633,23 @@ function readRawStoredAuthMethod(): 'subscription' | 'api-key' | 'gateway' | und
   }
 }
 
-function resolveClaudeAuthMethod(): 'subscription' | 'api-key' | 'gateway' {
+function resolveCodexAuthMethod(): 'subscription' | 'api-key' | 'gateway' {
   const stored = readRawStoredAuthMethod();
   if (stored) return stored;
-  const env = loadClaudeMemEnv();
-  if (env.ANTHROPIC_BASE_URL?.trim()) return 'gateway';
-  if (env.ANTHROPIC_API_KEY?.trim()) return 'api-key';
+  const env = loadCodexMemEnv();
+  if (env.CODEX_BASE_URL?.trim()) return 'gateway';
+  if (env.CODEX_API_KEY?.trim()) return 'api-key';
   return 'subscription';
 }
 
 async function promptRuntime(): Promise<RuntimeId> {
   if (!isInteractive) {
-    mergeSettings({ CLAUDE_MEM_RUNTIME: 'worker' });
+    mergeSettings({ CODEX_MEM_RUNTIME: 'worker' });
     return 'worker';
   }
 
   const selected = await p.select<RuntimeId>({
-    message: 'Which runtime should claude-mem start after install?',
+    message: 'Which runtime should codex-mem start after install?',
     options: [
       { value: 'worker', label: 'Worker', hint: 'stable compatibility path' },
       { value: 'server-beta', label: 'Server (beta)', hint: 'REST V1, API keys, team-ready storage' },
@@ -663,7 +663,7 @@ async function promptRuntime(): Promise<RuntimeId> {
   }
 
   mergeSettings({
-    CLAUDE_MEM_RUNTIME: selected,
+    CODEX_MEM_RUNTIME: selected,
   });
 
   if (selected === 'server-beta') {
@@ -675,11 +675,11 @@ async function promptRuntime(): Promise<RuntimeId> {
 async function maybeBootstrapServerBetaApiKey(): Promise<void> {
   // Only attempt if Postgres is configured. Without DATABASE_URL we cannot
   // reach the api_keys table — the operator must configure the server first
-  // and rerun `claude-mem server keys rotate`.
-  if (!process.env.CLAUDE_MEM_SERVER_DATABASE_URL) {
+  // and rerun `codex-mem server keys rotate`.
+  if (!process.env.CODEX_MEM_SERVER_DATABASE_URL) {
     log.warn(
-      'Skipping local hook API key bootstrap: CLAUDE_MEM_SERVER_DATABASE_URL is not set. '
-        + 'Run `npx claude-mem server keys rotate` after configuring Postgres to provision a key.',
+      'Skipping local hook API key bootstrap: CODEX_MEM_SERVER_DATABASE_URL is not set. '
+        + 'Run `npx codex-mem server keys rotate` after configuring Postgres to provision a key.',
     );
     return;
   }
@@ -699,38 +699,38 @@ async function maybeBootstrapServerBetaApiKey(): Promise<void> {
   } catch (error: unknown) {
     log.warn(
       `Failed to bootstrap server-beta API key: ${error instanceof Error ? error.message : String(error)}. `
-        + 'Hooks will fall back to the worker until you run `npx claude-mem server keys rotate`.',
+        + 'Hooks will fall back to the worker until you run `npx codex-mem server keys rotate`.',
     );
   }
 }
 
 async function promptProvider(options: InstallOptions): Promise<ProviderId> {
-  const initialProvider = (getSetting('CLAUDE_MEM_PROVIDER') as ProviderId) || 'claude';
+  const initialProvider = (getSetting('CODEX_MEM_PROVIDER') as ProviderId) || 'codex';
 
-  const persistClaudeProvider = (authMethod?: 'subscription' | 'api-key' | 'gateway') => {
-    const resolvedAuthMethod = authMethod ?? resolveClaudeAuthMethod();
+  const persistCodexProvider = (authMethod?: 'subscription' | 'api-key' | 'gateway') => {
+    const resolvedAuthMethod = authMethod ?? resolveCodexAuthMethod();
     const wrote = mergeSettings({
-      CLAUDE_MEM_PROVIDER: 'claude',
-      CLAUDE_MEM_CLAUDE_AUTH_METHOD: resolvedAuthMethod,
+      CODEX_MEM_PROVIDER: 'codex',
+      CODEX_MEM_CODEX_AUTH_METHOD: resolvedAuthMethod,
     });
-    if (wrote) log.info('Saved Claude Agent SDK configuration to ~/.claude-mem/settings.json');
+    if (wrote) log.info('Saved Codex CLI configuration to ~/.codex-mem/settings.json');
   };
 
   const useSubscriptionAuth = () => {
-    persistClaudeProvider('subscription');
-    saveClaudeMemEnv({
-      ANTHROPIC_API_KEY: '',
-      ANTHROPIC_BASE_URL: '',
-      ANTHROPIC_AUTH_TOKEN: '',
+    persistCodexProvider('subscription');
+    saveCodexMemEnv({
+      CODEX_API_KEY: '',
+      CODEX_BASE_URL: '',
+      CODEX_AUTH_TOKEN: '',
     });
-    log.info('Configured claude-mem to use your logged-in Claude SDK account.');
+    log.info('Configured codex-mem to use your logged-in Codex CLI account.');
   };
 
   const configureDirectApiKey = async (): Promise<void> => {
-    const existing = loadClaudeMemEnv().ANTHROPIC_API_KEY || '';
+    const existing = loadCodexMemEnv().CODEX_API_KEY || '';
     if (existing.trim().length > 0) {
       const choice = await p.select<'keep' | 'replace'>({
-        message: 'An Anthropic API key is already configured. Keep it or enter a new one?',
+        message: 'An Codex API key is already configured. Keep it or enter a new one?',
         options: [
           { value: 'keep', label: 'Keep existing key' },
           { value: 'replace', label: 'Enter a new key (rotate)' },
@@ -742,18 +742,18 @@ async function promptProvider(options: InstallOptions): Promise<ProviderId> {
         return;
       }
       if (choice === 'keep') {
-        saveClaudeMemEnv({
-          ANTHROPIC_API_KEY: existing.trim(),
-          ANTHROPIC_BASE_URL: '',
-          ANTHROPIC_AUTH_TOKEN: '',
+        saveCodexMemEnv({
+          CODEX_API_KEY: existing.trim(),
+          CODEX_BASE_URL: '',
+          CODEX_AUTH_TOKEN: '',
         });
-        persistClaudeProvider('api-key');
+        persistCodexProvider('api-key');
         return;
       }
     }
 
     const apiKeyResult = await p.password({
-      message: 'Paste your Anthropic API key:',
+      message: 'Paste your Codex API key:',
       mask: '*',
       validate: (v?: string) => (!v || v.trim().length === 0) ? 'API key required' : undefined,
     });
@@ -763,21 +763,21 @@ async function promptProvider(options: InstallOptions): Promise<ProviderId> {
       return;
     }
 
-    saveClaudeMemEnv({
-      ANTHROPIC_API_KEY: String(apiKeyResult).trim(),
-      ANTHROPIC_BASE_URL: '',
-      ANTHROPIC_AUTH_TOKEN: '',
+    saveCodexMemEnv({
+      CODEX_API_KEY: String(apiKeyResult).trim(),
+      CODEX_BASE_URL: '',
+      CODEX_AUTH_TOKEN: '',
     });
-    persistClaudeProvider('api-key');
-    log.info('Saved Anthropic API key for the Claude Agent SDK path.');
+    persistCodexProvider('api-key');
+    log.info('Saved Codex API key for the Codex CLI path.');
   };
 
   const configureGateway = async (): Promise<void> => {
-    const existing = loadClaudeMemEnv();
+    const existing = loadCodexMemEnv();
     const baseUrlResult = await p.text({
       message: 'Gateway URL:',
-      placeholder: existing.ANTHROPIC_BASE_URL || 'http://localhost:4000',
-      defaultValue: existing.ANTHROPIC_BASE_URL || '',
+      placeholder: existing.CODEX_BASE_URL || 'http://localhost:4000',
+      defaultValue: existing.CODEX_BASE_URL || '',
       validate: (v?: string) => {
         const value = v?.trim() ?? '';
         if (!value) return 'Gateway URL required';
@@ -803,45 +803,45 @@ async function promptProvider(options: InstallOptions): Promise<ProviderId> {
     const tokenCancelled = p.isCancel(tokenResult);
     const tokenInput = tokenCancelled ? '' : String(tokenResult).trim();
     const env: Record<string, string> = {
-      ANTHROPIC_API_KEY: '',
-      ANTHROPIC_BASE_URL: String(baseUrlResult).trim(),
+      CODEX_API_KEY: '',
+      CODEX_BASE_URL: String(baseUrlResult).trim(),
     };
     if (!tokenCancelled && tokenInput.length > 0) {
-      env.ANTHROPIC_AUTH_TOKEN = tokenInput;
+      env.CODEX_AUTH_TOKEN = tokenInput;
     }
-    saveClaudeMemEnv(env);
-    persistClaudeProvider('gateway');
+    saveCodexMemEnv(env);
+    persistCodexProvider('gateway');
     if (tokenCancelled || tokenInput.length === 0) {
       log.info('Gateway URL saved; existing gateway token preserved.');
     } else {
-      log.info('Configured Claude Agent SDK gateway in ~/.claude-mem/.env.');
+      log.info('Configured Codex CLI gateway in ~/.codex-mem/.env.');
     }
   };
 
   if (!isInteractive) {
     if (options.provider) {
-      if (options.provider === 'claude') {
-        persistClaudeProvider();
-        return 'claude';
+      if (options.provider === 'codex') {
+        persistCodexProvider();
+        return 'codex';
       }
-      const wrote = mergeSettings({ CLAUDE_MEM_PROVIDER: options.provider });
-      if (wrote) log.info(`Saved provider=${options.provider} to ~/.claude-mem/settings.json`);
-      log.warn(`Provider=${options.provider} requested non-interactively. API key prompt skipped — set CLAUDE_MEM_${options.provider.toUpperCase()}_API_KEY and CLAUDE_MEM_PROVIDER in settings.json or env manually if not already set.`);
+      const wrote = mergeSettings({ CODEX_MEM_PROVIDER: options.provider });
+      if (wrote) log.info(`Saved provider=${options.provider} to ~/.codex-mem/settings.json`);
+      log.warn(`Provider=${options.provider} requested non-interactively. API key prompt skipped — set CODEX_MEM_${options.provider.toUpperCase()}_API_KEY and CODEX_MEM_PROVIDER in settings.json or env manually if not already set.`);
       return options.provider;
     }
     return initialProvider;
   }
 
-  const runClaudeAuthFlow = async (): Promise<void> => {
-    const resolvedAuthMethod = resolveClaudeAuthMethod();
-    const initialAccessMode: ClaudeAccessMode =
+  const runCodexAuthFlow = async (): Promise<void> => {
+    const resolvedAuthMethod = resolveCodexAuthMethod();
+    const initialAccessMode: CodexAccessMode =
       resolvedAuthMethod === 'subscription' ? 'subscription' : 'api-key';
 
-    const result = await p.select<ClaudeAccessMode>({
+    const result = await p.select<CodexAccessMode>({
       message: 'Do you use a subscription plan or an API key/gateway for the memory agent?',
       options: [
-        { value: 'subscription', label: 'Subscription plan (recommended — uses your logged-in Claude SDK account)' },
-        { value: 'api-key', label: 'API key or gateway (Anthropic, LiteLLM, or compatible proxy)' },
+        { value: 'subscription', label: 'Subscription plan (recommended — uses your logged-in Codex CLI account)' },
+        { value: 'api-key', label: 'API key or gateway (Codex, LiteLLM, or compatible proxy)' },
       ],
       initialValue: initialAccessMode,
     });
@@ -855,13 +855,13 @@ async function promptProvider(options: InstallOptions): Promise<ProviderId> {
       return;
     }
 
-    const apiModeResult = await p.select<ClaudeApiMode>({
-      message: 'How should claude-mem connect?',
+    const apiModeResult = await p.select<CodexApiMode>({
+      message: 'How should codex-mem connect?',
       options: [
-        { value: 'direct', label: 'Anthropic API key' },
+        { value: 'direct', label: 'Codex API key' },
         { value: 'gateway', label: 'LiteLLM or custom gateway' },
       ],
-      initialValue: resolvedAuthMethod === 'gateway' || loadClaudeMemEnv().ANTHROPIC_BASE_URL ? 'gateway' : 'direct',
+      initialValue: resolvedAuthMethod === 'gateway' || loadCodexMemEnv().CODEX_BASE_URL ? 'gateway' : 'direct',
     });
 
     if (p.isCancel(apiModeResult)) {
@@ -883,7 +883,7 @@ async function promptProvider(options: InstallOptions): Promise<ProviderId> {
     const providerResult = await p.select<ProviderId>({
       message: 'Which memory provider do you want to use?',
       options: [
-        { value: 'claude', label: 'Claude Agent SDK (recommended)' },
+        { value: 'codex', label: 'Codex CLI (recommended)' },
         { value: 'gemini', label: 'Gemini' },
         { value: 'openrouter', label: 'OpenRouter' },
       ],
@@ -896,20 +896,20 @@ async function promptProvider(options: InstallOptions): Promise<ProviderId> {
     selectedProvider = providerResult;
   }
 
-  if (selectedProvider === 'claude') {
-    await runClaudeAuthFlow();
-    return 'claude';
+  if (selectedProvider === 'codex') {
+    await runCodexAuthFlow();
+    return 'codex';
   }
 
   const providerLabel = selectedProvider === 'gemini' ? 'Gemini' : 'OpenRouter';
   const keyEnvName = selectedProvider === 'gemini'
-    ? 'CLAUDE_MEM_GEMINI_API_KEY'
-    : 'CLAUDE_MEM_OPENROUTER_API_KEY';
+    ? 'CODEX_MEM_GEMINI_API_KEY'
+    : 'CODEX_MEM_OPENROUTER_API_KEY';
 
   const existingKey = getSetting(keyEnvName as keyof SettingsDefaults) as string | undefined;
   if (existingKey && existingKey.trim().length > 0) {
-    const wrote = mergeSettings({ CLAUDE_MEM_PROVIDER: selectedProvider });
-    if (wrote) log.info(`Saved provider=${selectedProvider} to ~/.claude-mem/settings.json`);
+    const wrote = mergeSettings({ CODEX_MEM_PROVIDER: selectedProvider });
+    if (wrote) log.info(`Saved provider=${selectedProvider} to ~/.codex-mem/settings.json`);
     return selectedProvider;
   }
 
@@ -920,59 +920,59 @@ async function promptProvider(options: InstallOptions): Promise<ProviderId> {
   });
 
   if (p.isCancel(apiKeyResult)) {
-    log.warn(`API key prompt cancelled — falling back to Claude provider.`);
-    persistClaudeProvider();
-    return 'claude';
+    log.warn(`API key prompt cancelled — falling back to Codex provider.`);
+    persistCodexProvider();
+    return 'codex';
   }
 
   const apiKey = String(apiKeyResult).trim();
   const wrote = mergeSettings({
-    CLAUDE_MEM_PROVIDER: selectedProvider,
+    CODEX_MEM_PROVIDER: selectedProvider,
     [keyEnvName]: apiKey,
   });
   if (wrote) {
-    log.info(`Saved provider=${selectedProvider} to ~/.claude-mem/settings.json`);
+    log.info(`Saved provider=${selectedProvider} to ~/.codex-mem/settings.json`);
   }
   return selectedProvider;
 }
 
-async function promptClaudeModel(options: InstallOptions): Promise<void> {
+async function promptCodexModel(options: InstallOptions): Promise<void> {
   const allowed = new Set([
-    'claude-haiku-4-5-20251001',
-    'claude-sonnet-4-6',
-    'claude-opus-4-7',
+    'gpt-5',
+    'gpt-5-mini',
+    'gpt-5-nano',
   ]);
-  const allowCustomModel = resolveClaudeAuthMethod() === 'gateway';
+  const allowCustomModel = resolveCodexAuthMethod() === 'gateway';
 
   if (options.model && !allowCustomModel) {
     if (!allowed.has(options.model)) {
       throw new Error(
-        `Unknown Claude model: ${options.model}. Allowed: ${[...allowed].join(', ')}`,
+        `Unknown Codex model: ${options.model}. Allowed: ${[...allowed].join(', ')}`,
       );
     }
-    const wrote = mergeSettings({ CLAUDE_MEM_MODEL: options.model });
+    const wrote = mergeSettings({ CODEX_MEM_MODEL: options.model });
     if (wrote) {
-      log.info(`Saved Claude model=${options.model} to ~/.claude-mem/settings.json`);
+      log.info(`Saved Codex model=${options.model} to ~/.codex-mem/settings.json`);
     }
     return;
   }
   if (options.model && allowCustomModel) {
-    const wrote = mergeSettings({ CLAUDE_MEM_MODEL: options.model });
+    const wrote = mergeSettings({ CODEX_MEM_MODEL: options.model });
     if (wrote) {
-      log.info(`Saved gateway model=${options.model} to ~/.claude-mem/settings.json`);
+      log.info(`Saved gateway model=${options.model} to ~/.codex-mem/settings.json`);
     }
     return;
   }
 
   if (!isInteractive) return;
 
-  const initialModel = getSetting('CLAUDE_MEM_MODEL');
+  const initialModel = getSetting('CODEX_MEM_MODEL');
 
   if (allowCustomModel) {
     const result = await p.text({
       message: 'Which model should the gateway use?',
-      placeholder: 'claude-haiku-4-5-20251001',
-      defaultValue: initialModel || 'claude-haiku-4-5-20251001',
+      placeholder: 'gpt-5',
+      defaultValue: initialModel || 'gpt-5',
       validate: (v?: string) => (!v || v.trim().length === 0) ? 'Model required' : undefined,
     });
 
@@ -982,21 +982,21 @@ async function promptClaudeModel(options: InstallOptions): Promise<void> {
     }
 
     const selectedModel = String(result).trim();
-    const wrote = mergeSettings({ CLAUDE_MEM_MODEL: selectedModel });
+    const wrote = mergeSettings({ CODEX_MEM_MODEL: selectedModel });
     if (wrote) {
-      log.info(`Saved gateway model=${selectedModel} to ~/.claude-mem/settings.json`);
+      log.info(`Saved gateway model=${selectedModel} to ~/.codex-mem/settings.json`);
     }
     return;
   }
 
-  const initialValue = allowed.has(initialModel) ? initialModel : 'claude-haiku-4-5-20251001';
+  const initialValue = allowed.has(initialModel) ? initialModel : 'gpt-5';
 
   const result = await p.select<string>({
-    message: 'Which Claude model should claude-mem use to compress observations?\nThis runs whenever you and Claude touch a file — keep it cheap and fast.',
+    message: 'Which Codex model should codex-mem use to compress observations?\nThis runs whenever you and Codex touch a file — keep it cheap and fast.',
     options: [
-      { value: 'claude-haiku-4-5-20251001', label: 'Haiku 4.5 (recommended — fast, cheap, great for compression)' },
-      { value: 'claude-sonnet-4-6', label: 'Sonnet 4.6 (balanced quality and cost)' },
-      { value: 'claude-opus-4-7', label: 'Opus 4.7 (highest quality, most expensive)' },
+      { value: 'gpt-5', label: 'gpt-5 (recommended default)' },
+      { value: 'gpt-5-mini', label: 'gpt-5-mini (fast, lower cost)' },
+      { value: 'gpt-5-nano', label: 'gpt-5-nano (small, lowest cost)' },
     ],
     initialValue,
   });
@@ -1007,15 +1007,15 @@ async function promptClaudeModel(options: InstallOptions): Promise<void> {
   }
   const selectedModel = result as string;
 
-  const wrote = mergeSettings({ CLAUDE_MEM_MODEL: selectedModel });
+  const wrote = mergeSettings({ CODEX_MEM_MODEL: selectedModel });
   if (wrote) {
-    log.info(`Saved Claude model=${selectedModel} to ~/.claude-mem/settings.json`);
+    log.info(`Saved Codex model=${selectedModel} to ~/.codex-mem/settings.json`);
   }
 }
 
 export interface InstallOptions {
   ide?: string;
-  provider?: 'claude' | 'gemini' | 'openrouter';
+  provider?: 'codex' | 'gemini' | 'openrouter';
   model?: string;
   noAutoStart?: boolean;
 }
@@ -1025,18 +1025,18 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
 
   if (isInteractive) {
     await playBanner();
-    p.intro(pc.bgCyan(pc.black(' claude-mem install ')));
+    p.intro(pc.bgCyan(pc.black(' codex-mem install ')));
   } else {
-    console.log('claude-mem install');
+    console.log('codex-mem install');
   }
   const marketplaceDir = marketplaceDirectory();
-  const alreadyInstalled = existsSync(join(marketplaceDir, 'plugin', '.claude-plugin', 'plugin.json'));
+  const alreadyInstalled = existsSync(join(marketplaceDir, 'plugin', '.codex-legacy-plugin', 'plugin.json'));
 
   let existingVersion: string | undefined;
   if (alreadyInstalled) {
     try {
       const existingPluginJson = JSON.parse(
-        readFileSync(join(marketplaceDir, 'plugin', '.claude-plugin', 'plugin.json'), 'utf-8'),
+        readFileSync(join(marketplaceDir, 'plugin', '.codex-legacy-plugin', 'plugin.json'), 'utf-8'),
       );
       existingVersion = existingPluginJson.version ?? undefined;
     } catch (error: unknown) {
@@ -1045,7 +1045,7 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
   }
 
   const dot = pc.dim('·');
-  const segments = [`${pc.bold('claude-mem')} ${pc.cyan(`v${version}`)}`];
+  const segments = [`${pc.bold('codex-mem')} ${pc.cyan(`v${version}`)}`];
   if (existingVersion && existingVersion !== version) {
     segments.push(`installed ${pc.yellow(`v${existingVersion}`)}`);
   } else if (existingVersion) {
@@ -1084,25 +1084,25 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
   } else if (process.stdin.isTTY) {
     selectedIDEs = await promptForIDESelection();
   } else {
-    selectedIDEs = ['claude-code'];
+    selectedIDEs = ['codex-code'];
   }
 
   const selectedRuntime = await promptRuntime();
   const selectedProvider = await promptProvider(options);
-  if (selectedProvider === 'claude') {
-    await promptClaudeModel(options);
+  if (selectedProvider === 'codex') {
+    await promptCodexModel(options);
   }
 
   let workerStartResult: WorkerStartResult = 'dead';
-  // Claude Code consumes the marketplace plugin system directly, so any selection
-  // (claude-code or otherwise) needs the marketplace + plugin registration steps.
+  // Codex Code consumes the marketplace plugin system directly, so any selection
+  // (codex-code or otherwise) needs the marketplace + plugin registration steps.
   // The only time we'd skip is a hypothetical no-IDE install, which the prompt above
   // doesn't allow today.
   const needsMarketplace = selectedIDEs.length > 0;
 
   {
     if (needsMarketplace) {
-      const installPort = getSetting('CLAUDE_MEM_WORKER_PORT');
+      const installPort = getSetting('CODEX_MEM_WORKER_PORT');
       const shutdownSpinner = isInteractive ? p.spinner() : null;
       shutdownSpinner?.start('Stopping running worker (so we can overwrite cleanly)…');
       try {
@@ -1119,7 +1119,7 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : String(error);
         if (shutdownSpinner) {
-          shutdownSpinner.stop(`Pre-overwrite worker shutdown failed: ${message}`, 1);
+          shutdownSpinner.stop(`Pre-overwrite worker shutdown failed: ${message}`);
         } else {
           console.warn('[install] Pre-overwrite worker shutdown failed:', message);
         }
@@ -1150,9 +1150,9 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
         },
       },
       {
-        title: 'Enabling plugin in Claude settings',
+        title: 'Enabling plugin in Codex settings',
         task: async () => {
-          enablePluginInClaudeSettings();
+          enablePluginInCodexSettings();
           return `Plugin enabled ${pc.green('OK')}`;
         },
       },
@@ -1204,27 +1204,27 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
 
   const failedIDEs = await setupIDEs(selectedIDEs);
 
-  // Disable Claude Code's built-in auto-memory (CLAUDE_CODE_DISABLE_AUTO_MEMORY=1)
-  // for any install that targets claude-code. claude-mem's hook-based memory is the
+  // Disable Codex Code's built-in auto-memory (CODEX_CODE_DISABLE_AUTO_MEMORY=1)
+  // for any install that targets codex-code. codex-mem's hook-based memory is the
   // intended source of cross-session context; the built-in MEMORY.md system creates
   // shadow state and competes for context-window tokens.
   // Tri-state so the summary can distinguish "wrote", "already set", and "failed".
   // A boolean would conflate the error path with "already set", which is misleading
   // when a write fails mid-install (the warn would say one thing, the summary another).
   let autoMemoryStatus: 'disabled' | 'already-disabled' | 'failed' | null = null;
-  if (selectedIDEs.includes('claude-code')) {
+  if (selectedIDEs.includes('codex-code')) {
     try {
-      const wrote = disableClaudeAutoMemory();
+      const wrote = disableCodexAutoMemory();
       autoMemoryStatus = wrote ? 'disabled' : 'already-disabled';
       if (wrote) {
-        log.success('Claude Code: auto-memory disabled (CLAUDE_CODE_DISABLE_AUTO_MEMORY=1).');
+        log.success('Codex Code: auto-memory disabled (CODEX_CODE_DISABLE_AUTO_MEMORY=1).');
       } else {
-        log.info('Claude Code: auto-memory already disabled, leaving settings.json untouched.');
+        log.info('Codex Code: auto-memory already disabled, leaving settings.json untouched.');
       }
     } catch (error: unknown) {
       // Don't fail the install over this — surface the warning and continue.
       autoMemoryStatus = 'failed';
-      log.warn(`Could not disable Claude Code auto-memory: ${error instanceof Error ? error.message : String(error)}`);
+      log.warn(`Could not disable Codex Code auto-memory: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -1239,7 +1239,7 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
             ? `Skipped (--no-auto-start)`
             : `Skipped (non-TTY)`;
         }
-        const port = Number(getSetting('CLAUDE_MEM_WORKER_PORT'));
+        const port = Number(getSetting('CODEX_MEM_WORKER_PORT'));
         const marketplaceScriptPath = join(marketplaceDirectory(), 'plugin', 'scripts', 'worker-service.cjs');
         const cacheScriptPath = join(pluginCacheDirectory(version), 'scripts', 'worker-service.cjs');
         const scriptPath = existsSync(marketplaceScriptPath) ? marketplaceScriptPath : cacheScriptPath;
@@ -1251,7 +1251,7 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
           case 'warming':
             return `${selectedRuntime === 'server-beta' ? 'Server beta' : 'Worker'} starting on port ${port} — finishing in background ${pc.yellow('⏳')}`;
           case 'dead':
-            return `${selectedRuntime === 'server-beta' ? 'Server beta' : 'Worker'} did not start — try \`${selectedRuntime === 'server-beta' ? 'npx claude-mem server start' : 'npx claude-mem start'}\` manually ${pc.yellow('!')}`;
+            return `${selectedRuntime === 'server-beta' ? 'Server beta' : 'Worker'} did not start — try \`${selectedRuntime === 'server-beta' ? 'npx codex-mem server start' : 'npx codex-mem start'}\` manually ${pc.yellow('!')}`;
         }
       },
     },
@@ -1264,9 +1264,9 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
     `IDEs:        ${pc.cyan(selectedIDEs.join(', '))}`,
   ];
   if (autoMemoryStatus === 'disabled') {
-    summaryLines.push(`Auto-memory: ${pc.cyan('disabled')} (CLAUDE_CODE_DISABLE_AUTO_MEMORY=1)`);
+    summaryLines.push(`Auto-memory: ${pc.cyan('disabled')} (CODEX_CODE_DISABLE_AUTO_MEMORY=1)`);
   } else if (autoMemoryStatus === 'already-disabled') {
-    summaryLines.push(`Auto-memory: ${pc.cyan('already disabled')} (CLAUDE_CODE_DISABLE_AUTO_MEMORY=1)`);
+    summaryLines.push(`Auto-memory: ${pc.cyan('already disabled')} (CODEX_CODE_DISABLE_AUTO_MEMORY=1)`);
   } else if (autoMemoryStatus === 'failed') {
     summaryLines.push(`Auto-memory: ${pc.red('write failed')} (see warning above)`);
   }
@@ -1281,7 +1281,7 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
     summaryLines.forEach(l => console.log(`  ${l}`));
   }
 
-  const workerPort = getSetting('CLAUDE_MEM_WORKER_PORT');
+  const workerPort = getSetting('CODEX_MEM_WORKER_PORT');
 
   let actualPort: number | string = workerPort;
   let workerReady = false;
@@ -1320,7 +1320,7 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
   const finalWorkerState = workerStartResult as WorkerStartResult;
   const workerAlive = finalWorkerState !== 'dead' || workerReady;
   const runtimeLabel = selectedRuntime === 'server-beta' ? 'Server beta' : 'Worker';
-  const runtimeStartCommand = selectedRuntime === 'server-beta' ? 'npx claude-mem server start' : 'npx claude-mem start';
+  const runtimeStartCommand = selectedRuntime === 'server-beta' ? 'npx codex-mem server start' : 'npx codex-mem start';
   const workerHeadline = autoStartSkipped
     ? `${pc.yellow('!')} ${runtimeLabel} autostart skipped — start it manually with ${pc.bold(runtimeStartCommand)}`
     : workerReady || finalWorkerState === 'ready'
@@ -1330,65 +1330,65 @@ export async function runInstallCommand(options: InstallOptions = {}): Promise<v
     ? [
         workerHeadline,
         ``,
-        `${pc.bold('First success:')} once the worker is running, keep ${pc.underline(`http://localhost:${workerPort}`)} open in a browser, then open Claude Code in any project. Observations stream in as Claude reads, edits, and runs commands.`,
+        `${pc.bold('First success:')} once the worker is running, keep ${pc.underline(`http://localhost:${workerPort}`)} open in a browser, then open Codex Code in any project. Observations stream in as Codex reads, edits, and runs commands.`,
         ``,
         `${pc.bold('Two paths from here:')}`,
         `  ${pc.cyan('A.')} Just start working. Memory builds passively from your first prompt. (Recommended.)`,
-        `  ${pc.cyan('B.')} Front-load it: open Claude Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).`,
+        `  ${pc.cyan('B.')} Front-load it: open Codex Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).`,
         ``,
         `Memory injection starts on your second session in a project.`,
-        `Everything stays in ${pc.cyan('~/.claude-mem')} on this machine.`,
+        `Everything stays in ${pc.cyan('~/.codex-mem')} on this machine.`,
         ``,
-        `${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CLAUDE_MEM_WELCOME_HINT_ENABLED=false')}`,
-        `${pc.dim('Note: close all Claude Code sessions before uninstalling, or ~/.claude-mem will be recreated by active hooks.')}`,
+        `${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CODEX_MEM_WELCOME_HINT_ENABLED=false')}`,
+        `${pc.dim('Note: close all Codex Code sessions before uninstalling, or ~/.codex-mem will be recreated by active hooks.')}`,
       ]
     : workerAlive
     ? [
         workerHeadline,
         ``,
-        `${pc.bold('First success:')} keep that URL open in a browser, then open Claude Code in any project. Observations stream in as Claude reads, edits, and runs commands.`,
+        `${pc.bold('First success:')} keep that URL open in a browser, then open Codex Code in any project. Observations stream in as Codex reads, edits, and runs commands.`,
         ``,
         `${pc.bold('Two paths from here:')}`,
         `  ${pc.cyan('A.')} Just start working. Memory builds passively from your first prompt. (Recommended.)`,
-        `  ${pc.cyan('B.')} Front-load it: open Claude Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).`,
+        `  ${pc.cyan('B.')} Front-load it: open Codex Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).`,
         ``,
         `Memory injection starts on your second session in a project.`,
-        `Everything stays in ${pc.cyan('~/.claude-mem')} on this machine.`,
+        `Everything stays in ${pc.cyan('~/.codex-mem')} on this machine.`,
         ``,
-        `${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CLAUDE_MEM_WELCOME_HINT_ENABLED=false')}`,
-        `${pc.dim('Note: close all Claude Code sessions before uninstalling, or ~/.claude-mem will be recreated by active hooks.')}`,
+        `${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CODEX_MEM_WELCOME_HINT_ENABLED=false')}`,
+        `${pc.dim('Note: close all Codex Code sessions before uninstalling, or ~/.codex-mem will be recreated by active hooks.')}`,
       ]
     : [
-        `${pc.yellow('!')} Worker not yet ready on port ${pc.cyan(String(workerPort))} -- still starting up; check ${pc.bold('claude-mem status')} later, or start manually: ${pc.bold('npx claude-mem start')}`,
+        `${pc.yellow('!')} Worker not yet ready on port ${pc.cyan(String(workerPort))} -- still starting up; check ${pc.bold('codex-mem status')} later, or start manually: ${pc.bold('npx codex-mem start')}`,
         ``,
-        `${pc.bold('First success:')} keep ${pc.underline(`http://localhost:${workerPort}`)} open in a browser, then open Claude Code in any project. Observations stream in as Claude reads, edits, and runs commands.`,
+        `${pc.bold('First success:')} keep ${pc.underline(`http://localhost:${workerPort}`)} open in a browser, then open Codex Code in any project. Observations stream in as Codex reads, edits, and runs commands.`,
         ``,
         `${pc.bold('Two paths from here:')}`,
         `  ${pc.cyan('A.')} Just start working. Memory builds passively from your first prompt. (Recommended.)`,
-        `  ${pc.cyan('B.')} Front-load it: open Claude Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).`,
+        `  ${pc.cyan('B.')} Front-load it: open Codex Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).`,
         ``,
         `Memory injection starts on your second session in a project.`,
-        `Everything stays in ${pc.cyan('~/.claude-mem')} on this machine.`,
+        `Everything stays in ${pc.cyan('~/.codex-mem')} on this machine.`,
         ``,
-        `${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CLAUDE_MEM_WELCOME_HINT_ENABLED=false')}`,
-        `${pc.dim('Note: close all Claude Code sessions before uninstalling, or ~/.claude-mem will be recreated by active hooks.')}`,
+        `${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CODEX_MEM_WELCOME_HINT_ENABLED=false')}`,
+        `${pc.dim('Note: close all Codex Code sessions before uninstalling, or ~/.codex-mem will be recreated by active hooks.')}`,
       ];
 
   if (isInteractive) {
     p.note(nextSteps.join('\n'), 'Next Steps');
     if (failedIDEs.length > 0) {
-      p.outro(pc.yellow('claude-mem installed with some IDE setup failures.'));
+      p.outro(pc.yellow('codex-mem installed with some IDE setup failures.'));
     } else {
-      p.outro(pc.green('claude-mem installed successfully!'));
+      p.outro(pc.green('codex-mem installed successfully!'));
     }
   } else {
     console.log('\n  Next Steps');
     nextSteps.forEach(l => console.log(`  ${l}`));
     if (failedIDEs.length > 0) {
-      console.log('\nclaude-mem installed with some IDE setup failures.');
+      console.log('\ncodex-mem installed with some IDE setup failures.');
       process.exitCode = 1;
     } else {
-      console.log('\nclaude-mem installed successfully!');
+      console.log('\ncodex-mem installed successfully!');
     }
   }
 }
@@ -1398,9 +1398,9 @@ export async function runRepairCommand(): Promise<void> {
   const cacheDir = pluginCacheDirectory(version);
 
   if (isInteractive) {
-    p.intro(pc.bgCyan(pc.black(' claude-mem repair ')));
+    p.intro(pc.bgCyan(pc.black(' codex-mem repair ')));
   } else {
-    console.log('claude-mem repair');
+    console.log('codex-mem repair');
   }
   log.info(`Version: ${pc.cyan(version)}`);
 
@@ -1413,7 +1413,7 @@ export async function runRepairCommand(): Promise<void> {
         message('Checking uv…');
         const { version: uvVersion } = await ensureUv();
         // Repair must regenerate the cache if it was wiped (e.g. user ran
-        // `rm -rf ~/.claude/plugins/cache`). Without this, bun install would
+        // `rm -rf ~/.codex/plugins/cache`). Without this, bun install would
         // fail immediately with no package.json to install against.
         if (!existsSync(join(cacheDir, 'package.json'))) {
           message('Cache missing — repopulating from npm package…');
@@ -1429,8 +1429,8 @@ export async function runRepairCommand(): Promise<void> {
   ]);
 
   if (isInteractive) {
-    p.outro(pc.green('claude-mem repair complete.'));
+    p.outro(pc.green('codex-mem repair complete.'));
   } else {
-    console.log('claude-mem repair complete.');
+    console.log('codex-mem repair complete.');
   }
 }

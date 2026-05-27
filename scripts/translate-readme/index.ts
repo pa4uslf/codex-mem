@@ -1,7 +1,8 @@
-import { query, type SDKMessage, type SDKResultMessage } from "@anthropic-ai/claude-agent-sdk";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { createHash } from "crypto";
+import { spawn } from "child_process";
+import { tmpdir } from "os";
 
 interface TranslationCache {
   sourceHash: string;
@@ -163,62 +164,8 @@ CRITICAL OUTPUT RULES:
 - Start directly with the translation note, then the content
 - The output will be saved directly to a .md file`;
 
-  let translation = "";
-  let costUsd = 0;
-  let charCount = 0;
-  const startTime = Date.now();
-
-  const stream = query({
-    prompt,
-    options: {
-      model: options.model || "sonnet",
-      systemPrompt: `You are an expert technical translator specializing in software documentation.
-You translate README files while preserving Markdown formatting and technical accuracy.
-Always output only the translated content without any surrounding explanation.`,
-      permissionMode: "bypassPermissions",
-      allowDangerouslySkipPermissions: true,
-      includePartialMessages: true, // Enable streaming events
-    },
-  });
-
-  const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-  let spinnerIdx = 0;
-
-  for await (const message of stream) {
-    if (message.type === "stream_event") {
-      const event = message.event as { type: string; delta?: { type: string; text?: string } };
-      if (event.type === "content_block_delta" && event.delta?.type === "text_delta" && event.delta.text) {
-        translation += event.delta.text;
-        charCount += event.delta.text.length;
-
-        if (options.verbose) {
-          const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-          const spinner = spinnerFrames[spinnerIdx++ % spinnerFrames.length];
-          process.stdout.write(`\r   ${spinner} Translating... ${charCount} chars (${elapsed}s)`);
-        }
-      }
-    }
-
-    if (message.type === "assistant") {
-      for (const block of message.message.content) {
-        if (block.type === "text" && !translation) {
-          translation = block.text;
-          charCount = translation.length;
-        }
-      }
-    }
-
-    if (message.type === "result") {
-      const result = message as SDKResultMessage;
-      if (result.subtype === "success") {
-        costUsd = result.total_cost_usd;
-        if (!translation && result.result) {
-          translation = result.result;
-          charCount = translation.length;
-        }
-      }
-    }
-  }
+  const translation = await runCodexExec(prompt, options.model || "gpt-5");
+  const costUsd = 0;
 
   if (options.verbose) {
     process.stdout.write("\r" + " ".repeat(60) + "\r");
@@ -238,6 +185,43 @@ Always output only the translated content without any surrounding explanation.`,
   cleaned = cleaned.trim();
 
   return { translation: cleaned, costUsd };
+}
+
+async function runCodexExec(prompt: string, model: string): Promise<string> {
+  const dir = await fs.mkdtemp(path.join(tmpdir(), "codex-mem-translate-"));
+  const outputPath = path.join(dir, "translation.md");
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(process.env.CODEX_CODE_PATH || "codex", [
+        "exec",
+        "--json",
+        "--sandbox",
+        "read-only",
+        "--skip-git-repo-check",
+        "--output-last-message",
+        outputPath,
+        "--model",
+        model,
+        "-",
+      ], {
+        stdio: ["pipe", "ignore", "pipe"],
+      });
+      let stderr = "";
+      child.stderr.on("data", chunk => {
+        stderr += chunk.toString();
+      });
+      child.on("error", reject);
+      child.on("close", code => {
+        code === 0
+          ? resolve()
+          : reject(new Error(`codex exec failed with exit code ${code}${stderr ? `: ${stderr.trim()}` : ""}`));
+      });
+      child.stdin.end(prompt);
+    });
+    return (await fs.readFile(outputPath, "utf-8")).trim();
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
 }
 
 export async function translateReadme(

@@ -24,17 +24,17 @@ RUN set -eux \
  && curl -LsSf https://astral.sh/uv/install.sh | sh \
  && { chmod a+rX /usr/local/bin/uv /usr/local/bin/uvx 2>/dev/null || true; }
 
-RUN npm install -g @anthropic-ai/claude-code@2.1.114
+RUN npm install -g @codex-ai/codex-code@2.1.114
 
-COPY plugin/ /opt/claude-mem/
+COPY plugin/ /opt/codex-mem/
 
 COPY evals/swebench/run-instance.sh /evals/swebench/run-instance.sh
 RUN chmod +x /evals/swebench/run-instance.sh
 
-RUN mkdir -p /root/.claude /root/.claude-mem
+RUN mkdir -p /root/.codex /root/.codex-mem
 
-RUN mkdir -p /home/node/.claude /home/node/.claude-mem \
- && chown -R node:node /home/node /opt/claude-mem
+RUN mkdir -p /home/node/.codex /home/node/.codex-mem \
+ && chown -R node:node /home/node /opt/codex-mem
 
 USER node
 WORKDIR /home/node

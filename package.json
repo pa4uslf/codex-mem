@@ -1,11 +1,11 @@
 {
-  "name": "claude-mem",
+  "name": "codex-mem",
   "version": "13.3.0",
-  "description": "Memory compression system for Claude Code - persist context across sessions",
+  "description": "Memory compression system for Codex Code - persist context across sessions",
   "keywords": [
-    "claude",
-    "claude-code",
-    "claude-agent-sdk",
+    "codex",
+    "codex-code",
+    "codex-cli",
     "mcp",
     "plugin",
     "memory",
@@ -19,15 +19,15 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thedotmack/claude-mem.git"
+    "url": "https://github.com/thedotmack/codex-mem.git"
   },
-  "homepage": "https://github.com/thedotmack/claude-mem#readme",
+  "homepage": "https://github.com/thedotmack/codex-mem#readme",
   "bugs": {
-    "url": "https://github.com/thedotmack/claude-mem/issues"
+    "url": "https://github.com/thedotmack/codex-mem/issues"
   },
   "type": "module",
   "bin": {
-    "claude-mem": "./dist/npx-cli/index.js"
+    "codex-mem": "./dist/npx-cli/index.js"
   },
   "exports": {
     ".": {
@@ -44,16 +44,16 @@
     "dist",
     ".agents/plugins/marketplace.json",
     ".codex-plugin",
-    "plugin/.claude-plugin",
+    "plugin/.codex-legacy-plugin",
     "plugin/.codex-plugin",
     "plugin/.mcp.json",
-    "plugin/CLAUDE.md",
+    "plugin/CODEX.md",
     "plugin/package.json",
     "plugin/hooks",
     "plugin/modes",
     "plugin/scripts/*.js",
     "plugin/scripts/*.cjs",
-    "plugin/scripts/CLAUDE.md",
+    "plugin/scripts/CODEX.md",
     "plugin/skills",
     "plugin/ui",
     "openclaw"
@@ -65,13 +65,13 @@
   "scripts": {
     "dev": "npm run build-and-sync",
     "build": "node scripts/sync-plugin-manifests.js && node scripts/build-hooks.js",
-    "build-and-sync": "npm run build && npm run sync-marketplace && sleep 1 && (cd ~/.claude/plugins/marketplaces/thedotmack && npm run worker:restart)",
+    "build-and-sync": "npm run build && npm run sync-marketplace && sleep 1 && (cd ~/.codex/plugins/marketplaces/thedotmack && npm run worker:restart)",
     "sync-marketplace": "node scripts/sync-marketplace.cjs",
     "sync-marketplace:force": "node scripts/sync-marketplace.cjs --force",
     "build:binaries": "node scripts/build-worker-binary.js",
-    "build:cli-binary": "bun build --compile --minify ./src/services/worker-service.ts --outfile plugin/scripts/claude-mem",
-    "worker:logs": "tail -n 50 ~/.claude-mem/logs/worker-$(date +%Y-%m-%d).log",
-    "worker:tail": "tail -f 50 ~/.claude-mem/logs/worker-$(date +%Y-%m-%d).log",
+    "build:cli-binary": "bun build --compile --minify ./src/services/worker-service.ts --outfile plugin/scripts/codex-mem",
+    "worker:logs": "tail -n 50 ~/.codex-mem/logs/worker-$(date +%Y-%m-%d).log",
+    "worker:tail": "tail -f 50 ~/.codex-mem/logs/worker-$(date +%Y-%m-%d).log",
     "changelog:generate": "node scripts/generate-changelog.js",
     "discord:notify": "node scripts/discord-release-notify.js",
     "worker:start": "bun plugin/scripts/worker-service.cjs start",
@@ -82,8 +82,8 @@
     "queue:process": "bun scripts/check-pending-queue.ts --process",
     "queue:clear:pending": "bun scripts/clear-pending-queue.ts --all --force",
     "pr:status": "bun scripts/pr-babysit-status.ts",
-    "claude-md:regenerate": "bun scripts/regenerate-claude-md.ts",
-    "claude-md:dry-run": "bun scripts/regenerate-claude-md.ts --dry-run",
+    "codex-md:regenerate": "bun scripts/regenerate-codex-md.ts",
+    "codex-md:dry-run": "bun scripts/regenerate-codex-md.ts --dry-run",
     "strip-comments": "bun scripts/strip-comments.ts",
     "strip-comments:check": "bun scripts/strip-comments.ts --check",
     "strip-comments:dry-run": "bun scripts/strip-comments.ts --dry-run",
@@ -122,7 +122,6 @@
     "2fa": false
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.138",
     "@better-auth/api-key": "^1.6.9",
     "@clack/prompts": "^1.3.0",
     "@modelcontextprotocol/sdk": "^1.29.0",

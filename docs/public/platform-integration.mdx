@@ -1,11 +1,11 @@
 ---
 title: Platform Integration Guide
-description: Complete reference for integrating claude-mem worker service into VSCode extensions, IDE plugins, and CLI tools
+description: Complete reference for integrating codex-mem worker service into VSCode extensions, IDE plugins, and CLI tools
 icon: plug
 ---
 
 <Note>
-**Target Audience:** Developers building claude-mem integrations (VSCode extensions, IDE plugins, CLI tools).
+**Target Audience:** Developers building codex-mem integrations (VSCode extensions, IDE plugins, CLI tools).
 </Note>
 
 ## Quick Reference
@@ -14,9 +14,9 @@ icon: plug
 
 ```typescript
 // Resolve the worker port at runtime. The default is per-user (37700 + uid % 100),
-// or whatever the user set via CLAUDE_MEM_WORKER_PORT / settings.json. Read it from
-// process.env.CLAUDE_MEM_WORKER_PORT, then ~/.claude-mem/settings.json
-// (CLAUDE_MEM_WORKER_PORT key), then fall back to the deterministic default.
+// or whatever the user set via CODEX_MEM_WORKER_PORT / settings.json. Read it from
+// process.env.CODEX_MEM_WORKER_PORT, then ~/.codex-mem/settings.json
+// (CODEX_MEM_WORKER_PORT key), then fall back to the deterministic default.
 const WORKER_BASE_URL = `http://127.0.0.1:${workerPort}`;
 ```
 
@@ -28,15 +28,15 @@ GET /api/health
 
 // Create/get session and queue observation
 POST /api/sessions/observations
-Body: { claudeSessionId, tool_name, tool_input, tool_response, cwd }
+Body: { codexSessionId, tool_name, tool_input, tool_response, cwd }
 
 // Queue summary
 POST /api/sessions/summarize
-Body: { claudeSessionId, last_user_message, last_assistant_message }
+Body: { codexSessionId, last_user_message, last_assistant_message }
 
 // Complete session
 POST /api/sessions/complete
-Body: { claudeSessionId }
+Body: { codexSessionId }
 
 // Search observations
 GET /api/search?query=authentication&type=observations&format=index&limit=20
@@ -48,18 +48,18 @@ GET /api/context/recent?project=my-project&limit=3
 ### Environment Variables
 
 ```bash
-CLAUDE_MEM_MODEL=claude-haiku-4-5-20251001  # Default Claude model for observations/summaries
-CLAUDE_MEM_CONTEXT_OBSERVATIONS=50          # Observations injected at SessionStart
-CLAUDE_MEM_WORKER_PORT=                     # Optional override; default = 37700 + (uid % 100)
-CLAUDE_MEM_DATA_DIR=                        # Optional override for the data directory
-CLAUDE_MEM_PYTHON_VERSION=3.13              # Python version for chroma-mcp
+CODEX_MEM_MODEL=gpt-5-mini  # Default Codex model for observations/summaries
+CODEX_MEM_CONTEXT_OBSERVATIONS=50          # Observations injected at SessionStart
+CODEX_MEM_WORKER_PORT=                     # Optional override; default = 37700 + (uid % 100)
+CODEX_MEM_DATA_DIR=                        # Optional override for the data directory
+CODEX_MEM_PYTHON_VERSION=3.13              # Python version for chroma-mcp
 ```
 
 ### Build Commands (Local Development)
 
 ```bash
 npm run build                 # Compile TypeScript (hooks + worker)
-npm run sync-marketplace      # Copy to ~/.claude/plugins
+npm run sync-marketplace      # Copy to ~/.codex/plugins
 npm run worker:restart        # Restart worker
 npm run worker:logs           # View worker logs
 npm run worker:status         # Check worker status
@@ -94,7 +94,7 @@ Platform Hook/Extension
     Server-Sent Events for real-time updates
   </Card>
   <Card title="SDKAgent" icon="robot">
-    Claude Agent SDK for generating observations/summaries
+    Codex CLI for generating observations/summaries
   </Card>
   <Card title="PaginationHelper" icon="list">
     Query pagination utilities
@@ -153,7 +153,7 @@ POST /api/sessions/observations
 Content-Type: application/json
 
 {
-  "claudeSessionId": "abc123",      // Claude session identifier (string)
+  "codexSessionId": "abc123",      // Codex session identifier (string)
   "tool_name": "Bash",
   "tool_input": { "command": "ls" },
   "tool_response": { "stdout": "..." },
@@ -170,7 +170,7 @@ Content-Type: application/json
 
 <Info>
 **Privacy Check:** Skips if user prompt was entirely wrapped in `<private>` tags.
-**Tag Stripping:** Removes `<private>` and `<claude-mem-context>` tags before storage.
+**Tag Stripping:** Removes `<private>` and `<codex-mem-context>` tags before storage.
 **Auto-Start:** Ensures SDK agent generator is running to process the queue.
 </Info>
 
@@ -182,7 +182,7 @@ POST /api/sessions/summarize
 Content-Type: application/json
 
 {
-  "claudeSessionId": "abc123",
+  "codexSessionId": "abc123",
   "last_user_message": "User's message",
   "last_assistant_message": "Assistant's response"
 }
@@ -203,7 +203,7 @@ POST /api/sessions/complete
 Content-Type: application/json
 
 {
-  "claudeSessionId": "abc123"
+  "codexSessionId": "abc123"
 }
 ```
 
@@ -247,7 +247,7 @@ Content-Type: application/json
 </Tabs>
 
 <Note>
-New integrations should use `/api/sessions/*` endpoints with `claudeSessionId`.
+New integrations should use `/api/sessions/*` endpoints with `codexSessionId`.
 </Note>
 
 ### Data Retrieval (DataRoutes)
@@ -317,7 +317,7 @@ GET /api/stats
     "port": 37742
   },
   "database": {
-    "path": "~/.claude-mem/claude-mem.db",
+    "path": "~/.codex-mem/codex-mem.db",
     "size": 1048576,
     "observations": 500,
     "sessions": 50,
@@ -334,7 +334,7 @@ GET /api/projects
 
 ```json Response
 {
-  "projects": ["claude-mem", "other-project", ...]
+  "projects": ["codex-mem", "other-project", ...]
 }
 ```
 
@@ -634,7 +634,7 @@ Event Types:
 - `summarize_queued`: { type }
 - `observation_created`: { type, observation }
 - `summary_created`: { type, summary }
-- `new_prompt`: { type, id, claude_session_id, project, prompt_number, prompt_text, created_at_epoch }
+- `new_prompt`: { type, id, codex_session_id, project, prompt_number, prompt_text, created_at_epoch }
 </Info>
 
 ## Data Models
@@ -644,7 +644,7 @@ Event Types:
 ```typescript
 interface ActiveSession {
   sessionDbId: number;                  // Database ID (numeric)
-  claudeSessionId: string;              // Claude session identifier (string)
+  codexSessionId: string;              // Codex session identifier (string)
   sdkSessionId: string | null;          // SDK session ID
   project: string;                      // Project name
   userPrompt: string;                   // Current user prompt text
@@ -676,7 +676,7 @@ interface PendingMessage {
     ```typescript
     interface SDKSessionRow {
       id: number;
-      claude_session_id: string;
+      codex_session_id: string;
       sdk_session_id: string;
       project: string;
       user_prompt: string;
@@ -721,7 +721,7 @@ interface PendingMessage {
     ```typescript
     interface UserPromptRow {
       id: number;
-      claude_session_id: string;
+      codex_session_id: string;
       sdk_session_id: string;
       project: string;
       prompt_number: number;
@@ -763,7 +763,7 @@ interface SessionSummarySearchResult {
 
 interface UserPromptSearchResult {
   id: number;
-  claude_session_id: string;
+  codex_session_id: string;
   project: string;
   prompt_number: number;
   prompt_text: string;
@@ -785,7 +785,7 @@ interface TimelineItem {
 
 ## Integration Patterns
 
-### Mapping Claude Code Hooks to Worker API
+### Mapping Codex Code Hooks to Worker API
 
 <Steps>
   <Step title="SessionStart Hook">
@@ -803,7 +803,7 @@ interface TimelineItem {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          claudeSessionId: session_id,
+          codexSessionId: session_id,
           tool_name,
           tool_input,
           tool_response: tool_result,
@@ -825,7 +825,7 @@ interface TimelineItem {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          claudeSessionId: session_id,
+          codexSessionId: session_id,
           last_user_message,
           last_assistant_message
         })
@@ -842,7 +842,7 @@ interface TimelineItem {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          claudeSessionId: session_id
+          codexSessionId: session_id
         })
       });
     }
@@ -892,14 +892,14 @@ const searchTool: SearchTool = {
 };
 
 // Register tool
-vscode.lm.registerTool('claude-mem-search', searchTool);
+vscode.lm.registerTool('codex-mem-search', searchTool);
 ```
 
 #### Chat Participant Implementation
 
 ```typescript
-const participant = vscode.chat.createChatParticipant('claude-mem', async (request, context, stream, token) => {
-  const claudeSessionId = context.session.id;
+const participant = vscode.chat.createChatParticipant('codex-mem', async (request, context, stream, token) => {
+  const codexSessionId = context.session.id;
 
   // First message in conversation - no initialization needed
   // Session is auto-created on first observation
@@ -993,7 +993,7 @@ async function isWorkerHealthy(): Promise<boolean> {
 <Info>
 The worker automatically strips privacy tags before storage:
 - `<private>content</private>` - User-level privacy control
-- `<claude-mem-context>content</claude-mem-context>` - System-level tag (prevents recursive storage)
+- `<codex-mem-context>content</codex-mem-context>` - System-level tag (prevents recursive storage)
 
 **Privacy Check:** Observations/summaries are skipped if the entire user prompt was wrapped in `<private>` tags.
 </Info>
@@ -1003,7 +1003,7 @@ The worker automatically strips privacy tags before storage:
 ```typescript
 class WorkerUnavailableError extends Error {
   constructor() {
-    super('Claude-mem worker is not running or unreachable');
+    super('Codex-mem worker is not running or unreachable');
     this.name = 'WorkerUnavailableError';
   }
 }
@@ -1086,8 +1086,8 @@ esbuild.build({
 
 ```json
 {
-  "name": "claude-mem-vscode",
-  "displayName": "Claude-Mem",
+  "name": "codex-mem-vscode",
+  "displayName": "Codex-Mem",
   "version": "1.0.0",
   "engines": {
     "vscode": "^1.95.0"
@@ -1099,14 +1099,14 @@ esbuild.build({
   "contributes": {
     "chatParticipants": [
       {
-        "id": "claude-mem",
+        "id": "codex-mem",
         "name": "memory",
         "description": "Search your persistent memory"
       }
     ],
     "languageModelTools": [
       {
-        "name": "claude-mem-search",
+        "name": "codex-mem-search",
         "displayName": "Search Memory",
         "description": "Search persistent memory for observations, sessions, and prompts"
       }
@@ -1190,7 +1190,7 @@ describe('WorkerClient', () => {
   it('should queue observation', async () => {
     const client = new WorkerClient();
     const result = await client.queueObservation({
-      claudeSessionId: 'test-123',
+      codexSessionId: 'test-123',
       tool_name: 'Bash',
       tool_input: { command: 'ls' },
       tool_response: { stdout: 'file1.txt' },
@@ -1219,7 +1219,7 @@ describe('Worker Integration', () => {
   beforeAll(async () => {
     // Start worker process
     workerProcess = spawn('node', ['dist/worker-service.js'], {
-      env: { ...process.env, CLAUDE_MEM_WORKER_PORT: '37778' }
+      env: { ...process.env, CODEX_MEM_WORKER_PORT: '37778' }
     });
 
     // Wait for worker to be ready
@@ -1306,7 +1306,7 @@ export class WorkerClient {
   }
 
   async queueObservation(data: {
-    claudeSessionId: string;
+    codexSessionId: string;
     tool_name: string;
     tool_input: any;
     tool_response: any;
@@ -1327,7 +1327,7 @@ export class WorkerClient {
   }
 
   async queueSummarize(data: {
-    claudeSessionId: string;
+    codexSessionId: string;
     last_user_message?: string;
     last_assistant_message?: string;
   }): Promise<{ status: string; reason?: string }> {
@@ -1345,11 +1345,11 @@ export class WorkerClient {
     return await response.json();
   }
 
-  async completeSession(claudeSessionId: string): Promise<void> {
+  async completeSession(codexSessionId: string): Promise<void> {
     const response = await fetch(`${this.baseUrl}/api/sessions/complete`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ claudeSessionId }),
+      body: JSON.stringify({ codexSessionId }),
       signal: AbortSignal.timeout(5000)
     });
 
@@ -1414,7 +1414,7 @@ import { WorkerClient } from './WorkerClient';
 export function registerSearchTool(context: vscode.ExtensionContext) {
   const client = new WorkerClient();
 
-  const searchTool = vscode.lm.registerTool('claude-mem-search', {
+  const searchTool = vscode.lm.registerTool('codex-mem-search', {
     description: 'Search persistent memory for observations, sessions, and prompts',
     inputSchema: {
       type: 'object',
@@ -1480,12 +1480,12 @@ export function registerSearchTool(context: vscode.ExtensionContext) {
 ## Critical Implementation Notes
 
 <Warning>
-### sessionDbId vs claudeSessionId
+### sessionDbId vs codexSessionId
 
-**IMPORTANT:** Use `claudeSessionId` (string) for new API endpoints, not `sessionDbId` (number).
+**IMPORTANT:** Use `codexSessionId` (string) for new API endpoints, not `sessionDbId` (number).
 
 - `sessionDbId` - Numeric database ID (legacy endpoints only)
-- `claudeSessionId` - String identifier from Claude platform (new endpoints)
+- `codexSessionId` - String identifier from Codex platform (new endpoints)
 </Warning>
 
 <Warning>
@@ -1531,10 +1531,10 @@ const userMessage = '<private>API key: sk-1234567890</private>';
 ## Additional Resources
 
 <CardGroup cols={2}>
-  <Card title="Documentation" icon="book" href="https://claude-mem.ai">
-    Complete claude-mem documentation
+  <Card title="Documentation" icon="book" href="https://codex-mem.ai">
+    Complete codex-mem documentation
   </Card>
-  <Card title="GitHub" icon="github" href="https://github.com/thedotmack/claude-mem">
+  <Card title="GitHub" icon="github" href="https://github.com/thedotmack/codex-mem">
     Source code and issue tracker
   </Card>
   <Card title="Worker Service" icon="server" href="/architecture/worker-service">

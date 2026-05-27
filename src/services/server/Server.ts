@@ -183,7 +183,7 @@ export class Server {
         version: BUILT_IN_VERSION,
         workerPath: this.options.workerPath,
         uptime: getUptimeSeconds(this.startTime),
-        managed: process.env.CLAUDE_MEM_MANAGED === 'true',
+        managed: process.env.CODEX_MEM_MANAGED === 'true',
         hasIpc: typeof process.send === 'function',
         platform: process.platform,
         pid: process.pid,
@@ -244,7 +244,7 @@ export class Server {
 
     this.app.post('/api/admin/restart', requireLocalhost, async (_req: Request, res: Response) => {
       const isWindowsManaged = process.platform === 'win32' &&
-        process.env.CLAUDE_MEM_MANAGED === 'true' &&
+        process.env.CODEX_MEM_MANAGED === 'true' &&
         process.send;
 
       if (isWindowsManaged) {
@@ -258,7 +258,7 @@ export class Server {
 
     this.app.post('/api/admin/shutdown', requireLocalhost, async (_req: Request, res: Response) => {
       const isWindowsManaged = process.platform === 'win32' &&
-        process.env.CLAUDE_MEM_MANAGED === 'true' &&
+        process.env.CODEX_MEM_MANAGED === 'true' &&
         process.send;
 
       if (isWindowsManaged) {

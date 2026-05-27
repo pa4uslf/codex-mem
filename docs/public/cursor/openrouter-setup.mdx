@@ -1,14 +1,14 @@
 ---
 title: "Cursor + OpenRouter Setup"
-description: "Use Claude-Mem in Cursor with OpenRouter's 100+ AI models"
+description: "Use Codex-Mem in Cursor with OpenRouter's 100+ AI models"
 ---
 
 # Cursor + OpenRouter Setup
 
-This guide walks you through setting up Claude-Mem in Cursor using OpenRouter. OpenRouter provides access to 100+ AI models from various providers, including several free options.
+This guide walks you through setting up Codex-Mem in Cursor using OpenRouter. OpenRouter provides access to 100+ AI models from various providers, including several free options.
 
 <Info>
-**Model variety:** Access Claude, GPT-4, Gemini, Llama, Mistral, and many more through a single API key.
+**Model variety:** Access Codex, GPT-4, Gemini, Llama, Mistral, and many more through a single API key.
 </Info>
 
 ## Step 1: Get an OpenRouter API Key
@@ -23,12 +23,12 @@ This guide walks you through setting up Claude-Mem in Cursor using OpenRouter. O
 **Free models available:** OpenRouter offers free versions of several models including Gemini Flash and others. Check the [model list](https://openrouter.ai/models?show_free=true) for current free options.
 </Tip>
 
-## Step 2: Clone and Build Claude-Mem
+## Step 2: Clone and Build Codex-Mem
 
 ```bash
 # Clone the repository
-git clone https://github.com/thedotmack/claude-mem.git
-cd claude-mem
+git clone https://github.com/thedotmack/codex-mem.git
+cd codex-mem
 
 # Install dependencies
 bun install
@@ -55,13 +55,13 @@ Create the settings file manually:
 
 ```bash
 # Create settings directory
-mkdir -p ~/.claude-mem
+mkdir -p ~/.codex-mem
 
 # Create settings file with OpenRouter configuration
-cat > ~/.claude-mem/settings.json << 'EOF'
+cat > ~/.codex-mem/settings.json << 'EOF'
 {
-  "CLAUDE_MEM_PROVIDER": "openrouter",
-  "CLAUDE_MEM_OPENROUTER_API_KEY": "YOUR_OPENROUTER_API_KEY"
+  "CODEX_MEM_PROVIDER": "openrouter",
+  "CODEX_MEM_OPENROUTER_API_KEY": "YOUR_OPENROUTER_API_KEY"
 }
 EOF
 ```
@@ -104,7 +104,7 @@ Open http://localhost:37777 to see the memory viewer.
 
 | Model | Approx. Cost | Notes |
 |-------|--------------|-------|
-| `anthropic/claude-3-haiku` | ~$0.25/1M tokens | Fast, efficient |
+| `openai/gpt-5-mini` | ~$0.25/1M tokens | Fast, efficient |
 | `google/gemini-flash-1.5` | ~$0.075/1M tokens | Great value |
 | `mistralai/mistral-7b-instruct` | ~$0.07/1M tokens | Budget option |
 
@@ -112,9 +112,9 @@ To specify a model, add to your settings:
 
 ```json
 {
-  "CLAUDE_MEM_PROVIDER": "openrouter",
-  "CLAUDE_MEM_OPENROUTER_API_KEY": "your-key",
-  "CLAUDE_MEM_OPENROUTER_MODEL": "google/gemini-2.0-flash-exp:free"
+  "CODEX_MEM_PROVIDER": "openrouter",
+  "CODEX_MEM_OPENROUTER_API_KEY": "your-key",
+  "CODEX_MEM_OPENROUTER_MODEL": "google/gemini-2.0-flash-exp:free"
 }
 ```
 
@@ -137,14 +137,14 @@ OpenRouter charges per token. To manage costs:
 Ensure your settings file exists with the correct format:
 
 ```bash
-cat ~/.claude-mem/settings.json
+cat ~/.codex-mem/settings.json
 ```
 
 Should output something like:
 ```json
 {
-  "CLAUDE_MEM_PROVIDER": "openrouter",
-  "CLAUDE_MEM_OPENROUTER_API_KEY": "sk-or-..."
+  "CODEX_MEM_PROVIDER": "openrouter",
+  "CODEX_MEM_OPENROUTER_API_KEY": "sk-or-..."
 }
 ```
 
@@ -176,11 +176,11 @@ Common issues:
 
 ## Switching Providers Later
 
-You can switch between OpenRouter, Gemini, and Claude SDK at any time by updating your settings. No restart required - changes take effect on the next observation.
+You can switch between OpenRouter, Gemini, and Codex CLI at any time by updating your settings. No restart required - changes take effect on the next observation.
 
 ```json
 {
-  "CLAUDE_MEM_PROVIDER": "gemini"
+  "CODEX_MEM_PROVIDER": "gemini"
 }
 ```
 

@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync, renameSync, mkdirSync } from 'fs';
 import { dirname, resolve } from 'path';
-import { replaceTaggedContent } from './claude-md-utils.js';
+import { replaceTaggedContent } from './codex-md-utils.js';
 import { logger } from './logger.js';
 
 export function writeAgentsMd(agentsPath: string, context: string): void {

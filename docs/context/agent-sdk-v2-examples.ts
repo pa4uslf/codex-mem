@@ -1,114 +1,51 @@
+import { spawn } from 'child_process';
+import { mkdtemp, readFile, rm } from 'fs/promises';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
-import {
-  unstable_v2_createSession,
-  unstable_v2_resumeSession,
-  unstable_v2_prompt,
-} from '@anthropic-ai/claude-agent-sdk';
+async function codexExec(prompt: string, model = 'gpt-5'): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), 'codex-mem-example-'));
+  const outputPath = join(dir, 'last-message.txt');
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn('codex', [
+        'exec',
+        '--json',
+        '--sandbox',
+        'read-only',
+        '--skip-git-repo-check',
+        '--output-last-message',
+        outputPath,
+        '--model',
+        model,
+        '-',
+      ], {
+        stdio: ['pipe', 'ignore', 'pipe'],
+      });
+      let stderr = '';
+      child.stderr.on('data', chunk => {
+        stderr += chunk.toString();
+      });
+      child.on('error', reject);
+      child.on('close', code => {
+        code === 0
+          ? resolve()
+          : reject(new Error(`codex exec failed with exit code ${code}${stderr ? `: ${stderr.trim()}` : ''}`));
+      });
+      child.stdin.end(prompt);
+    });
+    return (await readFile(outputPath, 'utf-8')).trim();
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+}
 
 async function main() {
-  const example = process.argv[2] || 'basic';
-
-  switch (example) {
-    case 'basic':
-      await basicSession();
-      break;
-    case 'multi-turn':
-      await multiTurn();
-      break;
-    case 'one-shot':
-      await oneShot();
-      break;
-    case 'resume':
-      await sessionResume();
-      break;
-    default:
-      console.log('Usage: npx tsx v2-examples.ts [basic|multi-turn|one-shot|resume]');
-  }
+  const result = await codexExec('What is the capital of France? One word.');
+  console.log(result);
 }
 
-async function basicSession() {
-  console.log('=== Basic Session ===\n');
-
-  await using session = unstable_v2_createSession({ model: 'sonnet' });
-  await session.send('Hello! Introduce yourself in one sentence.');
-
-  for await (const msg of session.receive()) {
-    if (msg.type === 'assistant') {
-      const text = msg.message.content.find((c): c is { type: 'text'; text: string } => c.type === 'text');
-      console.log(`Claude: ${text?.text}`);
-    }
-  }
-}
-
-async function multiTurn() {
-  console.log('=== Multi-Turn Conversation ===\n');
-
-  await using session = unstable_v2_createSession({ model: 'sonnet' });
-
-  await session.send('What is 5 + 3? Just the number.');
-  for await (const msg of session.receive()) {
-    if (msg.type === 'assistant') {
-      const text = msg.message.content.find((c): c is { type: 'text'; text: string } => c.type === 'text');
-      console.log(`Turn 1: ${text?.text}`);
-    }
-  }
-
-  await session.send('Multiply that by 2. Just the number.');
-  for await (const msg of session.receive()) {
-    if (msg.type === 'assistant') {
-      const text = msg.message.content.find((c): c is { type: 'text'; text: string } => c.type === 'text');
-      console.log(`Turn 2: ${text?.text}`);
-    }
-  }
-}
-
-async function oneShot() {
-  console.log('=== One-Shot Prompt ===\n');
-
-  const result = await unstable_v2_prompt('What is the capital of France? One word.', { model: 'sonnet' });
-
-  if (result.subtype === 'success') {
-    console.log(`Answer: ${result.result}`);
-    console.log(`Cost: $${result.total_cost_usd.toFixed(4)}`);
-  }
-}
-
-async function sessionResume() {
-  console.log('=== Session Resume ===\n');
-
-  let sessionId: string | undefined;
-
-  {
-    await using session = unstable_v2_createSession({ model: 'sonnet' });
-    console.log('[Session 1] Telling Claude my favorite color...');
-    await session.send('My favorite color is blue. Remember this!');
-
-    for await (const msg of session.receive()) {
-      if (msg.type === 'system' && msg.subtype === 'init') {
-        sessionId = msg.session_id;
-        console.log(`[Session 1] ID: ${sessionId}`);
-      }
-      if (msg.type === 'assistant') {
-        const text = msg.message.content.find((c): c is { type: 'text'; text: string } => c.type === 'text');
-        console.log(`[Session 1] Claude: ${text?.text}\n`);
-      }
-    }
-  }
-
-  console.log('--- Session closed. Time passes... ---\n');
-
-  {
-    await using session = unstable_v2_resumeSession(sessionId!, { model: 'sonnet' });
-    console.log('[Session 2] Resuming and asking Claude...');
-    await session.send('What is my favorite color?');
-
-    for await (const msg of session.receive()) {
-      if (msg.type === 'assistant') {
-        const text = msg.message.content.find((c): c is { type: 'text'; text: string } => c.type === 'text');
-        console.log(`[Session 2] Claude: ${text?.text}`);
-      }
-    }
-  }
-}
-
-main().catch(console.error);
+main().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

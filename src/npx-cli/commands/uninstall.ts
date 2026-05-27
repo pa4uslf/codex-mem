@@ -4,7 +4,7 @@ import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'fs
 import { homedir } from 'os';
 import { join } from 'path';
 import {
-  claudeSettingsPath,
+  codexSettingsPath,
   installedPluginsPath,
   isPluginInstalled,
   knownMarketplacesPath,
@@ -26,7 +26,7 @@ function removeMarketplaceDirectory(): boolean {
 }
 
 function removeCacheDirectory(): boolean {
-  const cacheDirectory = join(pluginsDirectory(), 'cache', 'thedotmack', 'claude-mem');
+  const cacheDirectory = join(pluginsDirectory(), 'cache', 'thedotmack', 'codex-mem');
   if (existsSync(cacheDirectory)) {
     rmSync(cacheDirectory, { recursive: true, force: true });
     return true;
@@ -44,13 +44,13 @@ function removeFromKnownMarketplaces(): void {
 
 function removeFromInstalledPlugins(): void {
   const installedPlugins = readJsonSafe<Record<string, any>>(installedPluginsPath(), {});
-  if (installedPlugins.plugins?.['claude-mem@thedotmack']) {
-    delete installedPlugins.plugins['claude-mem@thedotmack'];
+  if (installedPlugins.plugins?.['codex-mem@thedotmack']) {
+    delete installedPlugins.plugins['codex-mem@thedotmack'];
     writeJsonFileAtomic(installedPluginsPath(), installedPlugins);
   }
 }
 
-function stripLegacyClaudeMemAlias(): void {
+function stripLegacyCodexMemAlias(): void {
   const home = homedir();
   const candidateFiles = [
     join(home, '.bashrc'),
@@ -58,7 +58,7 @@ function stripLegacyClaudeMemAlias(): void {
     join(home, 'Documents', 'PowerShell', 'Microsoft.PowerShell_profile.ps1'),
   ];
 
-  const aliasLineRegex = /^\s*alias\s+claude-mem\s*=/;
+  const aliasLineRegex = /^\s*alias\s+codex-mem\s*=/;
 
   for (const filePath of candidateFiles) {
     if (!existsSync(filePath)) continue;
@@ -74,22 +74,22 @@ function stripLegacyClaudeMemAlias(): void {
     if (filtered.length === lines.length) continue; 
     try {
       writeFileSync(filePath, filtered.join('\n'));
-      console.error(`Removed legacy claude-mem alias from ${filePath}`);
+      console.error(`Removed legacy codex-mem alias from ${filePath}`);
     } catch (error: unknown) {
       console.warn(`[uninstall] Could not rewrite ${filePath}:`, error instanceof Error ? error.message : String(error));
     }
   }
 }
 
-function removeFromClaudeSettings(): void {
-  const settings = readJsonSafe<Record<string, any>>(claudeSettingsPath(), {});
-  if (settings.enabledPlugins?.['claude-mem@thedotmack'] !== undefined) {
-    delete settings.enabledPlugins['claude-mem@thedotmack'];
-    writeJsonFileAtomic(claudeSettingsPath(), settings);
+function removeFromCodexSettings(): void {
+  const settings = readJsonSafe<Record<string, any>>(codexSettingsPath(), {});
+  if (settings.enabledPlugins?.['codex-mem@thedotmack'] !== undefined) {
+    delete settings.enabledPlugins['codex-mem@thedotmack'];
+    writeJsonFileAtomic(codexSettingsPath(), settings);
   }
 }
 
-function removeStrayClaudeMemPaths(): number {
+function removeStrayCodexMemPaths(): number {
   const home = homedir();
   let removedCount = 0;
 
@@ -102,7 +102,7 @@ function removeStrayClaudeMemPaths(): number {
       console.warn(`[uninstall] Could not read ${npxRoot}:`, error instanceof Error ? error.message : String(error));
     }
     for (const hashDir of hashDirs) {
-      const candidate = join(npxRoot, hashDir, 'node_modules', 'claude-mem');
+      const candidate = join(npxRoot, hashDir, 'node_modules', 'codex-mem');
       if (!existsSync(candidate)) continue;
       try {
         rmSync(candidate, { recursive: true, force: true });
@@ -113,7 +113,7 @@ function removeStrayClaudeMemPaths(): number {
     }
   }
 
-  const cacheRoot = join(home, '.cache', 'claude-cli-nodejs');
+  const cacheRoot = join(home, '.cache', 'codex-cli-nodejs');
   if (existsSync(cacheRoot)) {
     let projectDirs: string[] = [];
     try {
@@ -131,7 +131,7 @@ function removeStrayClaudeMemPaths(): number {
         continue;
       }
       for (const entry of logEntries) {
-        if (!entry.startsWith('mcp-logs-plugin-claude-mem-')) continue;
+        if (!entry.startsWith('mcp-logs-plugin-codex-mem-')) continue;
         const logPath = join(projectPath, entry);
         try {
           rmSync(logPath, { recursive: true, force: true });
@@ -143,7 +143,7 @@ function removeStrayClaudeMemPaths(): number {
     }
   }
 
-  const pluginDataDir = join(home, '.claude', 'plugins', 'data', 'claude-mem-thedotmack');
+  const pluginDataDir = join(home, '.codex', 'plugins', 'data', 'codex-mem-thedotmack');
   if (existsSync(pluginDataDir)) {
     try {
       rmSync(pluginDataDir, { recursive: true, force: true });
@@ -157,10 +157,10 @@ function removeStrayClaudeMemPaths(): number {
 }
 
 export async function runUninstallCommand(): Promise<void> {
-  p.intro(pc.bgRed(pc.white(' claude-mem uninstall ')));
+  p.intro(pc.bgRed(pc.white(' codex-mem uninstall ')));
 
   if (!isPluginInstalled()) {
-    p.log.warn('claude-mem does not appear to be installed.');
+    p.log.warn('codex-mem does not appear to be installed.');
 
     if (process.stdin.isTTY) {
       const shouldCleanup = await p.confirm({
@@ -178,7 +178,7 @@ export async function runUninstallCommand(): Promise<void> {
     }
   } else if (process.stdin.isTTY) {
     const shouldContinue = await p.confirm({
-      message: 'Are you sure you want to uninstall claude-mem?',
+      message: 'Are you sure you want to uninstall codex-mem?',
       initialValue: false,
     });
 
@@ -188,7 +188,7 @@ export async function runUninstallCommand(): Promise<void> {
     }
   }
 
-  const workerPort = SettingsDefaultsManager.get('CLAUDE_MEM_WORKER_PORT');
+  const workerPort = SettingsDefaultsManager.get('CODEX_MEM_WORKER_PORT');
   try {
     const result = await shutdownWorkerAndWait(workerPort, 10000);
     if (result.workerWasRunning) {
@@ -232,23 +232,23 @@ export async function runUninstallCommand(): Promise<void> {
       },
     },
     {
-      title: 'Removing from Claude settings',
+      title: 'Removing from Codex settings',
       task: async () => {
-        removeFromClaudeSettings();
-        return `Claude settings updated ${pc.green('OK')}`;
+        removeFromCodexSettings();
+        return `Codex settings updated ${pc.green('OK')}`;
       },
     },
     {
-      title: 'Removing legacy claude-mem shell alias',
+      title: 'Removing legacy codex-mem shell alias',
       task: async () => {
-        stripLegacyClaudeMemAlias();
+        stripLegacyCodexMemAlias();
         return `Legacy alias check complete ${pc.green('OK')}`;
       },
     },
     {
-      title: 'Removing stray claude-mem caches and logs',
+      title: 'Removing stray codex-mem caches and logs',
       task: async () => {
-        const removed = removeStrayClaudeMemPaths();
+        const removed = removeStrayCodexMemPaths();
         return removed > 0
           ? `Stray paths removed: ${removed} ${pc.green('OK')}`
           : `No stray paths found ${pc.dim('skipped')}`;
@@ -292,11 +292,11 @@ export async function runUninstallCommand(): Promise<void> {
 
   p.note(
     [
-      `Your data directory at ${pc.cyan('~/.claude-mem')} was preserved.`,
-      'To remove it manually: rm -rf ~/.claude-mem',
+      `Your data directory at ${pc.cyan('~/.codex-mem')} was preserved.`,
+      'To remove it manually: rm -rf ~/.codex-mem',
     ].join('\n'),
     'Note',
   );
 
-  p.outro(pc.green('claude-mem has been uninstalled.'));
+  p.outro(pc.green('codex-mem has been uninstalled.'));
 }

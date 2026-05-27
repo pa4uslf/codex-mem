@@ -28,7 +28,7 @@ describe('server REST API v1 routes', () => {
       onRestart: mock(() => Promise.resolve()),
       workerPath: '/test/worker-service.cjs',
       getAiStatus: () => ({
-        provider: 'claude',
+        provider: 'codex',
         authMethod: 'cli',
         lastInteraction: null,
       }),
@@ -63,8 +63,8 @@ describe('server REST API v1 routes', () => {
 
   it('creates projects, sessions, events, memories, and searchable context', async () => {
     const projectResponse = await post('/v1/projects', {
-      name: 'Claude Mem',
-      rootPath: '/tmp/claude-mem',
+      name: 'Codex Mem',
+      rootPath: '/tmp/codex-mem',
     });
     expect(projectResponse.status).toBe(201);
     const { project } = await projectResponse.json();

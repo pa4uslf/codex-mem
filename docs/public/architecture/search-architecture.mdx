@@ -5,7 +5,7 @@ description: "MCP tools with 3-layer workflow for token-efficient memory retriev
 
 # Search Architecture
 
-Claude-mem uses an **MCP-based search architecture** that provides intelligent memory retrieval through 4 streamlined tools following a 3-layer workflow pattern.
+Codex-mem uses an **MCP-based search architecture** that provides intelligent memory retrieval through 4 streamlined tools following a 3-layer workflow pattern.
 
 ## Overview
 
@@ -25,7 +25,7 @@ Claude-mem uses an **MCP-based search architecture** that provides intelligent m
 
 ### 1. User Query
 
-Claude has access to 4 MCP tools. When searching memory, Claude follows the 3-layer workflow:
+Codex has access to 4 MCP tools. When searching memory, Codex follows the 3-layer workflow:
 
 ```
 Step 1: search(query="authentication bug", type="bugfix", limit=10)
@@ -74,7 +74,7 @@ LIMIT 10
 
 ### 5. Results Returned
 
-Worker returns structured data → MCP server → Claude:
+Worker returns structured data → MCP server → Codex:
 
 ```json
 {
@@ -85,9 +85,9 @@ Worker returns structured data → MCP server → Claude:
 }
 ```
 
-### 6. Claude Processes Results
+### 6. Codex Processes Results
 
-Claude reviews the index, decides which observations are relevant, and can:
+Codex reviews the index, decides which observations are relevant, and can:
 - Use `timeline` to get context
 - Use `get_observations` to fetch full details for selected IDs
 
@@ -95,7 +95,7 @@ Claude reviews the index, decides which observations are relevant, and can:
 
 ### `__IMPORTANT` - Workflow Documentation
 
-Always visible to Claude. Explains the 3-layer workflow pattern.
+Always visible to Codex. Explains the 3-layer workflow pattern.
 
 **Description:**
 ```
@@ -106,7 +106,7 @@ Always visible to Claude. Explains the 3-layer workflow pattern.
 NEVER fetch full details without filtering first. 10x token savings.
 ```
 
-**Purpose:** Ensures Claude follows token-efficient pattern
+**Purpose:** Ensures Codex follows token-efficient pattern
 
 ### `search` - Search Memory Index
 
@@ -199,7 +199,7 @@ NEVER fetch full details without filtering first. 10x token savings.
 
 ## MCP Server Implementation
 
-**Location:** `/Users/YOUR_USERNAME/.claude/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs`
+**Location:** `/Users/YOUR_USERNAME/.codex/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs`
 
 **Role:** Thin wrapper that translates MCP protocol to HTTP API calls
 
@@ -262,7 +262,7 @@ LIMIT ? OFFSET ?
 
 ### Design Philosophy
 
-The 3-layer workflow embodies **progressive disclosure** - a core principle of claude-mem's architecture.
+The 3-layer workflow embodies **progressive disclosure** - a core principle of codex-mem's architecture.
 
 **Layer 1: Index (Search)**
 - **What:** Compact table with IDs, titles, dates, types
@@ -349,7 +349,7 @@ Total: 2,500-5,000 tokens (50-75% savings)
 
 ### Key Insight
 
-**Before:** Progressive disclosure was something Claude had to remember
+**Before:** Progressive disclosure was something Codex had to remember
 
 **After:** Progressive disclosure is enforced by tool design itself
 
@@ -360,9 +360,9 @@ The 3-layer workflow pattern makes it structurally difficult to waste tokens:
 
 ## Configuration
 
-### Claude Desktop
+### Codex Desktop
 
-Add to `claude_desktop_config.json`:
+Add to `codex_desktop_config.json`:
 
 ```json
 {
@@ -370,18 +370,18 @@ Add to `claude_desktop_config.json`:
     "mcp-search": {
       "command": "node",
       "args": [
-        "/Users/YOUR_USERNAME/.claude/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs"
+        "/Users/YOUR_USERNAME/.codex/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs"
       ]
     }
   }
 }
 ```
 
-### Claude Code
+### Codex Code
 
 MCP server is automatically configured via plugin installation. No manual setup required.
 
-**Both clients use the same MCP tools** - the architecture works identically for Claude Desktop and Claude Code.
+**Both clients use the same MCP tools** - the architecture works identically for Codex Desktop and Codex Code.
 
 ## Security
 
@@ -427,7 +427,7 @@ function escapeFTS5Query(query: string): string {
 **3-Layer MCP:**
 - Fetches only what's needed
 - ~10x token savings
-- 100% relevance (Claude chooses what to fetch)
+- 100% relevance (Codex chooses what to fetch)
 
 ### vs. Previous MCP Implementation (v5.x)
 
@@ -451,9 +451,9 @@ function escapeFTS5Query(query: string): string {
 - Progressive disclosure through skill loading
 
 **MCP approach:**
-- Native MCP protocol (better Claude integration)
+- Native MCP protocol (better Codex integration)
 - Cleaner architecture (protocol translation layer)
-- Works with both Claude Desktop and Claude Code
+- Works with both Codex Desktop and Codex Code
 - Simpler to maintain (no skill files)
 
 **Migration:** Skill-based search was removed in favor of streamlined MCP architecture.
@@ -462,12 +462,12 @@ function escapeFTS5Query(query: string): string {
 
 ### MCP Server Not Connected
 
-**Symptoms:** Tools not appearing in Claude
+**Symptoms:** Tools not appearing in Codex
 
 **Solution:**
 1. Check MCP server path in configuration
 2. Verify worker service is running: `curl http://localhost:37777/api/health`
-3. Restart Claude Desktop/Code
+3. Restart Codex Desktop/Code
 
 ### Worker Service Not Running
 
@@ -486,7 +486,7 @@ npm run worker:logs         # View logs
 
 **Troubleshooting:**
 1. Test API directly: `curl "http://localhost:37777/api/search?query=test"`
-2. Check database: `ls ~/.claude-mem/claude-mem.db`
+2. Check database: `ls ~/.codex-mem/codex-mem.db`
 3. Verify observations exist: `curl "http://localhost:37777/api/health"`
 
 ## Next Steps

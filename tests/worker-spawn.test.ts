@@ -5,7 +5,7 @@ import { homedir } from 'os';
 import path from 'path';
 
 const TEST_PORT = 37877;
-const TEST_DATA_DIR = path.join(homedir(), '.claude-mem-test');
+const TEST_DATA_DIR = path.join(homedir(), '.codex-mem-test');
 const TEST_PID_FILE = path.join(TEST_DATA_DIR, 'worker.pid');
 const WORKER_SCRIPT = path.join(__dirname, '../plugin/scripts/worker-service.cjs');
 
@@ -169,7 +169,7 @@ describe('Windows-specific behavior', () => {
       writable: true,
       configurable: true
     });
-    delete process.env.CLAUDE_MEM_MANAGED;
+    delete process.env.CODEX_MEM_MANAGED;
   });
 
   it('should detect Windows managed worker mode correctly', () => {
@@ -178,10 +178,10 @@ describe('Windows-specific behavior', () => {
       writable: true,
       configurable: true
     });
-    process.env.CLAUDE_MEM_MANAGED = 'true';
+    process.env.CODEX_MEM_MANAGED = 'true';
 
     const isWindows = process.platform === 'win32';
-    const isManaged = process.env.CLAUDE_MEM_MANAGED === 'true';
+    const isManaged = process.env.CODEX_MEM_MANAGED === 'true';
 
     expect(isWindows).toBe(true);
     expect(isManaged).toBe(true);

@@ -2,14 +2,14 @@
 
 export const serverMemoryResources = [
   {
-    uri: 'claude-mem://server/projects',
-    name: 'Claude-Mem Server Projects',
-    description: 'Authorized project list exposed by Claude-Mem Server.',
+    uri: 'codex-mem://server/projects',
+    name: 'Codex-Mem Server Projects',
+    description: 'Authorized project list exposed by Codex-Mem Server.',
     mimeType: 'application/json',
   },
   {
-    uri: 'claude-mem://server/memories/recent',
-    name: 'Recent Claude-Mem Server Memories',
+    uri: 'codex-mem://server/memories/recent',
+    name: 'Recent Codex-Mem Server Memories',
     description: 'Recent authorized memory items from the server core.',
     mimeType: 'application/json',
   },

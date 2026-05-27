@@ -71,12 +71,12 @@ describe('SearchRoutes Welcome Hint', () => {
     };
 
     generateContextStub.mockClear();
-    delete process.env.CLAUDE_MEM_WELCOME_HINT_ENABLED;
+    delete process.env.CODEX_MEM_WELCOME_HINT_ENABLED;
   });
 
   afterEach(() => {
     loggerSpies.forEach(spy => spy.mockRestore());
-    delete process.env.CLAUDE_MEM_WELCOME_HINT_ENABLED;
+    delete process.env.CODEX_MEM_WELCOME_HINT_ENABLED;
   });
 
   it('returns the welcome hint when project has zero observations', async () => {
@@ -91,7 +91,7 @@ describe('SearchRoutes Welcome Hint', () => {
 
     expect(res.send).toHaveBeenCalledTimes(1);
     const body = (res.send as any).mock.calls[0][0] as string;
-    expect(body).toContain('# claude-mem status');
+    expect(body).toContain('# codex-mem status');
     expect(body).toContain('/learn-codebase');
     expect(body).toContain('http://localhost:');
     expect(body).toContain('Memory injection starts on your second session in a project.');
@@ -119,8 +119,8 @@ describe('SearchRoutes Welcome Hint', () => {
     expect(res.send).toHaveBeenCalledWith('CONTEXT_FROM_GENERATOR');
   });
 
-  it('skips the welcome hint when CLAUDE_MEM_WELCOME_HINT_ENABLED=false', async () => {
-    process.env.CLAUDE_MEM_WELCOME_HINT_ENABLED = 'false';
+  it('skips the welcome hint when CODEX_MEM_WELCOME_HINT_ENABLED=false', async () => {
+    process.env.CODEX_MEM_WELCOME_HINT_ENABLED = 'false';
 
     const routes = new SearchRoutes(mockSearchManager);
     const handler = captureContextInjectHandler(routes);

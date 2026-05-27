@@ -16,13 +16,13 @@ interface UseContextPreviewResult {
 }
 
 function getPreferredSource(sources: string[]): string | null {
-  if (sources.includes('claude')) return 'claude';
+  if (sources.includes('codex')) return 'codex';
   if (sources.includes('codex')) return 'codex';
   return sources[0] || null;
 }
 
 function withDefaultSources(sources: string[]): string[] {
-  const merged = ['claude', 'codex', ...sources];
+  const merged = ['codex', 'codex', ...sources];
   return Array.from(new Set(merged));
 }
 

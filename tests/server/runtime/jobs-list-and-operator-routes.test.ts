@@ -16,9 +16,9 @@ import { logger } from '../../../src/utils/logger.js';
 
 // Phase 12 — integration tests for GET /v1/jobs (with admin payload guard),
 // POST /v1/jobs/:id/retry, POST /v1/jobs/:id/cancel. Postgres-gated; skipped
-// without CLAUDE_MEM_TEST_POSTGRES_URL.
+// without CODEX_MEM_TEST_POSTGRES_URL.
 
-const testDatabaseUrl = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const testDatabaseUrl = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 function quoteIdentifier(name: string): string {
   return `"${name.replaceAll('"', '""')}"`;
@@ -32,7 +32,7 @@ function newApiKey(): { raw: string; hash: string } {
 
 describe('Phase 12 — GET /v1/jobs + retry/cancel routes', () => {
   if (!testDatabaseUrl) {
-    it.skip('requires CLAUDE_MEM_TEST_POSTGRES_URL', () => {});
+    it.skip('requires CODEX_MEM_TEST_POSTGRES_URL', () => {});
     return;
   }
 

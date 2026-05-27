@@ -8,13 +8,7 @@ console['log'] = (...args: any[]) => {
   logger.error('CONSOLE', 'Intercepted console output (MCP protocol protection)', undefined, { args });
 };
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
-import { getWorkerPort, workerHttpRequest } from '../shared/worker-utils.js';
+import { getWorkerPort, workerHttpRequest } from '../shared/worker-http.js';
 import { ensureWorkerStarted } from '../services/worker-spawner.js';
 import { searchCodebase, formatSearchResults } from '../services/smart-file-read/search.js';
 import { parseFile, formatFoldedView, unfoldSymbol } from '../services/smart-file-read/parser.js';
@@ -172,7 +166,7 @@ async function verifyWorkerConnection(): Promise<boolean> {
 // event-insert + outbox + enqueue logic on the MCP side.
 //
 // We deliberately resolve the runtime per-call (cheap; reads cached
-// settings) so the user can flip CLAUDE_MEM_RUNTIME without restarting
+// settings) so the user can flip CODEX_MEM_RUNTIME without restarting
 // the MCP server.
 type ServerBetaToolContext = ServerBetaRuntimeContext;
 
@@ -237,7 +231,7 @@ function requireServerBetaForObservationTool(toolName: string): ServerBetaAvaila
   if (!resolution) {
     throw new ServerBetaClientError(
       'transport',
-      `${toolName} requires CLAUDE_MEM_RUNTIME=server-beta. Current runtime is "worker"; use the existing search/timeline/get_observations tools for worker-mode memory access.`,
+      `${toolName} requires CODEX_MEM_RUNTIME=server-beta. Current runtime is "worker"; use the existing search/timeline/get_observations tools for worker-mode memory access.`,
     );
   }
   if (!resolution.available) {
@@ -527,7 +521,7 @@ NEVER fetch full details without filtering first. 10x token savings.`,
     inputSchema: {
       type: 'object',
       properties: {
-        projectId: { type: 'string', description: 'Project id (falls back to CLAUDE_MEM_SERVER_BETA_PROJECT_ID)' },
+        projectId: { type: 'string', description: 'Project id (falls back to CODEX_MEM_SERVER_BETA_PROJECT_ID)' },
         serverSessionId: { type: 'string', description: 'Optional server_session_id to attach the observation to' },
         kind: { type: 'string', description: 'Observation kind (default: manual)' },
         content: { type: 'string', description: 'Observation content (required)' },
@@ -885,19 +879,18 @@ NEVER fetch full details without filtering first. 10x token savings.`,
   }
 ];
 
-const server = new Server(
-  {
-    name: 'claude-mem',
-    version: packageVersion,
-  },
-  {
-    capabilities: {
-      tools: {},  // Exposes tools capability (handled by ListToolsRequestSchema and CallToolRequestSchema)
-    },
-  }
-);
+interface JsonRpcRequest {
+  jsonrpc?: string;
+  id?: string | number | null;
+  method?: string;
+  params?: any;
+}
 
-server.setRequestHandler(ListToolsRequestSchema, async () => {
+function writeJsonRpcMessage(message: Record<string, unknown>): void {
+  process.stdout.write(`${JSON.stringify(message)}\n`);
+}
+
+function listToolsResponse(): { tools: Array<{ name: string; description: string; inputSchema: any }> } {
   return {
     tools: tools.map(tool => ({
       name: tool.name,
@@ -905,19 +898,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       inputSchema: tool.inputSchema
     }))
   };
-});
+}
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  const tool = tools.find(t => t.name === request.params.name);
+async function callToolResponse(params: any): Promise<{ content: Array<{ type: 'text'; text: string }>; isError?: boolean }> {
+  const toolName = params?.name;
+  const tool = tools.find(t => t.name === toolName);
 
   if (!tool) {
-    throw new Error(`Unknown tool: ${request.params.name}`);
+    throw new Error(`Unknown tool: ${toolName}`);
   }
 
   try {
-    return await tool.handler(request.params.arguments || {});
+    return await tool.handler(params?.arguments || {});
   } catch (error: unknown) {
-    logger.error('SYSTEM', 'Tool execution failed', { tool: request.params.name }, error instanceof Error ? error : new Error(String(error)));
+    logger.error('SYSTEM', 'Tool execution failed', { tool: toolName }, error instanceof Error ? error : new Error(String(error)));
     return {
       content: [{
         type: 'text' as const,
@@ -926,7 +920,96 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       isError: true
     };
   }
-});
+}
+
+async function handleJsonRpcRequest(request: JsonRpcRequest): Promise<unknown> {
+  switch (request.method) {
+    case 'initialize':
+      return {
+        protocolVersion: request.params?.protocolVersion ?? '2024-11-05',
+        capabilities: { tools: {} },
+        serverInfo: {
+          name: 'codex-mem',
+          version: packageVersion,
+        },
+      };
+    case 'tools/list':
+      return listToolsResponse();
+    case 'tools/call':
+      return callToolResponse(request.params);
+    case 'ping':
+      return {};
+    case 'notifications/initialized':
+      return undefined;
+    default:
+      throw new Error(`Unsupported MCP method: ${request.method}`);
+  }
+}
+
+function startJsonRpcStdioServer(): void {
+  let buffer = '';
+
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (chunk: string) => {
+    buffer += chunk;
+    let newlineIndex = buffer.indexOf('\n');
+    while (newlineIndex >= 0) {
+      const line = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      newlineIndex = buffer.indexOf('\n');
+
+      if (!line) continue;
+
+      void (async () => {
+        let request: JsonRpcRequest;
+        try {
+          request = JSON.parse(line) as JsonRpcRequest;
+        } catch (error: unknown) {
+          writeJsonRpcMessage({
+            jsonrpc: '2.0',
+            id: null,
+            error: {
+              code: -32700,
+              message: error instanceof Error ? error.message : String(error),
+            },
+          });
+          return;
+        }
+
+        if (request.id === undefined || request.id === null) {
+          try {
+            await handleJsonRpcRequest(request);
+          } catch (error: unknown) {
+            logger.warn('SYSTEM', 'MCP notification failed', {
+              method: request.method,
+              message: error instanceof Error ? error.message : String(error),
+            });
+          }
+          return;
+        }
+
+        try {
+          const result = await handleJsonRpcRequest(request);
+          writeJsonRpcMessage({
+            jsonrpc: '2.0',
+            id: request.id,
+            result: result ?? {},
+          });
+        } catch (error: unknown) {
+          writeJsonRpcMessage({
+            jsonrpc: '2.0',
+            id: request.id,
+            error: {
+              code: -32603,
+              message: error instanceof Error ? error.message : String(error),
+            },
+          });
+        }
+      })();
+    }
+  });
+  process.stdin.resume();
+}
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
@@ -989,13 +1072,13 @@ function checkMarketplaceMarker(): void {
   try {
     const home = homedir();
     const marketplaceCandidates = [
-      resolve(home, '.claude', 'plugins', 'marketplaces', 'thedotmack'),
-      resolve(home, '.config', 'claude', 'plugins', 'marketplaces', 'thedotmack'),
+      resolve(home, '.codex', 'plugins', 'marketplaces', 'thedotmack'),
+      resolve(home, '.config', 'codex', 'plugins', 'marketplaces', 'thedotmack'),
     ];
     const present = marketplaceCandidates.some(p => p && existsSync(p));
     const cacheCandidates = [
-      resolve(home, '.claude', 'plugins', 'cache', 'thedotmack', 'claude-mem'),
-      resolve(home, '.config', 'claude', 'plugins', 'cache', 'thedotmack', 'claude-mem'),
+      resolve(home, '.codex', 'plugins', 'cache', 'thedotmack', 'codex-mem'),
+      resolve(home, '.config', 'codex', 'plugins', 'cache', 'thedotmack', 'codex-mem'),
     ];
     const cachePresent = cacheCandidates.some(p => p && existsSync(p));
     const cacheRoot = cacheCandidates[0];
@@ -1003,7 +1086,7 @@ function checkMarketplaceMarker(): void {
     if (!present && cachePresent) {
       logger.error(
         'SYSTEM',
-        'claude-mem MCP started but no marketplace directory was found at ~/.claude/plugins/marketplaces/thedotmack or the XDG equivalent. The IDE plugin loader needs that directory to fire claude-mem hooks (SessionStart, PostToolUse, Stop, etc.). Without it, MCP search will work but no new memories will be captured. To self-heal, run: node ~/.claude/plugins/cache/thedotmack/claude-mem/*/scripts/smart-install.js (or reinstall the plugin from the marketplace).',
+        'codex-mem MCP started but no marketplace directory was found at ~/.codex/plugins/marketplaces/thedotmack or the XDG equivalent. The IDE plugin loader needs that directory to fire codex-mem hooks (SessionStart, PostToolUse, Stop, etc.). Without it, MCP search will work but no new memories will be captured. To self-heal, run: node ~/.codex/plugins/cache/thedotmack/codex-mem/*/scripts/smart-install.js (or reinstall the plugin from the marketplace).',
         { marketplaceCandidates, cacheRoot }
       );
     }
@@ -1012,17 +1095,16 @@ function checkMarketplaceMarker(): void {
 }
 
 async function main() {
-  const transport = new StdioServerTransport();
   attachStdioLifecycle();
-  await server.connect(transport);
-  logger.info('SYSTEM', 'Claude-mem search server started');
+  startJsonRpcStdioServer();
+  logger.info('SYSTEM', 'Codex-mem search server started');
 
   checkMarketplaceMarker();
 
   startParentHeartbeat();
 
   setTimeout(async () => {
-    // Phase 8 — when CLAUDE_MEM_RUNTIME=server-beta, MCP must NOT auto-start
+    // Phase 8 — when CODEX_MEM_RUNTIME=server-beta, MCP must NOT auto-start
     // the worker. observation_* tools talk to server-beta directly; the
     // legacy worker-backed tools (search/timeline/get_observations) will
     // simply error with a helpful message until the user switches runtime.

@@ -58,7 +58,7 @@ export const migration001: Migration = {
         created_at TEXT NOT NULL,
         created_at_epoch INTEGER NOT NULL,
         project TEXT NOT NULL,
-        origin TEXT NOT NULL DEFAULT 'claude',
+        origin TEXT NOT NULL DEFAULT 'codex',
         FOREIGN KEY (session_id) REFERENCES sessions(session_id) ON DELETE CASCADE
       );
 
@@ -168,7 +168,7 @@ export const migration003: Migration = {
         status TEXT NOT NULL DEFAULT 'active'
       );
 
-      CREATE INDEX IF NOT EXISTS idx_streaming_sessions_claude_id ON streaming_sessions(content_session_id);
+      CREATE INDEX IF NOT EXISTS idx_streaming_sessions_codex_id ON streaming_sessions(content_session_id);
       CREATE INDEX IF NOT EXISTS idx_streaming_sessions_sdk_id ON streaming_sessions(memory_session_id);
       CREATE INDEX IF NOT EXISTS idx_streaming_sessions_project ON streaming_sessions(project);
       CREATE INDEX IF NOT EXISTS idx_streaming_sessions_status ON streaming_sessions(status);
@@ -202,7 +202,7 @@ export const migration004: Migration = {
         status TEXT CHECK(status IN ('active', 'completed', 'failed')) NOT NULL DEFAULT 'active'
       );
 
-      CREATE INDEX IF NOT EXISTS idx_sdk_sessions_claude_id ON sdk_sessions(content_session_id);
+      CREATE INDEX IF NOT EXISTS idx_sdk_sessions_codex_id ON sdk_sessions(content_session_id);
       CREATE INDEX IF NOT EXISTS idx_sdk_sessions_sdk_id ON sdk_sessions(memory_session_id);
       CREATE INDEX IF NOT EXISTS idx_sdk_sessions_project ON sdk_sessions(project);
       CREATE INDEX IF NOT EXISTS idx_sdk_sessions_status ON sdk_sessions(status);

@@ -5,7 +5,7 @@
  * end-to-end (previously they were silently skipped):
  *   A. cursor adapter derives `transcriptPath` from `cwd + conversation_id`,
  *      since Cursor does not pass a transcript path on stdin.
- *   B. `extractLastMessageFromJsonl` accepts both `{type:"assistant"}` (Claude
+ *   B. `extractLastMessageFromJsonl` accepts both `{type:"assistant"}` (Codex
  *      Code) and `{role:"assistant"}` (Cursor) per-line role markers.
  *   C. `extractLastMessageFromJsonl` keeps scanning back through assistant
  *      turns when the most recent one is a pure tool_use (no text content),
@@ -85,14 +85,14 @@ describe('cursor-extraction: extractLastMessage Cursor JSONL compatibility', () 
     expect(extractLastMessage(transcriptPath, 'assistant')).toBe('');
   });
 
-  it('still works for Claude Code format using {"type":"assistant"}', () => {
+  it('still works for Codex Code format using {"type":"assistant"}', () => {
     const lines = [
       { type: 'user', message: { content: [{ type: 'text', text: 'q' }] } },
-      { type: 'assistant', message: { content: [{ type: 'text', text: 'claude code answer' }] } },
+      { type: 'assistant', message: { content: [{ type: 'text', text: 'codex code answer' }] } },
     ];
     writeFileSync(transcriptPath, lines.map((l) => JSON.stringify(l)).join('\n'));
 
-    expect(extractLastMessage(transcriptPath, 'assistant')).toBe('claude code answer');
+    expect(extractLastMessage(transcriptPath, 'assistant')).toBe('codex code answer');
   });
 });
 

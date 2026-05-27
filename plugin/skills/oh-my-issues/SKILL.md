@@ -34,7 +34,7 @@ Use when the backlog has never been consolidated. Goal: go from N issues to N_pl
 
 1. **Read everything in full.** Fetch every open issue's body *and* its comment thread — not just titles. Surface-level grouping fails without full text, and reproduction steps, linked duplicates, and diagnostic output often live in comments rather than the original body. See "GitHub CLI primitives" below for the correct paginated listing + per-issue comment fetch (a single `gh issue list` call does **not** return comment bodies).
 2. **Cluster by root cause, not by surface.** The clustering question is *would one architectural change retire all of these?* — not *do these mention the same word?*. "Windows" is a surface; "spawn contract violated by host shells" is a root cause. Two issues with different surfaces can share a cluster (e.g. an env-var leak in two different code paths sharing one missing env-isolation boundary).
-3. **Name each cluster as an architectural problem.** Title format: `[plan-XX] <Architectural Defect> — <one-line scope>`. Example: `[plan-02] Spawn-Contract Templating — canonical ${CLAUDE_PLUGIN_ROOT} resolution across all hosts`. The title must imply a fix, not a topic.
+3. **Name each cluster as an architectural problem.** Title format: `[plan-XX] <Architectural Defect> — <one-line scope>`. Example: `[plan-02] Spawn-Contract Templating — canonical ${CODEX_PLUGIN_ROOT} resolution across all hosts`. The title must imply a fix, not a topic.
 4. **Open one master issue per cluster** with a body that lists: the architectural defect, the children (by issue number), the fix sequence, and a required test matrix (host × IDE × shell, etc.) that prevents regression.
 5. **Mirror each master as `plans/0X-<slug>.md`** in the repo. The issue is the public tracker; the doc is the design. They reference each other.
 6. **Close every child** with the standardized redirect comment (see below) and state `not planned`.
@@ -62,7 +62,7 @@ Use when a plan slice is ready to ship. Goal: one PR closes N children atomicall
 
 1. **List the master's children.** From the master body and consolidation comments, collect every child issue number routed to this plan.
 2. **Verify each child's symptom is covered** by the architectural fix in the PR. If a child is not covered, the PR is not ready or that child belongs in a different plan.
-3. **Generate the PR description**: title is the plan slice (e.g. "fix(spawn): canonical ${CLAUDE_PLUGIN_ROOT} resolution"); body lists every child with `Closes #N` so GitHub auto-closes them on merge.
+3. **Generate the PR description**: title is the plan slice (e.g. "fix(spawn): canonical ${CODEX_PLUGIN_ROOT} resolution"); body lists every child with `Closes #N` so GitHub auto-closes them on merge.
 4. **Add the test matrix from the plan** to CI in the same PR. Without the matrix, the cluster will re-emerge.
 5. **After merge**, the master issue can be closed only if every child was covered. If the plan has remaining scope, leave the master open and link the PR as a partial-shipping checkpoint.
 
@@ -129,7 +129,7 @@ Open a plan master:
 
 ```bash
 gh issue create \
-  --title "[plan-02] Spawn-Contract Templating — canonical \${CLAUDE_PLUGIN_ROOT} resolution across all hosts" \
+  --title "[plan-02] Spawn-Contract Templating — canonical \${CODEX_PLUGIN_ROOT} resolution across all hosts" \
   --body-file plans/02-spawn-contract-templating.md \
   --label plan,plan-02
 ```

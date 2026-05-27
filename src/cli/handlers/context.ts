@@ -18,11 +18,11 @@ export const contextHandler: EventHandler = {
     const port = getWorkerPort();
 
     const settings = loadFromFileOnce();
-    const showTerminalOutput = settings.CLAUDE_MEM_CONTEXT_SHOW_TERMINAL_OUTPUT === 'true';
+    const showTerminalOutput = settings.CODEX_MEM_CONTEXT_SHOW_TERMINAL_OUTPUT === 'true';
 
     const projectsParam = context.allProjects.join(',');
     const apiPath = `/api/context/inject?projects=${encodeURIComponent(projectsParam)}`;
-    const colorApiPath = input.platform === 'claude-code' ? `${apiPath}&colors=true` : apiPath;
+    const colorApiPath = input.platform === 'codex-code' ? `${apiPath}&colors=true` : apiPath;
 
     const emptyResult: HookResult = {
       hookSpecificOutput: { hookEventName: 'SessionStart', additionalContext: '' },
@@ -49,7 +49,7 @@ export const contextHandler: EventHandler = {
     // a previous worker spawn detected an expired keychain entry.
     const staleReason = readStaleMarker();
     if (staleReason) {
-      const hint = `[claude-mem] Claude Desktop OAuth token is stale: ${staleReason}\nPlease re-login via Claude Desktop to refresh the token.`;
+      const hint = `[codex-mem] Codex Desktop OAuth token is stale: ${staleReason}\nPlease re-login via Codex Desktop to refresh the token.`;
       additionalContext = additionalContext
         ? `${hint}\n\n${additionalContext}`
         : hint;

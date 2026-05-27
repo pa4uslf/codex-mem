@@ -23,7 +23,7 @@ import {
 import { DisabledServerBetaQueueManager } from '../../src/server/runtime/types.js';
 import { logger } from '../../src/utils/logger.js';
 
-const testDatabaseUrl = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const testDatabaseUrl = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 function quoteIdentifier(name: string): string {
   return `"${name.replaceAll('"', '""')}"`;
@@ -37,7 +37,7 @@ function newApiKey(): { raw: string; hash: string } {
 
 describe('Phase 9 compat adapters', () => {
   if (!testDatabaseUrl) {
-    it.skip('requires CLAUDE_MEM_TEST_POSTGRES_URL', () => {});
+    it.skip('requires CODEX_MEM_TEST_POSTGRES_URL', () => {});
     return;
   }
 
@@ -182,7 +182,7 @@ describe('Phase 9 compat adapters', () => {
         tool_input: { file_path: '/x/y' },
         tool_response: 'ok',
         cwd: '/x',
-        platformSource: 'claude-code',
+        platformSource: 'codex-code',
         toolUseId: 'tu_abc',
       }),
     });
@@ -209,7 +209,7 @@ describe('Phase 9 compat adapters', () => {
       server_session_id: string;
       payload: { tool_name: string };
     };
-    expect(evt.source_adapter).toBe('claude-code-compat');
+    expect(evt.source_adapter).toBe('codex-code-compat');
     expect(evt.event_type).toBe('tool_use');
     expect(evt.server_session_id).toBe(body.serverSessionId);
     expect(evt.payload.tool_name).toBe('Read');
@@ -279,7 +279,7 @@ describe('Phase 9 compat adapters', () => {
       body: JSON.stringify({
         contentSessionId: 'cc-summarize-session',
         last_assistant_message: 'final reply',
-        platformSource: 'claude-code',
+        platformSource: 'codex-code',
       }),
     });
     expect(response.status).toBe(200);

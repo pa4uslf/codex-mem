@@ -57,7 +57,7 @@ export function ensureServerStorageSchema(db: Database): void {
       project_id TEXT NOT NULL,
       content_session_id TEXT,
       memory_session_id TEXT,
-      platform_source TEXT NOT NULL DEFAULT 'claude',
+      platform_source TEXT NOT NULL DEFAULT 'codex',
       title TEXT,
       status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active', 'completed', 'failed')),
       metadata TEXT NOT NULL DEFAULT '{}',

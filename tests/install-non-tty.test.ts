@@ -90,12 +90,12 @@ describe('Install Non-TTY Support', () => {
   });
 
   describe('non-interactive install path', () => {
-    it('defaults to claude-code when not interactive and no IDE specified', () => {
-      expect(installSource).toContain("selectedIDEs = ['claude-code']");
+    it('defaults to codex-code when not interactive and no IDE specified', () => {
+      expect(installSource).toContain("selectedIDEs = ['codex-code']");
     });
 
     it('uses console.log for intro in non-interactive mode', () => {
-      expect(installSource).toContain("console.log('claude-mem install')");
+      expect(installSource).toContain("console.log('codex-mem install')");
     });
 
     it('uses console.log for note/summary in non-interactive mode', () => {
@@ -151,13 +151,13 @@ describe('Install Non-TTY Support', () => {
       expect(registerRegion).toContain("['plugin', 'marketplace', 'add', marketplaceRoot]");
     });
 
-    it('enables Codex hooks and claude-mem plugin config during install', () => {
+    it('enables Codex hooks and codex-mem plugin config during install', () => {
       const installRegion = codexInstallerSource.slice(
         codexInstallerSource.indexOf('export async function installCodexCli'),
         codexInstallerSource.indexOf('export function uninstallCodexCli'),
       );
       expect(codexInstallerSource).toContain("setTomlFeatureEnabled(next, 'hooks', true)");
-      expect(codexInstallerSource).toContain("const CODEX_PLUGIN_ID = `claude-mem@${MARKETPLACE_NAME}`");
+      expect(codexInstallerSource).toContain("const CODEX_PLUGIN_ID = `codex-mem@${MARKETPLACE_NAME}`");
       expect(installRegion).toContain('enableCodexPluginConfig()');
       expect(installRegion).not.toContain('plugin_hooks');
     });
@@ -244,7 +244,7 @@ describe('Install Non-TTY Support', () => {
       expect(installSource).toContain("'server-beta'");
       expect(installSource).toContain('Server (beta)');
       expect(installSource).toContain("initialValue: 'worker'");
-      expect(installSource).toContain('CLAUDE_MEM_RUNTIME');
+      expect(installSource).toContain('CODEX_MEM_RUNTIME');
     });
   });
 
@@ -259,7 +259,7 @@ describe('Install Non-TTY Support', () => {
 
     it('addresses privacy: everything stays local', () => {
       expect(installSource).toContain('Everything stays in ');
-      expect(installSource).toContain("pc.cyan('~/.claude-mem')");
+      expect(installSource).toContain("pc.cyan('~/.codex-mem')");
     });
 
     it('keeps /learn-codebase as the optional front-load path', () => {
@@ -267,7 +267,7 @@ describe('Install Non-TTY Support', () => {
     });
 
     it('demotes the uninstall caveat into a dim footer', () => {
-      expect(installSource).toContain('close all Claude Code sessions before uninstalling');
+      expect(installSource).toContain('close all Codex Code sessions before uninstalling');
     });
 
     it('does not advertise /mem-search in the post-install Next Steps', () => {

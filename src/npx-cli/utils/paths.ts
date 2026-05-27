@@ -20,16 +20,16 @@ import { randomBytes } from 'crypto';
 
 export const IS_WINDOWS = process.platform === 'win32';
 
-export function claudeConfigDirectory(): string {
-  return process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+export function codexConfigDirectory(): string {
+  return process.env.CODEX_CONFIG_DIR || join(homedir(), '.codex');
 }
 
 export function marketplaceDirectory(): string {
-  return join(claudeConfigDirectory(), 'plugins', 'marketplaces', 'thedotmack');
+  return join(codexConfigDirectory(), 'plugins', 'marketplaces', 'thedotmack');
 }
 
 export function pluginsDirectory(): string {
-  return join(claudeConfigDirectory(), 'plugins');
+  return join(codexConfigDirectory(), 'plugins');
 }
 
 export function knownMarketplacesPath(): string {
@@ -40,12 +40,12 @@ export function installedPluginsPath(): string {
   return join(pluginsDirectory(), 'installed_plugins.json');
 }
 
-export function claudeSettingsPath(): string {
-  return join(claudeConfigDirectory(), 'settings.json');
+export function codexSettingsPath(): string {
+  return join(codexConfigDirectory(), 'settings.json');
 }
 
 export function pluginCacheDirectory(version: string): string {
-  return join(pluginsDirectory(), 'cache', 'thedotmack', 'claude-mem', version);
+  return join(pluginsDirectory(), 'cache', 'thedotmack', 'codex-mem', version);
 }
 
 export function npmPackageRootDirectory(): string {
@@ -65,7 +65,7 @@ export function npmPackagePluginDirectory(): string {
 }
 
 export function readPluginVersion(): string {
-  const pluginJsonPath = join(npmPackagePluginDirectory(), '.claude-plugin', 'plugin.json');
+  const pluginJsonPath = join(npmPackagePluginDirectory(), '.codex-legacy-plugin', 'plugin.json');
   if (existsSync(pluginJsonPath)) {
     try {
       const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
@@ -90,7 +90,7 @@ export function readPluginVersion(): string {
 
 export function isPluginInstalled(): boolean {
   const marketplaceDir = marketplaceDirectory();
-  return existsSync(join(marketplaceDir, 'plugin', '.claude-plugin', 'plugin.json'));
+  return existsSync(join(marketplaceDir, 'plugin', '.codex-legacy-plugin', 'plugin.json'));
 }
 
 export function ensureDirectoryExists(directoryPath: string): void {
@@ -119,7 +119,7 @@ export { readJsonSafe } from '../../utils/json-utils.js';
  *
  * Preserves the destination file's mode bits when the file already exists so
  * we don't accidentally widen permissions on user-owned configs like
- * ~/.claude/settings.json.
+ * ~/.codex/settings.json.
  */
 export function writeJsonFileAtomic(filepath: string, data: any): void {
   // POSIX rename(2) operates on the symlink itself, so an atomic rename over

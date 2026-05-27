@@ -3,11 +3,11 @@
 ---
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -46,7 +46,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center">Système de compression de mémoire persistante conçu pour <a href="https://claude.com/claude-code" target="_blank">Claude Code</a>.</h4>
+<h4 align="center">Système de compression de mémoire persistante conçu pour <a href="https://codex.com/codex-code" target="_blank">Codex Code</a>.</h4>
 
 <p align="center">
   <a href="LICENSE">
@@ -58,17 +58,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -76,9 +76,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -94,22 +94,22 @@
 </p>
 
 <p align="center">
-  Claude-Mem préserve de manière transparente le contexte d'une session à l'autre en capturant automatiquement les observations d'utilisation des outils, en générant des résumés sémantiques et en les rendant disponibles pour les sessions futures. Cela permet à Claude de maintenir la continuité des connaissances sur les projets même après la fin des sessions ou la reconnexion.
+  Codex-Mem préserve de manière transparente le contexte d'une session à l'autre en capturant automatiquement les observations d'utilisation des outils, en générant des résumés sémantiques et en les rendant disponibles pour les sessions futures. Cela permet à Codex de maintenir la continuité des connaissances sur les projets même après la fin des sessions ou la reconnexion.
 </p>
 
 ---
 
 ## Démarrage rapide
 
-Démarrez une nouvelle session Claude Code dans le terminal et saisissez les commandes suivantes :
+Démarrez une nouvelle session Codex Code dans le terminal et saisissez les commandes suivantes :
 
 ```
-> /plugin marketplace add thedotmack/claude-mem
+> /plugin marketplace add thedotmack/codex-mem
 
-> /plugin install claude-mem
+> /plugin install codex-mem
 ```
 
-Redémarrez Claude Code. Le contexte des sessions précédentes apparaîtra automatiquement dans les nouvelles sessions.
+Redémarrez Codex Code. Le contexte des sessions précédentes apparaîtra automatiquement dans les nouvelles sessions.
 
 **Fonctionnalités clés :**
 
@@ -117,7 +117,7 @@ Redémarrez Claude Code. Le contexte des sessions précédentes apparaîtra auto
 - 📊 **Divulgation progressive** - Récupération de mémoire en couches avec visibilité du coût en tokens
 - 🔍 **Recherche basée sur les compétences** - Interrogez l'historique de votre projet avec la compétence mem-search
 - 🖥️ **Interface Web de visualisation** - Flux de mémoire en temps réel à http://localhost:37777
-- 💻 **Compétence Claude Desktop** - Recherchez dans la mémoire depuis les conversations Claude Desktop
+- 💻 **Compétence Codex Desktop** - Recherchez dans la mémoire depuis les conversations Codex Desktop
 - 🔒 **Contrôle de la confidentialité** - Utilisez les balises `<private>` pour exclure le contenu sensible du stockage
 - ⚙️ **Configuration du contexte** - Contrôle précis sur le contexte injecté
 - 🤖 **Fonctionnement automatique** - Aucune intervention manuelle requise
@@ -128,35 +128,35 @@ Redémarrez Claude Code. Le contexte des sessions précédentes apparaîtra auto
 
 ## Documentation
 
-📚 **[Voir la documentation complète](https://docs.claude-mem.ai/)** - Parcourir sur le site officiel
+📚 **[Voir la documentation complète](https://docs.codex-mem.ai/)** - Parcourir sur le site officiel
 
 ### Pour commencer
 
-- **[Guide d'installation](https://docs.claude-mem.ai/installation)** - Démarrage rapide et installation avancée
-- **[Guide d'utilisation](https://docs.claude-mem.ai/usage/getting-started)** - Comment Claude-Mem fonctionne automatiquement
-- **[Outils de recherche](https://docs.claude-mem.ai/usage/search-tools)** - Interrogez l'historique de votre projet en langage naturel
-- **[Fonctionnalités bêta](https://docs.claude-mem.ai/beta-features)** - Essayez des fonctionnalités expérimentales comme le mode Endless
+- **[Guide d'installation](https://docs.codex-mem.ai/installation)** - Démarrage rapide et installation avancée
+- **[Guide d'utilisation](https://docs.codex-mem.ai/usage/getting-started)** - Comment Codex-Mem fonctionne automatiquement
+- **[Outils de recherche](https://docs.codex-mem.ai/usage/search-tools)** - Interrogez l'historique de votre projet en langage naturel
+- **[Fonctionnalités bêta](https://docs.codex-mem.ai/beta-features)** - Essayez des fonctionnalités expérimentales comme le mode Endless
 
 ### Bonnes pratiques
 
-- **[Ingénierie du contexte](https://docs.claude-mem.ai/context-engineering)** - Principes d'optimisation du contexte pour les agents IA
-- **[Divulgation progressive](https://docs.claude-mem.ai/progressive-disclosure)** - Philosophie derrière la stratégie d'amorçage du contexte de Claude-Mem
+- **[Ingénierie du contexte](https://docs.codex-mem.ai/context-engineering)** - Principes d'optimisation du contexte pour les agents IA
+- **[Divulgation progressive](https://docs.codex-mem.ai/progressive-disclosure)** - Philosophie derrière la stratégie d'amorçage du contexte de Codex-Mem
 
 ### Architecture
 
-- **[Vue d'ensemble](https://docs.claude-mem.ai/architecture/overview)** - Composants du système et flux de données
-- **[Évolution de l'architecture](https://docs.claude-mem.ai/architecture-evolution)** - Le parcours de la v3 à la v5
-- **[Architecture des hooks](https://docs.claude-mem.ai/hooks-architecture)** - Comment Claude-Mem utilise les hooks de cycle de vie
-- **[Référence des hooks](https://docs.claude-mem.ai/architecture/hooks)** - Explication des 7 scripts de hooks
-- **[Service Worker](https://docs.claude-mem.ai/architecture/worker-service)** - API HTTP et gestion Bun
-- **[Base de données](https://docs.claude-mem.ai/architecture/database)** - Schéma SQLite et recherche FTS5
-- **[Architecture de recherche](https://docs.claude-mem.ai/architecture/search-architecture)** - Recherche hybride avec la base de données vectorielle Chroma
+- **[Vue d'ensemble](https://docs.codex-mem.ai/architecture/overview)** - Composants du système et flux de données
+- **[Évolution de l'architecture](https://docs.codex-mem.ai/architecture-evolution)** - Le parcours de la v3 à la v5
+- **[Architecture des hooks](https://docs.codex-mem.ai/hooks-architecture)** - Comment Codex-Mem utilise les hooks de cycle de vie
+- **[Référence des hooks](https://docs.codex-mem.ai/architecture/hooks)** - Explication des 7 scripts de hooks
+- **[Service Worker](https://docs.codex-mem.ai/architecture/worker-service)** - API HTTP et gestion Bun
+- **[Base de données](https://docs.codex-mem.ai/architecture/database)** - Schéma SQLite et recherche FTS5
+- **[Architecture de recherche](https://docs.codex-mem.ai/architecture/search-architecture)** - Recherche hybride avec la base de données vectorielle Chroma
 
 ### Configuration et développement
 
-- **[Configuration](https://docs.claude-mem.ai/configuration)** - Variables d'environnement et paramètres
-- **[Développement](https://docs.claude-mem.ai/development)** - Compilation, tests, contribution
-- **[Dépannage](https://docs.claude-mem.ai/troubleshooting)** - Problèmes courants et solutions
+- **[Configuration](https://docs.codex-mem.ai/configuration)** - Variables d'environnement et paramètres
+- **[Développement](https://docs.codex-mem.ai/development)** - Compilation, tests, contribution
+- **[Dépannage](https://docs.codex-mem.ai/troubleshooting)** - Problèmes courants et solutions
 
 ---
 
@@ -171,17 +171,17 @@ Redémarrez Claude Code. Le contexte des sessions précédentes apparaîtra auto
 5. **Compétence mem-search** - Requêtes en langage naturel avec divulgation progressive
 6. **Base de données vectorielle Chroma** - Recherche hybride sémantique + mots-clés pour une récupération de contexte intelligente
 
-Voir [Vue d'ensemble de l'architecture](https://docs.claude-mem.ai/architecture/overview) pour plus de détails.
+Voir [Vue d'ensemble de l'architecture](https://docs.codex-mem.ai/architecture/overview) pour plus de détails.
 
 ---
 
 ## Compétence mem-search
 
-Claude-Mem fournit une recherche intelligente via la compétence mem-search qui s'invoque automatiquement lorsque vous posez des questions sur le travail passé :
+Codex-Mem fournit une recherche intelligente via la compétence mem-search qui s'invoque automatiquement lorsque vous posez des questions sur le travail passé :
 
 **Comment ça fonctionne :**
 - Posez simplement des questions naturellement : *"Qu'avons-nous fait lors de la dernière session ?"* ou *"Avons-nous déjà corrigé ce bug ?"*
-- Claude invoque automatiquement la compétence mem-search pour trouver le contexte pertinent
+- Codex invoque automatiquement la compétence mem-search pour trouver le contexte pertinent
 
 **Opérations de recherche disponibles :**
 
@@ -206,22 +206,22 @@ Claude-Mem fournit une recherche intelligente via la compétence mem-search qui 
 "Que se passait-il lorsque nous avons ajouté l'interface de visualisation ?"
 ```
 
-Voir le [Guide des outils de recherche](https://docs.claude-mem.ai/usage/search-tools) pour des exemples détaillés.
+Voir le [Guide des outils de recherche](https://docs.codex-mem.ai/usage/search-tools) pour des exemples détaillés.
 
 ---
 
 ## Fonctionnalités bêta
 
-Claude-Mem propose un **canal bêta** avec des fonctionnalités expérimentales comme le **mode Endless** (architecture de mémoire biomimétique pour les sessions étendues). Basculez entre les versions stables et bêta depuis l'interface web de visualisation à http://localhost:37777 → Paramètres.
+Codex-Mem propose un **canal bêta** avec des fonctionnalités expérimentales comme le **mode Endless** (architecture de mémoire biomimétique pour les sessions étendues). Basculez entre les versions stables et bêta depuis l'interface web de visualisation à http://localhost:37777 → Paramètres.
 
-Voir la **[Documentation des fonctionnalités bêta](https://docs.claude-mem.ai/beta-features)** pour plus de détails sur le mode Endless et comment l'essayer.
+Voir la **[Documentation des fonctionnalités bêta](https://docs.codex-mem.ai/beta-features)** pour plus de détails sur le mode Endless et comment l'essayer.
 
 ---
 
 ## Configuration système requise
 
 - **Node.js** : 18.0.0 ou supérieur
-- **Claude Code** : Dernière version avec support des plugins
+- **Codex Code** : Dernière version avec support des plugins
 - **Bun** : Runtime JavaScript et gestionnaire de processus (installé automatiquement si manquant)
 - **uv** : Gestionnaire de packages Python pour la recherche vectorielle (installé automatiquement si manquant)
 - **SQLite 3** : Pour le stockage persistant (inclus)
@@ -230,23 +230,23 @@ Voir la **[Documentation des fonctionnalités bêta](https://docs.claude-mem.ai/
 
 ## Configuration
 
-Les paramètres sont gérés dans `~/.claude-mem/settings.json` (créé automatiquement avec les valeurs par défaut au premier lancement). Configurez le modèle IA, le port du worker, le répertoire de données, le niveau de journalisation et les paramètres d'injection de contexte.
+Les paramètres sont gérés dans `~/.codex-mem/settings.json` (créé automatiquement avec les valeurs par défaut au premier lancement). Configurez le modèle IA, le port du worker, le répertoire de données, le niveau de journalisation et les paramètres d'injection de contexte.
 
-Voir le **[Guide de configuration](https://docs.claude-mem.ai/configuration)** pour tous les paramètres disponibles et des exemples.
+Voir le **[Guide de configuration](https://docs.codex-mem.ai/configuration)** pour tous les paramètres disponibles et des exemples.
 
 ---
 
 ## Développement
 
-Voir le **[Guide de développement](https://docs.claude-mem.ai/development)** pour les instructions de compilation, les tests et le flux de contribution.
+Voir le **[Guide de développement](https://docs.codex-mem.ai/development)** pour les instructions de compilation, les tests et le flux de contribution.
 
 ---
 
 ## Dépannage
 
-Si vous rencontrez des problèmes, décrivez le problème à Claude et la compétence troubleshoot diagnostiquera automatiquement et fournira des solutions.
+Si vous rencontrez des problèmes, décrivez le problème à Codex et la compétence troubleshoot diagnostiquera automatiquement et fournira des solutions.
 
-Voir le **[Guide de dépannage](https://docs.claude-mem.ai/troubleshooting)** pour les problèmes courants et les solutions.
+Voir le **[Guide de dépannage](https://docs.codex-mem.ai/troubleshooting)** pour les problèmes courants et les solutions.
 
 ---
 
@@ -255,7 +255,7 @@ Voir le **[Guide de dépannage](https://docs.claude-mem.ai/troubleshooting)** po
 Créez des rapports de bugs complets avec le générateur automatisé :
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 
@@ -269,7 +269,7 @@ Les contributions sont les bienvenues ! Veuillez :
 4. Mettre à jour la documentation
 5. Soumettre une Pull Request
 
-Voir le [Guide de développement](https://docs.claude-mem.ai/development) pour le flux de contribution.
+Voir le [Guide de développement](https://docs.codex-mem.ai/development) pour le flux de contribution.
 
 ---
 
@@ -291,12 +291,12 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## Support
 
 - **Documentation** : [docs/](docs/)
-- **Issues** : [GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **Dépôt** : [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
+- **Issues** : [GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **Dépôt** : [github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
 - **Auteur** : Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**Construit avec Claude Agent SDK** | **Propulsé par Claude Code** | **Fait avec TypeScript**
+**Construit avec Codex Agent SDK** | **Propulsé par Codex Code** | **Fait avec TypeScript**
 
 ---

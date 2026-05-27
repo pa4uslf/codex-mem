@@ -6,10 +6,10 @@ import {
   classifyHttpProviderError,
   parseRetryAfterMs,
 } from '../../../src/server/generation/providers/shared/error-classification.js';
-import { classifyClaudeServerError } from '../../../src/server/generation/providers/ClaudeObservationProvider.js';
+import { classifyCodexServerError } from '../../../src/server/generation/providers/CodexObservationProvider.js';
 import {
-  ClaudeObservationProvider,
-} from '../../../src/server/generation/providers/ClaudeObservationProvider.js';
+  CodexObservationProvider,
+} from '../../../src/server/generation/providers/CodexObservationProvider.js';
 import { GeminiObservationProvider } from '../../../src/server/generation/providers/GeminiObservationProvider.js';
 import { OpenRouterObservationProvider } from '../../../src/server/generation/providers/OpenRouterObservationProvider.js';
 import { buildServerGenerationPrompt } from '../../../src/server/generation/providers/shared/prompt-builder.js';
@@ -94,13 +94,13 @@ describe('shared error classification', () => {
     expect(err.kind).toBe('quota_exhausted');
   });
 
-  it('classifyClaudeServerError treats 529 as transient', () => {
-    expect(classifyClaudeServerError({ status: 529, cause: 'x' }).kind).toBe('transient');
+  it('classifyCodexServerError treats 529 as transient', () => {
+    expect(classifyCodexServerError({ status: 529, cause: 'x' }).kind).toBe('transient');
   });
 
-  it('classifyClaudeServerError treats prompt-too-long as unrecoverable', () => {
+  it('classifyCodexServerError treats prompt-too-long as unrecoverable', () => {
     expect(
-      classifyClaudeServerError({ status: 400, bodyText: 'prompt is too long', cause: 'x' }).kind,
+      classifyCodexServerError({ status: 400, bodyText: 'prompt is too long', cause: 'x' }).kind,
     ).toBe('unrecoverable');
   });
 });
@@ -146,9 +146,9 @@ function jsonResponse(status: number, body: unknown, headers?: Record<string, st
   });
 }
 
-describe('ClaudeObservationProvider', () => {
+describe('CodexObservationProvider', () => {
   it('returns synthetic skip when prompt builder reports skippedAll', async () => {
-    const provider = new ClaudeObservationProvider({ apiKey: 'fake', fetchImpl: async () => {
+    const provider = new CodexObservationProvider({ apiKey: 'fake', fetchImpl: async () => {
       throw new Error('should not be called');
     } });
     const context = makeContext({ payload: '<private>secret</private>' });
@@ -156,28 +156,26 @@ describe('ClaudeObservationProvider', () => {
     expect(result.rawText).toContain('<skip_summary');
   });
 
-  it('parses Anthropic Messages text content into rawText', async () => {
+  it('parses OpenAI Responses output_text into rawText', async () => {
     const fakeFetch = new FakeFetch(
       jsonResponse(200, {
-        content: [
-          { type: 'text', text: '<observation><type>x</type><title>t</title></observation>' },
-        ],
-        usage: { input_tokens: 10, output_tokens: 20 },
+        output_text: '<observation><type>x</type><title>t</title></observation>',
+        usage: { input_tokens: 10, output_tokens: 20, total_tokens: 30 },
       }),
     );
-    const provider = new ClaudeObservationProvider({
+    const provider = new CodexObservationProvider({
       apiKey: 'sk-fake',
       fetchImpl: fakeFetch.fetch,
     });
     const result = await provider.generate(makeContext());
     expect(result.rawText).toContain('<observation>');
     expect(result.tokensUsed).toBe(30);
-    expect(result.providerLabel).toBe('claude');
+    expect(result.providerLabel).toBe('codex');
   });
 
-  it('classifies non-OK responses through classifyClaudeServerError', async () => {
+  it('classifies non-OK responses through classifyCodexServerError', async () => {
     const fakeFetch = new FakeFetch(jsonResponse(401, { error: { message: 'Invalid API key' } }));
-    const provider = new ClaudeObservationProvider({ apiKey: 'sk-fake', fetchImpl: fakeFetch.fetch });
+    const provider = new CodexObservationProvider({ apiKey: 'sk-fake', fetchImpl: fakeFetch.fetch });
     await expect(provider.generate(makeContext())).rejects.toBeInstanceOf(ServerClassifiedProviderError);
   });
 });

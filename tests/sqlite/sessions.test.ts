@@ -1,6 +1,6 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { ClaudeMemDatabase } from '../../src/services/sqlite/Database.js';
+import { CodexMemDatabase } from '../../src/services/sqlite/Database.js';
 import {
   createSDKSession,
   getSessionById,
@@ -12,7 +12,7 @@ describe('Sessions Module', () => {
   let db: Database;
 
   beforeEach(() => {
-    db = new ClaudeMemDatabase(':memory:').db;
+    db = new CodexMemDatabase(':memory:').db;
   });
 
   afterEach(() => {
@@ -118,11 +118,11 @@ describe('Sessions Module', () => {
   });
 
   describe('platform_source', () => {
-    it('should default new sessions to claude when platformSource is omitted', () => {
+    it('should default new sessions to codex when platformSource is omitted', () => {
       const sessionId = createSDKSession(db, 'session-platform-1', 'project', 'prompt');
       const session = getSessionById(db, sessionId);
 
-      expect(session?.platform_source).toBe('claude');
+      expect(session?.platform_source).toBe('codex');
     });
 
     it('should preserve a non-default platform_source for legacy callers that omit platformSource', () => {
@@ -144,7 +144,7 @@ describe('Sessions Module', () => {
         'project',
         'prompt',
         undefined,
-        'claude'
+        'codex'
       )).toThrow(/Platform source conflict/);
     });
   });

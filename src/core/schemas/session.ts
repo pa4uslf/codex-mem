@@ -9,7 +9,7 @@ export const ServerSessionSchema = z.object({
   projectId: z.string().min(1),
   contentSessionId: z.string().min(1).nullable().default(null),
   memorySessionId: z.string().min(1).nullable().default(null),
-  platformSource: z.string().min(1).default('claude'),
+  platformSource: z.string().min(1).default('codex'),
   title: z.string().min(1).nullable().default(null),
   status: ServerSessionStatusSchema.default('active'),
   metadata: z.record(z.string(), z.unknown()).default({}),

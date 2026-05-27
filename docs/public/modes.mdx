@@ -1,34 +1,34 @@
 ---
 title: "Modes & Languages"
-description: "Configure Claude-Mem behavior and language with the Mode System"
+description: "Configure Codex-Mem behavior and language with the Mode System"
 ---
 
 # Modes & Languages
 
-Claude-Mem uses a flexible **Mode System** to adapt its behavior, observation types, and output language. This allows you to switch between different workflows (like coding vs. email investigation) or languages without reinstalling the plugin.
+Codex-Mem uses a flexible **Mode System** to adapt its behavior, observation types, and output language. This allows you to switch between different workflows (like coding vs. email investigation) or languages without reinstalling the plugin.
 
 ## What is a Mode?
 
 A "mode" is a configuration profile that defines:
-1.  **Observer Role**: How Claude should analyze your work (e.g., "Software Engineer" vs. "Forensic Analyst").
+1.  **Observer Role**: How Codex should analyze your work (e.g., "Software Engineer" vs. "Forensic Analyst").
 2.  **Observation Types**: Valid categories for memory (e.g., "Bug Fix", "Feature" vs. "Person", "Organization").
 3.  **Concepts**: Semantic tags for indexing (e.g., "Pattern", "Trade-off").
 4.  **Language**: The language used for generating observations and summaries.
 
 ## Configuration
 
-Set the active mode using the `CLAUDE_MEM_MODE` setting in `~/.claude-mem/settings.json`:
+Set the active mode using the `CODEX_MEM_MODE` setting in `~/.codex-mem/settings.json`:
 
 ```json
 {
-  "CLAUDE_MEM_MODE": "code--es"
+  "CODEX_MEM_MODE": "code--es"
 }
 ```
 
 Or via environment variable:
 
 ```bash
-export CLAUDE_MEM_MODE="code--fr"
+export CODEX_MEM_MODE="code--fr"
 ```
 
 ## Available Modes
@@ -47,7 +47,7 @@ Behavioral variants that change how the code mode operates:
 | **Chill** | `code--chill` | Produces fewer observations. Only records things "painful to rediscover" - shipped features, architectural decisions, and non-obvious gotchas. Skips routine work and obvious changes. |
 
 ### Multilingual Code Modes
-Inherits all behavior from Code Mode but instructs Claude to generate **all** memory artifacts (titles, narratives, facts, summaries) in the target language.
+Inherits all behavior from Code Mode but instructs Codex to generate **all** memory artifacts (titles, narratives, facts, summaries) in the target language.
 
 | Language | Mode ID | Native Name |
 |----------|---------|-------------|

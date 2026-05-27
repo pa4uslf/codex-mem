@@ -33,7 +33,7 @@ describe('Worker API Endpoints Integration', () => {
       onRestart: mock(() => Promise.resolve()),
       workerPath: '/test/worker-service.cjs',
       getAiStatus: () => ({
-        provider: 'claude',
+        provider: 'codex',
         authMethod: 'cli',
         lastInteraction: null,
       }),
@@ -81,7 +81,7 @@ describe('Worker API Endpoints Integration', () => {
           onShutdown: mock(() => Promise.resolve()),
           onRestart: mock(() => Promise.resolve()),
           workerPath: '/test/worker-service.cjs',
-          getAiStatus: () => ({ provider: 'claude', authMethod: 'cli', lastInteraction: null }),
+          getAiStatus: () => ({ provider: 'codex', authMethod: 'cli', lastInteraction: null }),
         };
 
         server = new Server(uninitOptions);
@@ -116,7 +116,7 @@ describe('Worker API Endpoints Integration', () => {
           onShutdown: mock(() => Promise.resolve()),
           onRestart: mock(() => Promise.resolve()),
           workerPath: '/test/worker-service.cjs',
-          getAiStatus: () => ({ provider: 'claude', authMethod: 'cli', lastInteraction: null }),
+          getAiStatus: () => ({ provider: 'codex', authMethod: 'cli', lastInteraction: null }),
         };
 
         server = new Server(uninitOptions);
@@ -231,7 +231,7 @@ describe('Worker API Endpoints Integration', () => {
         onShutdown: mock(() => Promise.resolve()),
         onRestart: mock(() => Promise.resolve()),
         workerPath: '/test/worker-service.cjs',
-        getAiStatus: () => ({ provider: 'claude', authMethod: 'cli', lastInteraction: null }),
+        getAiStatus: () => ({ provider: 'codex', authMethod: 'cli', lastInteraction: null }),
       };
 
       server = new Server(dynamicOptions);
@@ -254,7 +254,7 @@ describe('Worker API Endpoints Integration', () => {
         onShutdown: mock(() => Promise.resolve()),
         onRestart: mock(() => Promise.resolve()),
         workerPath: '/test/worker-service.cjs',
-        getAiStatus: () => ({ provider: 'claude', authMethod: 'cli', lastInteraction: null }),
+        getAiStatus: () => ({ provider: 'codex', authMethod: 'cli', lastInteraction: null }),
       };
 
       server = new Server(dynamicOptions);

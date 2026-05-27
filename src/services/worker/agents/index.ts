@@ -18,4 +18,4 @@ export { broadcastObservation, broadcastSummary } from './ObservationBroadcaster
 
 export { cleanupProcessedMessages } from './SessionCleanupHelper.js';
 
-export { shouldFallbackToClaude, isAbortError } from './FallbackErrorHandler.js';
+export { shouldFallbackToCodex, isAbortError } from './FallbackErrorHandler.js';

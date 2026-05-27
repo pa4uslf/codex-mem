@@ -13,26 +13,26 @@ describe('SessionStore', () => {
   });
 
   it('should correctly count user prompts', () => {
-    const claudeId = 'claude-session-1';
-    store.createSDKSession(claudeId, 'test-project', 'initial prompt');
+    const codexId = 'codex-session-1';
+    store.createSDKSession(codexId, 'test-project', 'initial prompt');
     
-    expect(store.getPromptNumberFromUserPrompts(claudeId)).toBe(0);
+    expect(store.getPromptNumberFromUserPrompts(codexId)).toBe(0);
 
-    store.saveUserPrompt(claudeId, 1, 'First prompt');
-    expect(store.getPromptNumberFromUserPrompts(claudeId)).toBe(1);
+    store.saveUserPrompt(codexId, 1, 'First prompt');
+    expect(store.getPromptNumberFromUserPrompts(codexId)).toBe(1);
 
-    store.saveUserPrompt(claudeId, 2, 'Second prompt');
-    expect(store.getPromptNumberFromUserPrompts(claudeId)).toBe(2);
+    store.saveUserPrompt(codexId, 2, 'Second prompt');
+    expect(store.getPromptNumberFromUserPrompts(codexId)).toBe(2);
 
-    store.createSDKSession('claude-session-2', 'test-project', 'initial prompt');
-    store.saveUserPrompt('claude-session-2', 1, 'Other prompt');
-    expect(store.getPromptNumberFromUserPrompts(claudeId)).toBe(2);
+    store.createSDKSession('codex-session-2', 'test-project', 'initial prompt');
+    store.saveUserPrompt('codex-session-2', 1, 'Other prompt');
+    expect(store.getPromptNumberFromUserPrompts(codexId)).toBe(2);
   });
 
   it('should store observation with timestamp override', () => {
-    const claudeId = 'claude-sess-obs';
+    const codexId = 'codex-sess-obs';
     const memoryId = 'memory-sess-obs';
-    const sdkId = store.createSDKSession(claudeId, 'test-project', 'initial prompt');
+    const sdkId = store.createSDKSession(codexId, 'test-project', 'initial prompt');
 
     store.updateMemorySessionId(sdkId, memoryId);
 
@@ -68,9 +68,9 @@ describe('SessionStore', () => {
   });
 
   it('should store summary with timestamp override', () => {
-    const claudeId = 'claude-sess-sum';
+    const codexId = 'codex-sess-sum';
     const memoryId = 'memory-sess-sum';
-    const sdkId = store.createSDKSession(claudeId, 'test-project', 'initial prompt');
+    const sdkId = store.createSDKSession(codexId, 'test-project', 'initial prompt');
 
     store.updateMemorySessionId(sdkId, memoryId);
 

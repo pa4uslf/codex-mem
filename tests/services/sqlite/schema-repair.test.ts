@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'bun:test';
 import { Database } from 'bun:sqlite';
-import { ClaudeMemDatabase } from '../../../src/services/sqlite/Database.js';
+import { CodexMemDatabase } from '../../../src/services/sqlite/Database.js';
 import { MigrationRunner } from '../../../src/services/sqlite/migrations/runner.js';
 import { existsSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
@@ -8,7 +8,7 @@ import { tmpdir } from 'os';
 import { execFileSync, execSync } from 'child_process';
 
 function tempDbPath(): string {
-  return join(tmpdir(), `claude-mem-test-${Date.now()}-${Math.random().toString(36).slice(2)}.db`);
+  return join(tmpdir(), `codex-mem-test-${Date.now()}-${Math.random().toString(36).slice(2)}.db`);
 }
 
 function cleanup(path: string): void {
@@ -85,7 +85,7 @@ describe('Schema repair on malformed database', () => {
       corruptDb.close();
       expect(threw).toBe(true);
 
-      const repaired = new ClaudeMemDatabase(dbPath);
+      const repaired = new CodexMemDatabase(dbPath);
 
       const tables = repaired.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
         .all() as { name: string }[];
@@ -109,7 +109,7 @@ describe('Schema repair on malformed database', () => {
   it('should handle a fresh database without triggering repair', () => {
     const dbPath = tempDbPath();
     try {
-      const db = new ClaudeMemDatabase(dbPath);
+      const db = new CodexMemDatabase(dbPath);
       const tables = db.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
         .all() as { name: string }[];
       expect(tables.length).toBeGreaterThan(0);
@@ -157,7 +157,7 @@ c.close()
       corruptDb.close();
       expect(threw).toBe(true);
 
-      const repaired = new ClaudeMemDatabase(dbPath);
+      const repaired = new CodexMemDatabase(dbPath);
       const tables = repaired.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
         .all() as { name: string }[];
       const tableNames = tables.map(t => t.name);
@@ -203,7 +203,7 @@ c.close()
 
       corruptDbViaPython(dbPath);
 
-      const repaired = new ClaudeMemDatabase(dbPath);
+      const repaired = new CodexMemDatabase(dbPath);
 
       const sessions = repaired.db.prepare('SELECT COUNT(*) as count FROM sdk_sessions').get() as { count: number };
       const observations = repaired.db.prepare('SELECT COUNT(*) as count FROM observations').get() as { count: number };

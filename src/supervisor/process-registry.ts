@@ -602,7 +602,7 @@ export function spawnSdkProcess(
 
   child.on('exit', (code: number | null, signal: string | null) => {
     if (code !== 0) {
-      logger.warn('SDK_SPAWN', `[session-${sessionDbId}] Claude process exited`, { code, signal, pid });
+      logger.warn('SDK_SPAWN', `[session-${sessionDbId}] Codex process exited`, { code, signal, pid });
     }
     registry.unregister(recordId);
   });

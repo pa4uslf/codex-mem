@@ -21,7 +21,7 @@ const UNSUPPORTED_SERVER_COMMANDS = new Set([
 ]);
 
 function printServerUsage(): void {
-  console.error(`Usage: ${pc.bold('npx claude-mem server <command>')}`);
+  console.error(`Usage: ${pc.bold('npx codex-mem server <command>')}`);
   console.error('Commands: start, stop, restart, status, logs, doctor, migrate, export, import, api-key create|list|revoke, keys rotate, worker start, jobs status|failed|retry|cancel');
 }
 
@@ -92,7 +92,7 @@ export async function runServerCommand(argv: string[] = []): Promise<void> {
       return;
     }
     console.error(pc.red(`Unknown server api-key subcommand: ${apiKeyCommand ?? '(none)'}`));
-    console.error('Usage: npx claude-mem server api-key create|list|revoke');
+    console.error('Usage: npx codex-mem server api-key create|list|revoke');
     process.exit(1);
   }
 
@@ -103,7 +103,7 @@ export async function runServerCommand(argv: string[] = []): Promise<void> {
       return;
     }
     console.error(pc.red(`Unknown server worker subcommand: ${workerCommand ?? '(none)'}`));
-    console.error('Usage: npx claude-mem server worker start');
+    console.error('Usage: npx codex-mem server worker start');
     process.exit(1);
   }
 
@@ -114,7 +114,7 @@ export async function runServerCommand(argv: string[] = []): Promise<void> {
       return;
     }
     console.error(pc.red(`Unknown server keys subcommand: ${keysCommand ?? '(none)'}`));
-    console.error('Usage: npx claude-mem server keys rotate');
+    console.error('Usage: npx codex-mem server keys rotate');
     process.exit(1);
   }
 
@@ -132,8 +132,8 @@ export async function runServerCommand(argv: string[] = []): Promise<void> {
 }
 
 async function runServerBetaKeysRotateCommand(): Promise<void> {
-  if (!process.env.CLAUDE_MEM_SERVER_DATABASE_URL) {
-    console.error(pc.red('Cannot rotate server-beta API key: CLAUDE_MEM_SERVER_DATABASE_URL is not set.'));
+  if (!process.env.CODEX_MEM_SERVER_DATABASE_URL) {
+    console.error(pc.red('Cannot rotate server-beta API key: CODEX_MEM_SERVER_DATABASE_URL is not set.'));
     console.error('Configure Postgres first, then re-run this command.');
     process.exit(1);
   }
@@ -144,13 +144,13 @@ async function runServerBetaKeysRotateCommand(): Promise<void> {
   const { join } = await import('path');
   const { existsSync, readFileSync } = await import('fs');
 
-  const settingsPath = join(SettingsDefaultsManager.get('CLAUDE_MEM_DATA_DIR'), 'settings.json');
+  const settingsPath = join(SettingsDefaultsManager.get('CODEX_MEM_DATA_DIR'), 'settings.json');
   let previousApiKeyId: string | null = null;
   if (existsSync(settingsPath)) {
     try {
       const raw = JSON.parse(readFileSync(settingsPath, 'utf-8')) as Record<string, unknown>;
       const flat = (raw.env && typeof raw.env === 'object' ? raw.env : raw) as Record<string, unknown>;
-      const previousKey = flat.CLAUDE_MEM_SERVER_BETA_API_KEY;
+      const previousKey = flat.CODEX_MEM_SERVER_BETA_API_KEY;
       if (typeof previousKey === 'string' && previousKey.length > 0) {
         previousApiKeyId = await lookupApiKeyIdByPlaintext(previousKey);
       }
@@ -196,7 +196,7 @@ export function runWorkerAliasCommand(argv: string[] = []): void {
 
   if (!subCommand || !runWorkerLifecycleCommand(subCommand)) {
     console.error(pc.red(`Unknown worker command: ${subCommand ?? '(none)'}`));
-    console.error('Usage: npx claude-mem worker start|stop|restart|status');
+    console.error('Usage: npx codex-mem worker start|stop|restart|status');
     process.exit(1);
   }
 }

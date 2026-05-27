@@ -8,8 +8,8 @@ const execAsync = promisify(exec);
 
 export interface SystemDiagnostics {
   versions: {
-    claudeMem: string;
-    claudeCode: string;
+    codexMem: string;
+    codexCode: string;
     node: string;
     bun: string;
   };
@@ -59,7 +59,7 @@ function sanitizePath(filePath: string): string {
   return filePath.replace(homeDir, "~");
 }
 
-async function getClaudememVersion(): Promise<string> {
+async function getCodexmemVersion(): Promise<string> {
   try {
     const packageJsonPath = path.join(process.cwd(), "package.json");
     const content = await fs.readFile(packageJsonPath, "utf-8");
@@ -70,9 +70,9 @@ async function getClaudememVersion(): Promise<string> {
   }
 }
 
-async function getClaudeCodeVersion(): Promise<string> {
+async function getCodexCodeVersion(): Promise<string> {
   try {
-    const { stdout } = await execAsync("claude --version");
+    const { stdout } = await execAsync("codex --version");
     return stdout.trim();
   } catch (error) {
     return "not installed or not in PATH";
@@ -165,7 +165,7 @@ async function getDatabaseInfo(
   dataDir: string
 ): Promise<{ exists: boolean; size?: number }> {
   try {
-    const dbPath = path.join(dataDir, "claude-mem.db");
+    const dbPath = path.join(dataDir, "codex-mem.db");
     const stats = await fs.stat(dbPath);
     return { exists: true, size: stats.size };
   } catch (error) {
@@ -177,7 +177,7 @@ async function getTableCounts(
   dataDir: string
 ): Promise<{ observations: number; sessions: number; summaries: number } | undefined> {
   try {
-    const dbPath = path.join(dataDir, "claude-mem.db");
+    const dbPath = path.join(dataDir, "codex-mem.db");
     await fs.stat(dbPath);
 
     const query =
@@ -205,27 +205,27 @@ export async function collectDiagnostics(
   options: { includeLogs?: boolean } = {}
 ): Promise<SystemDiagnostics> {
   const homeDir = os.homedir();
-  const dataDir = path.join(homeDir, ".claude-mem");
+  const dataDir = path.join(homeDir, ".codex-mem");
   const pluginPath = path.join(
     homeDir,
-    ".claude",
+    ".codex",
     "plugins",
     "marketplaces",
     "thedotmack"
   );
   const cwd = process.cwd();
-  const isDevMode = cwd.includes("claude-mem") && !cwd.includes(".claude");
+  const isDevMode = cwd.includes("codex-mem") && !cwd.includes(".codex");
 
-  const [claudeMem, claudeCode, bun, osVersion] = await Promise.all([
-    getClaudememVersion(),
-    getClaudeCodeVersion(),
+  const [codexMem, codexCode, bun, osVersion] = await Promise.all([
+    getCodexmemVersion(),
+    getCodexCodeVersion(),
     getBunVersion(),
     getOsVersion(),
   ]);
 
   const versions = {
-    claudeMem,
-    claudeCode,
+    codexMem,
+    codexCode,
     node: process.version,
     bun,
   };
@@ -285,7 +285,7 @@ export async function collectDiagnostics(
     getTableCounts(dataDir),
   ]);
   const database = {
-    path: sanitizePath(path.join(dataDir, "claude-mem.db")),
+    path: sanitizePath(path.join(dataDir, "codex-mem.db")),
     exists: dbInfo.exists,
     size: dbInfo.size,
     counts: tableCounts,
@@ -313,8 +313,8 @@ export function formatDiagnostics(diagnostics: SystemDiagnostics): string {
   let output = "";
 
   output += "## Environment\n\n";
-  output += `- **Claude-mem**: ${diagnostics.versions.claudeMem}\n`;
-  output += `- **Claude Code**: ${diagnostics.versions.claudeCode}\n`;
+  output += `- **Codex-mem**: ${diagnostics.versions.codexMem}\n`;
+  output += `- **Codex Code**: ${diagnostics.versions.codexCode}\n`;
   output += `- **Node.js**: ${diagnostics.versions.node}\n`;
   output += `- **Bun**: ${diagnostics.versions.bun}\n`;
   output += `- **OS**: ${diagnostics.platform.osVersion} (${diagnostics.platform.arch})\n`;
@@ -362,11 +362,11 @@ export function formatDiagnostics(diagnostics: SystemDiagnostics): string {
   if (diagnostics.config.settings) {
     output += "- **Key Settings**:\n";
     const keySettings = [
-      "CLAUDE_MEM_MODEL",
-      "CLAUDE_MEM_WORKER_PORT",
-      "CLAUDE_MEM_WORKER_HOST",
-      "CLAUDE_MEM_LOG_LEVEL",
-      "CLAUDE_MEM_CONTEXT_OBSERVATIONS",
+      "CODEX_MEM_MODEL",
+      "CODEX_MEM_WORKER_PORT",
+      "CODEX_MEM_WORKER_HOST",
+      "CODEX_MEM_LOG_LEVEL",
+      "CODEX_MEM_CONTEXT_OBSERVATIONS",
     ];
     for (const key of keySettings) {
       if (diagnostics.config.settings[key]) {

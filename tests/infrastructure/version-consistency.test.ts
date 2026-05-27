@@ -28,25 +28,25 @@ describe('Version Consistency', () => {
     expect(pluginPackageJson.version).toBe(rootVersion);
   });
 
-  it('should have matching version in plugin/.claude-plugin/plugin.json', () => {
-    const pluginJsonPath = path.join(projectRoot, 'plugin/.claude-plugin/plugin.json');
+  it('should have matching version in plugin/.codex-legacy-plugin/plugin.json', () => {
+    const pluginJsonPath = path.join(projectRoot, 'plugin/.codex-legacy-plugin/plugin.json');
     expect(existsSync(pluginJsonPath)).toBe(true);
     
     const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
     expect(pluginJson.version).toBe(rootVersion);
   });
 
-  it('should have matching version in .claude-plugin/marketplace.json', () => {
-    const marketplaceJsonPath = path.join(projectRoot, '.claude-plugin/marketplace.json');
+  it('should have matching version in .codex-legacy-plugin/marketplace.json', () => {
+    const marketplaceJsonPath = path.join(projectRoot, '.codex-legacy-plugin/marketplace.json');
     expect(existsSync(marketplaceJsonPath)).toBe(true);
     
     const marketplaceJson = JSON.parse(readFileSync(marketplaceJsonPath, 'utf-8'));
     expect(marketplaceJson.plugins).toBeDefined();
     expect(marketplaceJson.plugins.length).toBeGreaterThan(0);
     
-    const claudeMemPlugin = marketplaceJson.plugins.find((p: any) => p.name === 'claude-mem');
-    expect(claudeMemPlugin).toBeDefined();
-    expect(claudeMemPlugin.version).toBe(rootVersion);
+    const codexMemPlugin = marketplaceJson.plugins.find((p: any) => p.name === 'codex-mem');
+    expect(codexMemPlugin).toBeDefined();
+    expect(codexMemPlugin.version).toBe(rootVersion);
   });
 
   it('should have version injected into built worker-service.cjs', () => {

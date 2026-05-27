@@ -24,7 +24,7 @@ describe('SessionCleanupHelper', () => {
       earliestPendingTimestamp: Date.now() - 10000, // 10 seconds ago
       claimedMessageIds: [],
       conversationHistory: [],
-      currentProvider: 'claude',
+      currentProvider: 'codex',
       ...overrides,
     };
   }

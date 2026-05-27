@@ -1,7 +1,7 @@
 # Finish BullMQ Observation Queue Branch — Ship Plan
 
 Date: 2026-05-07
-Branch: `bullmq-vs-bee-queue-for-claude-mem-observation-que`
+Branch: `bullmq-vs-bee-queue-for-codex-mem-observation-que`
 Base: `origin/main` @ `0a43ab76`
 Parent plan: `plans/2026-05-07-server-beta-independent-bullmq-observation-runtime.md`
 
@@ -94,12 +94,12 @@ Phases 3–13 (BullMQ queue, event-to-job pipeline, provider extraction, hook ro
    ```
 5. Smoke test independence:
    ```bash
-   npx claude-mem server status      # before start
-   npx claude-mem server start
-   npx claude-mem server status      # running, runtime=server-beta
-   curl -s http://127.0.0.1:$(cat ~/.claude-mem/.server-beta.port)/healthz
-   curl -s http://127.0.0.1:$(cat ~/.claude-mem/.server-beta.port)/v1/info
-   npx claude-mem server stop
+   npx codex-mem server status      # before start
+   npx codex-mem server start
+   npx codex-mem server status      # running, runtime=server-beta
+   curl -s http://127.0.0.1:$(cat ~/.codex-mem/.server-beta.port)/healthz
+   curl -s http://127.0.0.1:$(cat ~/.codex-mem/.server-beta.port)/v1/info
+   npx codex-mem server stop
    ```
    Worker `start|stop|status` must remain functional throughout.
 
@@ -164,7 +164,7 @@ Two commits, in order:
 
 ### What To Run
 
-1. `git push -u origin bullmq-vs-bee-queue-for-claude-mem-observation-que`
+1. `git push -u origin bullmq-vs-bee-queue-for-codex-mem-observation-que`
 2. `gh pr view --web` (if PR exists) or `gh pr create` with body sourced from `PR_REORIENTATION_REPORT.md`.
 3. PR body must explicitly carve scope: "Includes Phase 1 + Phase 2 from `plans/2026-05-07-server-beta-independent-bullmq-observation-runtime.md`. Phases 3–13 are follow-ups on separate branches."
 
@@ -235,8 +235,8 @@ Source: parent plan lines 515–570.
   - Re-enqueue rows in `queued` or stale `processing`.
   - Skip rows already `completed`.
   - Replace terminal BullMQ jobs before reusing deterministic IDs.
-- Wire queue health into `/v1/info`, `/api/health`, and `claude-mem server status` via the existing runtime label hook.
-- Activate the queue boundary in `ServerBetaService` (Phase 2 left it disabled). Provide a real adapter when `CLAUDE_MEM_QUEUE_ENGINE=bullmq` and `REDIS_URL` are present; keep the disabled adapter as the fallback.
+- Wire queue health into `/v1/info`, `/api/health`, and `codex-mem server status` via the existing runtime label hook.
+- Activate the queue boundary in `ServerBetaService` (Phase 2 left it disabled). Provide a real adapter when `CODEX_MEM_QUEUE_ENGINE=bullmq` and `REDIS_URL` are present; keep the disabled adapter as the fallback.
 
 ### Documentation References
 
@@ -261,7 +261,7 @@ Integration tests under `tests/server/queue-bootstrap/`:
 - Insert outbox rows directly through `ObservationGenerationJobRepository`.
 - Enqueue fake jobs; restart before fake processing completes.
 - Assert reconciliation re-enqueues exactly once and outbox status reaches `completed` exactly once.
-- Assert Redis-down fails Server beta startup when `CLAUDE_MEM_QUEUE_ENGINE=bullmq`; no silent fallback to SQLite.
+- Assert Redis-down fails Server beta startup when `CODEX_MEM_QUEUE_ENGINE=bullmq`; no silent fallback to SQLite.
 
 Greps:
 
@@ -281,7 +281,7 @@ The colon-grep must return zero matches.
 - Do not allow duplicate processor side effects on retry — keep observation writes idempotent by deterministic key.
 - Do not use BullMQ Pro-only features (groups).
 - Do not leave pending work only in Redis.
-- Do not silently fall back from BullMQ to SQLite when `CLAUDE_MEM_QUEUE_ENGINE=bullmq` is set.
+- Do not silently fall back from BullMQ to SQLite when `CODEX_MEM_QUEUE_ENGINE=bullmq` is set.
 
 ### Commit Layout
 
@@ -304,7 +304,7 @@ Two commits:
 ## Phase F: Push and Open/Update PR
 
 ```bash
-git push -u origin bullmq-vs-bee-queue-for-claude-mem-observation-que
+git push -u origin bullmq-vs-bee-queue-for-codex-mem-observation-que
 gh pr view --web   # if PR exists
 # else:
 gh pr create --title "Server-beta: Postgres storage + independent runtime + BullMQ queue (Phases 1–3)"

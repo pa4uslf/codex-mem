@@ -1,13 +1,13 @@
 ---
 title: "File Read Gate"
-description: "How claude-mem intercepts file reads to save tokens using observation history"
+description: "How codex-mem intercepts file reads to save tokens using observation history"
 ---
 
 # File Read Gate
 
 ## What It Is
 
-The File Read Gate is a **PreToolUse hook** that intercepts Claude's `Read` tool calls. When Claude tries to read a file that has prior observations in the database, the gate blocks the read and instead shows a compact timeline of past work on that file. Claude then decides the cheapest path to get the context it needs.
+The File Read Gate is a **PreToolUse hook** that intercepts Codex's `Read` tool calls. When Codex tries to read a file that has prior observations in the database, the gate blocks the read and instead shows a compact timeline of past work on that file. Codex then decides the cheapest path to get the context it needs.
 
 This is a concrete implementation of [progressive disclosure](/progressive-disclosure) -- show what exists first, let the agent decide what to fetch.
 
@@ -16,7 +16,7 @@ This is a concrete implementation of [progressive disclosure](/progressive-discl
 ## How It Works
 
 ```
-Claude calls Read("src/services/worker-service.ts")
+Codex calls Read("src/services/worker-service.ts")
          ↓
    PreToolUse hook fires
          ↓
@@ -35,7 +35,7 @@ Claude calls Read("src/services/worker-service.ts")
    DENY read with timeline
 ```
 
-When the gate fires, Claude sees a message like this:
+When the gate fires, Codex sees a message like this:
 
 ```
 Current: 2026-04-07 3:25pm PDT
@@ -58,11 +58,11 @@ Read blocked: This file has prior observations. Choose the cheapest path:
 
 ## The Decision Tree
 
-Claude has four options after seeing the timeline, ordered from cheapest to most expensive:
+Codex has four options after seeing the timeline, ordered from cheapest to most expensive:
 
 | Option | Token Cost | When to Use |
 |--------|-----------|-------------|
-| **Semantic priming** | 0 extra | Timeline titles tell Claude enough to proceed |
+| **Semantic priming** | 0 extra | Timeline titles tell Codex enough to proceed |
 | **get_observations([IDs])** | ~300 each | Need specific details from past work |
 | **smart_outline / smart_unfold** | ~1-2k | Need current code structure or a specific function |
 | **Full file read** | 5k-50k | File has changed significantly since observations |
@@ -79,13 +79,13 @@ The timeline includes the current date and time as its first line:
 Current: 2026-04-07 3:25pm PDT
 ```
 
-This lets Claude reason about how recent the observations are relative to now. For example:
+This lets Codex reason about how recent the observations are relative to now. For example:
 
 - **Observations from today** -- likely still accurate, semantic priming is safe
 - **Observations from last week** -- probably accurate, get_observations for details
 - **Observations from months ago** -- file may have changed, consider smart_outline or full read
 
-The timestamp format matches the session start context header (`YYYY-MM-DD time timezone`), so Claude sees consistent temporal markers throughout its session.
+The timestamp format matches the session start context header (`YYYY-MM-DD time timezone`), so Codex sees consistent temporal markers throughout its session.
 
 ---
 
@@ -99,7 +99,7 @@ A typical source file costs **5,000-50,000 tokens** to read in full. The File Re
 | 15 observation entries | ~250 |
 | **Total timeline** | **~370** |
 
-If Claude needs more detail, it fetches individual observations at ~300 tokens each. Even fetching 3 observations totals ~1,270 tokens -- still a **75-97% savings** over reading the full file.
+If Codex needs more detail, it fetches individual observations at ~300 tokens each. Even fetching 3 observations totals ~1,270 tokens -- still a **75-97% savings** over reading the full file.
 
 ### Real-World Example
 
@@ -140,11 +140,11 @@ Files smaller than **1,500 bytes** always pass through the gate without intercep
 
 ### Project Exclusions
 
-Projects matching patterns in `CLAUDE_MEM_EXCLUDED_PROJECTS` skip the gate entirely. Configure this in `~/.claude-mem/settings.json`:
+Projects matching patterns in `CODEX_MEM_EXCLUDED_PROJECTS` skip the gate entirely. Configure this in `~/.codex-mem/settings.json`:
 
 ```json
 {
-  "CLAUDE_MEM_EXCLUDED_PROJECTS": "/tmp/*,/scratch/*"
+  "CODEX_MEM_EXCLUDED_PROJECTS": "/tmp/*,/scratch/*"
 }
 ```
 
@@ -152,24 +152,24 @@ Projects matching patterns in `CLAUDE_MEM_EXCLUDED_PROJECTS` skip the gate entir
 
 The File Read Gate is implemented as a PreToolUse hook on the `Read` tool matcher. To disable it, remove the `Read` matcher entry from the hooks configuration:
 
-1. Open your Claude Code settings:
+1. Open your Codex Code settings:
    ```
-   ~/.claude/settings.json
+   ~/.codex/settings.json
    ```
 
-2. Find the claude-mem hooks section under `hooks.PreToolUse` and remove the entry with the `Read` matcher.
+2. Find the codex-mem hooks section under `hooks.PreToolUse` and remove the entry with the `Read` matcher.
 
-Alternatively, if you want to keep the gate installed but bypass it for a specific read, Claude can ask you to allow the read -- the gate's deny decision is presented to the user, who can override it.
+Alternatively, if you want to keep the gate installed but bypass it for a specific read, Codex can ask you to allow the read -- the gate's deny decision is presented to the user, who can override it.
 
 <Note>
-Disabling the gate means Claude will read full files every time, which increases token usage but ensures it always sees the latest code. This is a reasonable choice for small projects or when observations are sparse.
+Disabling the gate means Codex will read full files every time, which increases token usage but ensures it always sees the latest code. This is a reasonable choice for small projects or when observations are sparse.
 </Note>
 
 ---
 
 ## How It Fits Together
 
-The File Read Gate is one piece of claude-mem's layered context strategy:
+The File Read Gate is one piece of codex-mem's layered context strategy:
 
 1. **Session Start**: Inject timeline of recent observations (layer 1 -- metadata)
 2. **File Read Gate**: Intercept reads with observation history (layer 1 -- metadata)
@@ -177,4 +177,4 @@ The File Read Gate is one piece of claude-mem's layered context strategy:
 4. **smart_outline / smart_unfold**: Read current code structure efficiently (layer 3 -- source)
 5. **Full file read**: Last resort when everything else is insufficient
 
-Each layer is progressively more expensive. The gate ensures Claude starts at the cheapest layer and escalates only when needed.
+Each layer is progressively more expensive. The gate ensures Codex starts at the cheapest layer and escalates only when needed.

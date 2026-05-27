@@ -244,8 +244,8 @@ export function ContextSettingsModal({
                   type="number"
                   min="1"
                   max="200"
-                  value={formState.CLAUDE_MEM_CONTEXT_OBSERVATIONS || '50'}
-                  onChange={(e) => updateSetting('CLAUDE_MEM_CONTEXT_OBSERVATIONS', e.target.value)}
+                  value={formState.CODEX_MEM_CONTEXT_OBSERVATIONS || '50'}
+                  onChange={(e) => updateSetting('CODEX_MEM_CONTEXT_OBSERVATIONS', e.target.value)}
                 />
               </FormField>
               <FormField
@@ -256,8 +256,8 @@ export function ContextSettingsModal({
                   type="number"
                   min="1"
                   max="50"
-                  value={formState.CLAUDE_MEM_CONTEXT_SESSION_COUNT || '10'}
-                  onChange={(e) => updateSetting('CLAUDE_MEM_CONTEXT_SESSION_COUNT', e.target.value)}
+                  value={formState.CODEX_MEM_CONTEXT_SESSION_COUNT || '10'}
+                  onChange={(e) => updateSetting('CODEX_MEM_CONTEXT_SESSION_COUNT', e.target.value)}
                 />
               </FormField>
             </CollapsibleSection>
@@ -277,8 +277,8 @@ export function ContextSettingsModal({
                     type="number"
                     min="0"
                     max="20"
-                    value={formState.CLAUDE_MEM_CONTEXT_FULL_COUNT || '5'}
-                    onChange={(e) => updateSetting('CLAUDE_MEM_CONTEXT_FULL_COUNT', e.target.value)}
+                    value={formState.CODEX_MEM_CONTEXT_FULL_COUNT || '5'}
+                    onChange={(e) => updateSetting('CODEX_MEM_CONTEXT_FULL_COUNT', e.target.value)}
                   />
                 </FormField>
                 <FormField
@@ -286,8 +286,8 @@ export function ContextSettingsModal({
                   tooltip="Which field to expand for full observations"
                 >
                   <select
-                    value={formState.CLAUDE_MEM_CONTEXT_FULL_FIELD || 'narrative'}
-                    onChange={(e) => updateSetting('CLAUDE_MEM_CONTEXT_FULL_FIELD', e.target.value)}
+                    value={formState.CODEX_MEM_CONTEXT_FULL_FIELD || 'narrative'}
+                    onChange={(e) => updateSetting('CODEX_MEM_CONTEXT_FULL_FIELD', e.target.value)}
                   >
                     <option value="narrative">Narrative</option>
                     <option value="facts">Facts</option>
@@ -302,22 +302,22 @@ export function ContextSettingsModal({
                     id="show-read-tokens"
                     label="Read cost"
                     description="Tokens to read this observation"
-                    checked={formState.CLAUDE_MEM_CONTEXT_SHOW_READ_TOKENS === 'true'}
-                    onChange={() => toggleBoolean('CLAUDE_MEM_CONTEXT_SHOW_READ_TOKENS')}
+                    checked={formState.CODEX_MEM_CONTEXT_SHOW_READ_TOKENS === 'true'}
+                    onChange={() => toggleBoolean('CODEX_MEM_CONTEXT_SHOW_READ_TOKENS')}
                   />
                   <ToggleSwitch
                     id="show-work-tokens"
                     label="Work investment"
                     description="Tokens spent creating this observation"
-                    checked={formState.CLAUDE_MEM_CONTEXT_SHOW_WORK_TOKENS === 'true'}
-                    onChange={() => toggleBoolean('CLAUDE_MEM_CONTEXT_SHOW_WORK_TOKENS')}
+                    checked={formState.CODEX_MEM_CONTEXT_SHOW_WORK_TOKENS === 'true'}
+                    onChange={() => toggleBoolean('CODEX_MEM_CONTEXT_SHOW_WORK_TOKENS')}
                   />
                   <ToggleSwitch
                     id="show-savings-amount"
                     label="Savings"
                     description="Total tokens saved by reusing context"
-                    checked={formState.CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT === 'true'}
-                    onChange={() => toggleBoolean('CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT')}
+                    checked={formState.CODEX_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT === 'true'}
+                    onChange={() => toggleBoolean('CODEX_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT')}
                   />
                 </div>
               </div>
@@ -331,35 +331,35 @@ export function ContextSettingsModal({
             >
               <FormField
                 label="AI Provider"
-                tooltip="Choose between Claude (via Agent SDK) or Gemini (via REST API)"
+                tooltip="Choose between Codex CLI, Gemini, or OpenRouter"
               >
                 <select
-                  value={formState.CLAUDE_MEM_PROVIDER || 'claude'}
-                  onChange={(e) => updateSetting('CLAUDE_MEM_PROVIDER', e.target.value)}
+                  value={formState.CODEX_MEM_PROVIDER || 'codex'}
+                  onChange={(e) => updateSetting('CODEX_MEM_PROVIDER', e.target.value)}
                 >
-                  <option value="claude">Claude (uses your Claude account)</option>
+                  <option value="codex">Codex (uses your Codex account)</option>
                   <option value="gemini">Gemini (uses API key)</option>
                   <option value="openrouter">OpenRouter (multi-model)</option>
                 </select>
               </FormField>
 
-              {formState.CLAUDE_MEM_PROVIDER === 'claude' && (
+              {formState.CODEX_MEM_PROVIDER === 'codex' && (
                 <FormField
-                  label="Claude Model"
-                  tooltip="Claude model used for generating observations"
+                  label="Codex Model"
+                  tooltip="Codex model used for generating observations"
                 >
-                  <select
-                    value={formState.CLAUDE_MEM_MODEL || 'haiku'}
-                    onChange={(e) => updateSetting('CLAUDE_MEM_MODEL', e.target.value)}
+                <select
+                    value={formState.CODEX_MEM_MODEL || 'gpt-5'}
+                    onChange={(e) => updateSetting('CODEX_MEM_MODEL', e.target.value)}
                   >
-                    <option value="haiku">haiku (fastest)</option>
-                    <option value="sonnet">sonnet (balanced)</option>
-                    <option value="opus">opus (highest quality)</option>
+                    <option value="gpt-5">gpt-5 (default)</option>
+                    <option value="gpt-5-mini">gpt-5-mini (fast)</option>
+                    <option value="gpt-5-nano">gpt-5-nano (small)</option>
                   </select>
                 </FormField>
               )}
 
-              {formState.CLAUDE_MEM_PROVIDER === 'gemini' && (
+              {formState.CODEX_MEM_PROVIDER === 'gemini' && (
                 <>
                   <FormField
                     label="Gemini API Key"
@@ -367,8 +367,8 @@ export function ContextSettingsModal({
                   >
                     <input
                       type="password"
-                      value={formState.CLAUDE_MEM_GEMINI_API_KEY || ''}
-                      onChange={(e) => updateSetting('CLAUDE_MEM_GEMINI_API_KEY', e.target.value)}
+                      value={formState.CODEX_MEM_GEMINI_API_KEY || ''}
+                      onChange={(e) => updateSetting('CODEX_MEM_GEMINI_API_KEY', e.target.value)}
                       placeholder="Enter Gemini API key..."
                     />
                   </FormField>
@@ -377,8 +377,8 @@ export function ContextSettingsModal({
                     tooltip="Gemini model used for generating observations"
                   >
                     <select
-                      value={formState.CLAUDE_MEM_GEMINI_MODEL || 'gemini-2.5-flash-lite'}
-                      onChange={(e) => updateSetting('CLAUDE_MEM_GEMINI_MODEL', e.target.value)}
+                      value={formState.CODEX_MEM_GEMINI_MODEL || 'gemini-2.5-flash-lite'}
+                      onChange={(e) => updateSetting('CODEX_MEM_GEMINI_MODEL', e.target.value)}
                     >
                       <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (10 RPM free)</option>
                       <option value="gemini-2.5-flash">gemini-2.5-flash (5 RPM free)</option>
@@ -390,14 +390,14 @@ export function ContextSettingsModal({
                       id="gemini-rate-limiting"
                       label="Rate Limiting"
                       description="Enable for free tier (10-30 RPM). Disable if you have billing set up (1000+ RPM)."
-                      checked={formState.CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED === 'true'}
-                      onChange={(checked) => updateSetting('CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED', checked ? 'true' : 'false')}
+                      checked={formState.CODEX_MEM_GEMINI_RATE_LIMITING_ENABLED === 'true'}
+                      onChange={(checked) => updateSetting('CODEX_MEM_GEMINI_RATE_LIMITING_ENABLED', checked ? 'true' : 'false')}
                     />
                   </div>
                 </>
               )}
 
-              {formState.CLAUDE_MEM_PROVIDER === 'openrouter' && (
+              {formState.CODEX_MEM_PROVIDER === 'openrouter' && (
                 <>
                   <FormField
                     label="OpenRouter API Key"
@@ -405,19 +405,19 @@ export function ContextSettingsModal({
                   >
                     <input
                       type="password"
-                      value={formState.CLAUDE_MEM_OPENROUTER_API_KEY || ''}
-                      onChange={(e) => updateSetting('CLAUDE_MEM_OPENROUTER_API_KEY', e.target.value)}
+                      value={formState.CODEX_MEM_OPENROUTER_API_KEY || ''}
+                      onChange={(e) => updateSetting('CODEX_MEM_OPENROUTER_API_KEY', e.target.value)}
                       placeholder="Enter OpenRouter API key..."
                     />
                   </FormField>
                   <FormField
                     label="OpenRouter Model"
-                    tooltip="Model identifier from OpenRouter (e.g., anthropic/claude-3.5-sonnet, google/gemini-2.0-flash-thinking-exp)"
+                    tooltip="Model identifier from OpenRouter (e.g., openai/gpt-5, google/gemini-2.0-flash-thinking-exp)"
                   >
                     <input
                       type="text"
-                      value={formState.CLAUDE_MEM_OPENROUTER_MODEL || 'xiaomi/mimo-v2-flash:free'}
-                      onChange={(e) => updateSetting('CLAUDE_MEM_OPENROUTER_MODEL', e.target.value)}
+                      value={formState.CODEX_MEM_OPENROUTER_MODEL || 'xiaomi/mimo-v2-flash:free'}
+                      onChange={(e) => updateSetting('CODEX_MEM_OPENROUTER_MODEL', e.target.value)}
                       placeholder="e.g., xiaomi/mimo-v2-flash:free"
                     />
                   </FormField>
@@ -427,8 +427,8 @@ export function ContextSettingsModal({
                   >
                     <input
                       type="text"
-                      value={formState.CLAUDE_MEM_OPENROUTER_SITE_URL || ''}
-                      onChange={(e) => updateSetting('CLAUDE_MEM_OPENROUTER_SITE_URL', e.target.value)}
+                      value={formState.CODEX_MEM_OPENROUTER_SITE_URL || ''}
+                      onChange={(e) => updateSetting('CODEX_MEM_OPENROUTER_SITE_URL', e.target.value)}
                       placeholder="https://yoursite.com"
                     />
                   </FormField>
@@ -438,9 +438,9 @@ export function ContextSettingsModal({
                   >
                     <input
                       type="text"
-                      value={formState.CLAUDE_MEM_OPENROUTER_APP_NAME || 'claude-mem'}
-                      onChange={(e) => updateSetting('CLAUDE_MEM_OPENROUTER_APP_NAME', e.target.value)}
-                      placeholder="claude-mem"
+                      value={formState.CODEX_MEM_OPENROUTER_APP_NAME || 'codex-mem'}
+                      onChange={(e) => updateSetting('CODEX_MEM_OPENROUTER_APP_NAME', e.target.value)}
+                      placeholder="codex-mem"
                     />
                   </FormField>
                 </>
@@ -454,8 +454,8 @@ export function ContextSettingsModal({
                   type="number"
                   min="1024"
                   max="65535"
-                  value={formState.CLAUDE_MEM_WORKER_PORT || '37777'}
-                  onChange={(e) => updateSetting('CLAUDE_MEM_WORKER_PORT', e.target.value)}
+                  value={formState.CODEX_MEM_WORKER_PORT || '37777'}
+                  onChange={(e) => updateSetting('CODEX_MEM_WORKER_PORT', e.target.value)}
                 />
               </FormField>
 
@@ -464,15 +464,15 @@ export function ContextSettingsModal({
                   id="show-last-summary"
                   label="Include last summary"
                   description="Add previous session's summary to context"
-                  checked={formState.CLAUDE_MEM_CONTEXT_SHOW_LAST_SUMMARY === 'true'}
-                  onChange={() => toggleBoolean('CLAUDE_MEM_CONTEXT_SHOW_LAST_SUMMARY')}
+                  checked={formState.CODEX_MEM_CONTEXT_SHOW_LAST_SUMMARY === 'true'}
+                  onChange={() => toggleBoolean('CODEX_MEM_CONTEXT_SHOW_LAST_SUMMARY')}
                 />
                 <ToggleSwitch
                   id="show-last-message"
                   label="Include last message"
                   description="Add previous session's final message"
-                  checked={formState.CLAUDE_MEM_CONTEXT_SHOW_LAST_MESSAGE === 'true'}
-                  onChange={() => toggleBoolean('CLAUDE_MEM_CONTEXT_SHOW_LAST_MESSAGE')}
+                  checked={formState.CODEX_MEM_CONTEXT_SHOW_LAST_MESSAGE === 'true'}
+                  onChange={() => toggleBoolean('CODEX_MEM_CONTEXT_SHOW_LAST_MESSAGE')}
                 />
               </div>
             </CollapsibleSection>

@@ -13,17 +13,17 @@ export function loadContextConfig(): ContextConfig {
   const observationConcepts = new Set(mode.observation_concepts.map(c => c.id));
 
   return {
-    totalObservationCount: parseInt(settings.CLAUDE_MEM_CONTEXT_OBSERVATIONS, 10),
-    fullObservationCount: parseInt(settings.CLAUDE_MEM_CONTEXT_FULL_COUNT, 10),
-    sessionCount: parseInt(settings.CLAUDE_MEM_CONTEXT_SESSION_COUNT, 10),
-    showReadTokens: settings.CLAUDE_MEM_CONTEXT_SHOW_READ_TOKENS === 'true',
-    showWorkTokens: settings.CLAUDE_MEM_CONTEXT_SHOW_WORK_TOKENS === 'true',
-    showSavingsAmount: settings.CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT === 'true',
-    showSavingsPercent: settings.CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_PERCENT === 'true',
+    totalObservationCount: parseInt(settings.CODEX_MEM_CONTEXT_OBSERVATIONS, 10),
+    fullObservationCount: parseInt(settings.CODEX_MEM_CONTEXT_FULL_COUNT, 10),
+    sessionCount: parseInt(settings.CODEX_MEM_CONTEXT_SESSION_COUNT, 10),
+    showReadTokens: settings.CODEX_MEM_CONTEXT_SHOW_READ_TOKENS === 'true',
+    showWorkTokens: settings.CODEX_MEM_CONTEXT_SHOW_WORK_TOKENS === 'true',
+    showSavingsAmount: settings.CODEX_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT === 'true',
+    showSavingsPercent: settings.CODEX_MEM_CONTEXT_SHOW_SAVINGS_PERCENT === 'true',
     observationTypes,
     observationConcepts,
-    fullObservationField: settings.CLAUDE_MEM_CONTEXT_FULL_FIELD as 'narrative' | 'facts',
-    showLastSummary: settings.CLAUDE_MEM_CONTEXT_SHOW_LAST_SUMMARY === 'true',
-    showLastMessage: settings.CLAUDE_MEM_CONTEXT_SHOW_LAST_MESSAGE === 'true',
+    fullObservationField: settings.CODEX_MEM_CONTEXT_FULL_FIELD as 'narrative' | 'facts',
+    showLastSummary: settings.CODEX_MEM_CONTEXT_SHOW_LAST_SUMMARY === 'true',
+    showLastMessage: settings.CODEX_MEM_CONTEXT_SHOW_LAST_MESSAGE === 'true',
   };
 }

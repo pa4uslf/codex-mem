@@ -61,7 +61,7 @@ class ServerBetaRuntimeInfoRoutes implements RouteHandler {
     app.get('/v1/info', async (_req, res) => {
       const queueLanes = await collectQueueLaneMetrics(this.graph);
       res.json({
-        name: 'claude-mem-server',
+        name: 'codex-mem-server',
         runtime: SERVER_BETA_RUNTIME,
         authMode: this.graph.authMode,
         postgres: {
@@ -107,7 +107,7 @@ export class ServerBetaService {
 
   constructor(options: ServerBetaServiceOptions) {
     this.graph = options.graph;
-    this.host = options.host ?? process.env.CLAUDE_MEM_SERVER_HOST ?? DEFAULT_SERVER_BETA_HOST;
+    this.host = options.host ?? process.env.CODEX_MEM_SERVER_HOST ?? DEFAULT_SERVER_BETA_HOST;
     this.requestedPort = options.port ?? getServerBetaPort();
     this.persistRuntimeState = options.persistRuntimeState ?? true;
   }
@@ -153,7 +153,7 @@ export class ServerBetaService {
             mode: String(details.mode ?? 'unknown'),
             host: String(details.host ?? '127.0.0.1'),
             port: typeof details.port === 'number' ? details.port : 6379,
-            prefix: String(details.prefix ?? 'claude_mem'),
+            prefix: String(details.prefix ?? 'codex_mem'),
           },
           lanes: lanes.map(lane => ({
             kind: lane.kind,
@@ -178,7 +178,7 @@ export class ServerBetaService {
       runtime: SERVER_BETA_RUNTIME,
       // Session policy is read inside the routes (default 'per-event' from
       // resolveSessionGenerationPolicy(), env-overridable via
-      // CLAUDE_MEM_SERVER_SESSION_POLICY). We do not duplicate it here.
+      // CODEX_MEM_SERVER_SESSION_POLICY). We do not duplicate it here.
     });
     server.registerRoutes(v1Routes);
 
@@ -273,9 +273,9 @@ function resolveBoundPort(server: Server): number | null {
 export async function runServerBetaCli(argv: string[] = process.argv.slice(2)): Promise<void> {
   const command = argv[0] ?? '--daemon';
   const port = getServerBetaPort();
-  const host = process.env.CLAUDE_MEM_SERVER_HOST ?? DEFAULT_SERVER_BETA_HOST;
+  const host = process.env.CODEX_MEM_SERVER_HOST ?? DEFAULT_SERVER_BETA_HOST;
 
-  // Phase 10: `claude-mem server worker [start|--daemon]` runs the BullMQ
+  // Phase 10: `codex-mem server worker [start|--daemon]` runs the BullMQ
   // generation worker as a foregrounded process — no HTTP server, no route
   // registration. In Compose this becomes a separately scaled service.
   if (command === 'worker') {
@@ -379,8 +379,8 @@ export async function runServerBetaApiKeyCli(argv: string[]): Promise<void> {
   const sub = argv[0]?.toLowerCase();
   const options = parseFlagArgs(argv.slice(1));
 
-  if (!process.env.CLAUDE_MEM_SERVER_DATABASE_URL) {
-    console.error('CLAUDE_MEM_SERVER_DATABASE_URL is required for `server api-key` commands.');
+  if (!process.env.CODEX_MEM_SERVER_DATABASE_URL) {
+    console.error('CODEX_MEM_SERVER_DATABASE_URL is required for `server api-key` commands.');
     process.exit(1);
   }
 
@@ -531,7 +531,7 @@ function parseFlagArgs(argv: string[]): Record<string, string> {
 // the same Postgres + Valkey/Redis the HTTP server-beta service uses, but
 // never opens an HTTP listener. In Compose this is a separate, horizontally
 // scalable service. The HTTP server-beta service should run with
-// CLAUDE_MEM_GENERATION_DISABLED=true so generation only happens in this
+// CODEX_MEM_GENERATION_DISABLED=true so generation only happens in this
 // process.
 export async function runServerBetaGenerationWorker(): Promise<void> {
   const { validateServerBetaEnv, createServerBetaService } = await import('./create-server-beta-service.js');
@@ -539,8 +539,8 @@ export async function runServerBetaGenerationWorker(): Promise<void> {
   // Build the service WITHOUT starting HTTP. We reuse createServerBetaService
   // for pool + bootstrap + queue + generation worker wiring, but never call
   // service.start(). Generation is enabled here even if env says
-  // CLAUDE_MEM_GENERATION_DISABLED, because this IS the generation worker.
-  delete process.env.CLAUDE_MEM_GENERATION_DISABLED;
+  // CODEX_MEM_GENERATION_DISABLED, because this IS the generation worker.
+  delete process.env.CODEX_MEM_GENERATION_DISABLED;
   const service = await createServerBetaService();
   const state = service.getRuntimeState();
   logger.info('SYSTEM', 'Server beta generation worker started (no HTTP)', {
@@ -569,13 +569,13 @@ export async function runServerBetaGenerationWorker(): Promise<void> {
 }
 
 function getServerBetaPort(): number {
-  const parsed = Number.parseInt(process.env.CLAUDE_MEM_SERVER_PORT ?? '', 10);
+  const parsed = Number.parseInt(process.env.CODEX_MEM_SERVER_PORT ?? '', 10);
   if (Number.isInteger(parsed) && parsed > 0) {
     return parsed;
   }
   // UID-derived default for multi-account isolation: two users on the same
   // host get distinct ports without explicit configuration. Containerized
-  // deployments always pass CLAUDE_MEM_SERVER_PORT so this branch is local-only.
+  // deployments always pass CODEX_MEM_SERVER_PORT so this branch is local-only.
   return DEFAULT_SERVER_BETA_PORT + ((process.getuid?.() ?? 77) % 100);
 }
 
@@ -586,7 +586,7 @@ function spawnServerBetaDaemon(port: number): number | undefined {
     stdio: 'ignore',
     env: {
       ...process.env,
-      CLAUDE_MEM_SERVER_PORT: String(port),
+      CODEX_MEM_SERVER_PORT: String(port),
     },
   });
   child.unref();

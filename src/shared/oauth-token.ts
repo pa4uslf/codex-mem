@@ -1,10 +1,10 @@
 /**
- * Read Claude Desktop's OAuth token from the platform-native credential store
+ * Read Codex Desktop's OAuth token from the platform-native credential store
  * at worker spawn-time. This avoids the staleness problem of persisting tokens
  * in EnvManager's allowlist — keychain entries are always current because
- * Claude Desktop refreshes them in place.
+ * Codex Desktop refreshes them in place.
  *
- * Issue #2215: do NOT add CLAUDE_CODE_OAUTH_TOKEN to the persisted-key list
+ * Issue #2215: do NOT add CODEX_CODE_OAUTH_TOKEN to the persisted-key list
  * without expiry handling. OAuth tokens expire and refresh; stale tokens
  * injected days later cause 401s.
  */
@@ -19,11 +19,11 @@ import { logger } from '../utils/logger.js';
 
 const execFileAsync = promisify(execFile);
 
-const KEYCHAIN_SERVICE_NAME = 'Claude Code-credentials';
+const KEYCHAIN_SERVICE_NAME = 'Codex Code-credentials';
 const READ_TIMEOUT_MS = 5000;
 
 // Grace window: even if expiresAt is in the past by less than this, allow the
-// token through. Claude Desktop typically refreshes shortly before expiry, so
+// token through. Codex Desktop typically refreshes shortly before expiry, so
 // a small grace covers clock skew and refresh-in-progress windows.
 const EXPIRY_GRACE_MS = 60_000;
 
@@ -32,8 +32,8 @@ export type OAuthTokenResult =
   | { kind: 'expired'; reason: string; expiresAt?: number }
   | { kind: 'absent'; reason: string };
 
-interface ClaudeKeychainPayload {
-  claudeAiOauth?: {
+interface CodexKeychainPayload {
+  codexAiOauth?: {
     accessToken?: string;
     refreshToken?: string;
     expiresAt?: number;
@@ -72,9 +72,9 @@ function isExpired(expiresAtMs: number | undefined): boolean {
 }
 
 /**
- * macOS: read the JSON blob stored under "Claude Code-credentials" service in
+ * macOS: read the JSON blob stored under "Codex Code-credentials" service in
  * the user's login keychain. The blob looks like:
- *   {"claudeAiOauth":{"accessToken":"...","refreshToken":"...","expiresAt":<ms>}}
+ *   {"codexAiOauth":{"accessToken":"...","refreshToken":"...","expiresAt":<ms>}}
  */
 async function readMacOsKeychain(): Promise<OAuthTokenResult> {
   const account = userInfo().username;
@@ -86,7 +86,7 @@ async function readMacOsKeychain(): Promise<OAuthTokenResult> {
     );
     const raw = stdout.trim();
     if (!raw) {
-      return { kind: 'absent', reason: 'macOS keychain returned empty value for "Claude Code-credentials"' };
+      return { kind: 'absent', reason: 'macOS keychain returned empty value for "Codex Code-credentials"' };
     }
     return parseKeychainPayload(raw);
   } catch (error) {
@@ -100,27 +100,27 @@ async function readMacOsKeychain(): Promise<OAuthTokenResult> {
 }
 
 /**
- * Windows: Credential Manager (DPAPI). Claude Desktop on Windows stores
- * OAuth credentials under a target like "Claude Code:credentials" via the
+ * Windows: Credential Manager (DPAPI). Codex Desktop on Windows stores
+ * OAuth credentials under a target like "Codex Code:credentials" via the
  * Wincred API. We read it via PowerShell's CredentialManager wrapper.
  *
  * Note: `cmdkey /list` exposes target names but not secrets. Reading the
  * secret requires PowerShell + the CredentialManager module OR the Win32
  * CredRead API. We use a PowerShell snippet that calls CredRead for the
- * common target name patterns Claude Desktop is known to use.
+ * common target name patterns Codex Desktop is known to use.
  */
 async function readWindowsCredentialManager(): Promise<OAuthTokenResult> {
   // PowerShell snippet enumerates likely target names and prints the JSON blob.
-  // The exact target name on Windows is "Claude Code-credentials" or
-  // "Claude Code:credentials" (Claude Desktop uses `${service}:${account}` or
+  // The exact target name on Windows is "Codex Code-credentials" or
+  // "Codex Code:credentials" (Codex Desktop uses `${service}:${account}` or
   // `${service}` depending on version). This script tries both.
   // Username is escaped with PowerShell's single-quote convention (' → '') in
   // case future Windows versions or domain-joined machines permit ' in usernames.
   const psSafeUsername = userInfo().username.replace(/'/g, "''");
   const psScript = `
     $ErrorActionPreference = 'SilentlyContinue'
-    $candidates = @('Claude Code-credentials', 'Claude Code:credentials', 'Claude Code-credentials:${psSafeUsername}')
-    Add-Type -Namespace ClaudeMem -Name CredRead -MemberDefinition @"
+    $candidates = @('Codex Code-credentials', 'Codex Code:credentials', 'Codex Code-credentials:${psSafeUsername}')
+    Add-Type -Namespace CodexMem -Name CredRead -MemberDefinition @"
       [DllImport("Advapi32.dll", SetLastError=true, CharSet=CharSet.Unicode)]
       public static extern bool CredRead(string target, uint type, uint reservedFlag, out IntPtr CredentialPtr);
       [DllImport("Advapi32.dll", SetLastError=true)]
@@ -136,12 +136,12 @@ async function readWindowsCredentialManager(): Promise<OAuthTokenResult> {
 "@ -ErrorAction SilentlyContinue
     foreach ($t in $candidates) {
       $ptr = [IntPtr]::Zero
-      $ok = [ClaudeMem.CredRead]::CredRead($t, 1, 0, [ref]$ptr)
+      $ok = [CodexMem.CredRead]::CredRead($t, 1, 0, [ref]$ptr)
       if ($ok) {
-        $cred = [System.Runtime.InteropServices.Marshal]::PtrToStructure($ptr, [Type][ClaudeMem.CredRead+CREDENTIAL])
+        $cred = [System.Runtime.InteropServices.Marshal]::PtrToStructure($ptr, [Type][CodexMem.CredRead+CREDENTIAL])
         $bytes = New-Object byte[] $cred.CredentialBlobSize
         [System.Runtime.InteropServices.Marshal]::Copy($cred.CredentialBlob, $bytes, 0, $cred.CredentialBlobSize)
-        [ClaudeMem.CredRead]::CredFree($ptr) | Out-Null
+        [CodexMem.CredRead]::CredFree($ptr) | Out-Null
         [System.Text.Encoding]::Unicode.GetString($bytes)
         exit 0
       }
@@ -157,7 +157,7 @@ async function readWindowsCredentialManager(): Promise<OAuthTokenResult> {
     );
     const raw = stdout.trim();
     if (!raw) {
-      return { kind: 'absent', reason: 'Windows Credential Manager has no entry for "Claude Code-credentials"' };
+      return { kind: 'absent', reason: 'Windows Credential Manager has no entry for "Codex Code-credentials"' };
     }
     return parseKeychainPayload(raw);
   } catch (error) {
@@ -170,8 +170,8 @@ async function readWindowsCredentialManager(): Promise<OAuthTokenResult> {
 }
 
 /**
- * Linux: libsecret via the `secret-tool` CLI. Claude Desktop on Linux stores
- * the credential under the same service name "Claude Code-credentials" with
+ * Linux: libsecret via the `secret-tool` CLI. Codex Desktop on Linux stores
+ * the credential under the same service name "Codex Code-credentials" with
  * the account attribute set to the OS username.
  */
 async function readLinuxLibsecret(): Promise<OAuthTokenResult> {
@@ -184,7 +184,7 @@ async function readLinuxLibsecret(): Promise<OAuthTokenResult> {
     );
     const raw = stdout.trim();
     if (!raw) {
-      return { kind: 'absent', reason: 'Linux libsecret returned empty value for "Claude Code-credentials"' };
+      return { kind: 'absent', reason: 'Linux libsecret returned empty value for "Codex Code-credentials"' };
     }
     return parseKeychainPayload(raw);
   } catch (error) {
@@ -197,15 +197,15 @@ async function readLinuxLibsecret(): Promise<OAuthTokenResult> {
 }
 
 /**
- * The keychain payload Claude Desktop writes is a JSON blob. Parse it, extract
+ * The keychain payload Codex Desktop writes is a JSON blob. Parse it, extract
  * the access token, and classify based on `expiresAt`.
  */
 function parseKeychainPayload(raw: string): OAuthTokenResult {
-  let payload: ClaudeKeychainPayload;
+  let payload: CodexKeychainPayload;
   try {
     payload = JSON.parse(raw);
   } catch {
-    // Some Claude Desktop versions might store a bare token instead of JSON.
+    // Some Codex Desktop versions might store a bare token instead of JSON.
     if (raw.startsWith('sk-ant-') || raw.split('.').length === 3) {
       const expFromJwt = decodeJwtExpMs(raw);
       if (isExpired(expFromJwt)) {
@@ -220,11 +220,11 @@ function parseKeychainPayload(raw: string): OAuthTokenResult {
     return { kind: 'absent', reason: 'Keychain payload is neither JSON nor a recognized token shape' };
   }
 
-  const accessToken = payload.claudeAiOauth?.accessToken;
-  const expiresAt = payload.claudeAiOauth?.expiresAt;
+  const accessToken = payload.codexAiOauth?.accessToken;
+  const expiresAt = payload.codexAiOauth?.expiresAt;
 
   if (!accessToken) {
-    return { kind: 'absent', reason: 'Keychain payload has no claudeAiOauth.accessToken field' };
+    return { kind: 'absent', reason: 'Keychain payload has no codexAiOauth.accessToken field' };
   }
 
   // Prefer the SDK-provided expiresAt; fall back to JWT exp if present.
@@ -233,7 +233,7 @@ function parseKeychainPayload(raw: string): OAuthTokenResult {
   if (isExpired(effectiveExpiresAt)) {
     return {
       kind: 'expired',
-      reason: 'Claude Desktop OAuth token has expired — re-login via Claude Desktop to refresh',
+      reason: 'Codex Desktop OAuth token has expired — re-login via Codex Desktop to refresh',
       expiresAt: effectiveExpiresAt,
     };
   }
@@ -262,12 +262,12 @@ function readSidecarExpiresAt(): number | undefined {
 }
 
 /**
- * Read Claude Desktop's OAuth token, preferring the platform-native credential
- * store. Falls back to the CLAUDE_CODE_OAUTH_TOKEN environment variable only
+ * Read Codex Desktop's OAuth token, preferring the platform-native credential
+ * store. Falls back to the CODEX_CODE_OAUTH_TOKEN environment variable only
  * when the keychain has no entry — env-as-primary is intended for CI/headless
  * setups where no keychain exists.
  */
-export async function readClaudeOAuthToken(): Promise<OAuthTokenResult> {
+export async function readCodexOAuthToken(): Promise<OAuthTokenResult> {
   let keychainResult: OAuthTokenResult;
 
   switch (process.platform) {
@@ -296,7 +296,7 @@ export async function readClaudeOAuthToken(): Promise<OAuthTokenResult> {
 
   // Keychain absent: try env-fallback for CI/headless. Refuse if the sidecar
   // metadata indicates the env-provided token is stale.
-  const envToken = process.env.CLAUDE_CODE_OAUTH_TOKEN;
+  const envToken = process.env.CODEX_CODE_OAUTH_TOKEN;
   if (envToken && envToken.trim().length > 0) {
     const sidecarExpiresAt = readSidecarExpiresAt();
     const jwtExpiresAt = decodeJwtExpMs(envToken);
@@ -305,7 +305,7 @@ export async function readClaudeOAuthToken(): Promise<OAuthTokenResult> {
     if (isExpired(effectiveExpiresAt)) {
       return {
         kind: 'expired',
-        reason: 'CLAUDE_CODE_OAUTH_TOKEN env var expired (per sidecar/JWT) — re-login via Claude Desktop',
+        reason: 'CODEX_CODE_OAUTH_TOKEN env var expired (per sidecar/JWT) — re-login via Codex Desktop',
         expiresAt: effectiveExpiresAt,
       };
     }
@@ -324,7 +324,7 @@ export async function readClaudeOAuthToken(): Promise<OAuthTokenResult> {
 /**
  * Marker file pattern: when a recent spawn returned `expired`, write a marker
  * at `${DATA_DIR}/oauth-stale.marker` so the session-start hook can surface a
- * clear "re-login via Claude Desktop" message to the user. The marker is
+ * clear "re-login via Codex Desktop" message to the user. The marker is
  * cleared once the token is refreshed and a `present` result is observed.
  */
 export function writeStaleMarker(reason: string): void {

@@ -13,7 +13,7 @@ export interface ServerMcpToolDefinition {
 export const serverMemoryTools: ServerMcpToolDefinition[] = [
   {
     name: 'memory_add',
-    description: 'Add a team-scoped memory item to Claude-Mem Server.',
+    description: 'Add a team-scoped memory item to Codex-Mem Server.',
     inputSchema: {
       type: 'object',
       properties: {

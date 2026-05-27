@@ -16,7 +16,7 @@ const question = (query) => new Promise((resolve) => rl.question(query, resolve)
 
 async function publish() {
   try {
-    console.log('📦 Claude-mem Marketplace Release Tool\n');
+    console.log('📦 Codex-mem Marketplace Release Tool\n');
 
     console.log('🔍 Checking git status...');
     const { stdout: gitStatus } = await execAsync('git status --porcelain');
@@ -78,9 +78,9 @@ async function publish() {
     packageJson.version = newVersion;
     fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2) + '\n');
 
-    const marketplaceJson = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf-8'));
+    const marketplaceJson = JSON.parse(fs.readFileSync('.codex-legacy-plugin/marketplace.json', 'utf-8'));
     marketplaceJson.plugins[0].version = newVersion;
-    fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(marketplaceJson, null, 2) + '\n');
+    fs.writeFileSync('.codex-legacy-plugin/marketplace.json', JSON.stringify(marketplaceJson, null, 2) + '\n');
     console.log('✓ Versions updated in both files');
 
     console.log('\n🔨 Building hooks...');
@@ -104,11 +104,11 @@ async function publish() {
     }
 
     console.log('\n📌 Creating git commit and tag...');
-    await execAsync('git add package.json .claude-plugin/marketplace.json plugin/');
+    await execAsync('git add package.json .codex-legacy-plugin/marketplace.json plugin/');
     await execAsync(`git commit -m "chore: Release v${newVersion}
 
-Marketplace release for Claude Code plugin
-https://github.com/thedotmack/claude-mem"`);
+Marketplace release for Codex Code plugin
+https://github.com/thedotmack/codex-mem"`);
     await execAsync(`git tag v${newVersion}`);
     console.log(`✓ Created commit and tag v${newVersion}`);
 
@@ -118,7 +118,7 @@ https://github.com/thedotmack/claude-mem"`);
     console.log('✓ Pushed to git');
 
     console.log(`\n✅ Successfully released v${newVersion}! 🎉`);
-    console.log(`\n🏷️  Tag: https://github.com/thedotmack/claude-mem/releases/tag/v${newVersion}`);
+    console.log(`\n🏷️  Tag: https://github.com/thedotmack/codex-mem/releases/tag/v${newVersion}`);
     console.log(`📦 Marketplace will sync from this tag automatically`);
 
   } catch (error) {

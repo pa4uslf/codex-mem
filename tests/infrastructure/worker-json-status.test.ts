@@ -218,7 +218,7 @@ describe('worker-json-status', () => {
     });
   });
 
-  describe('Claude Code hook framework compatibility', () => {
+  describe('Codex Code hook framework compatibility', () => {
     it('should always exit with code 0', () => {
       if (!existsSync(WORKER_SCRIPT)) {
         console.log('Skipping CLI test - worker script not built');
@@ -278,7 +278,7 @@ describe('worker-json-status', () => {
       expect(Array.isArray(parsed)).toBe(false);
     });
 
-    it('should always include continue: true (required for Claude Code to proceed)', () => {
+    it('should always include continue: true (required for Codex Code to proceed)', () => {
       if (!existsSync(WORKER_SCRIPT)) {
         console.log('Skipping CLI test - worker script not built');
         return;

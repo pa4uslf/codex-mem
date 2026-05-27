@@ -2,29 +2,29 @@
 
 ## Goal
 
-1. **Disable summaries for subagents** — prevent any summary generation path (hook → worker → SDK agent) from firing for events originating in a Claude Code subagent.
+1. **Disable summaries for subagents** — prevent any summary generation path (hook → worker → SDK agent) from firing for events originating in a Codex Code subagent.
 2. **Label observations from subagents** — tag every observation with the subagent identity (agent_id + agent_type) so downstream queries can distinguish main-session work from subagent work.
 
 ## Phase 0 — Documentation Discovery (COMPLETE)
 
-### Claude Code hook payload fields (source: https://code.claude.com/docs/en/hooks.md)
+### Codex Code hook payload fields (source: https://code.codex.com/docs/en/hooks.md)
 
 - `agent_id` — present **only** when the hook fires inside a subagent invocation (e.g., `"agent-def456"`). Absent in the main session.
 - `agent_type` — the subagent identifier (built-in like `"Bash"`, `"Explore"`, `"Plan"`, or a custom agent name). Present in subagents **and** when `--agent` flag is used.
 - `session_id` — shared across main and subagents in the same session. Cannot distinguish contexts on its own.
 - `transcript_path` — shared session transcript. Not a reliable discriminator.
 - `SubagentStop` — dedicated event that fires when a subagent finishes. Currently **NOT registered** in `plugin/hooks/hooks.json`.
-- `Stop` — fires for the main Claude agent (not subagents). Currently registered → wired to `summarize` handler.
+- `Stop` — fires for the main Codex agent (not subagents). Currently registered → wired to `summarize` handler.
 
 **Discriminator for subagent context**: presence of `agent_id` OR `agent_type` in the hook stdin JSON.
 
-### Current claude-mem architecture (grepped + read)
+### Current codex-mem architecture (grepped + read)
 
 - `src/cli/types.ts:1-15` — `NormalizedHookInput` lacks `agentId` / `agentType`.
-- `src/cli/adapters/claude-code.ts:5-17` — Claude Code adapter does NOT extract `agent_id` / `agent_type`.
+- `src/cli/adapters/codex-code.ts:5-17` — Codex Code adapter does NOT extract `agent_id` / `agent_type`.
 - `src/cli/handlers/summarize.ts:27-143` — Stop-hook handler posts to `/api/sessions/summarize` without guarding on subagent context.
 - `src/cli/handlers/observation.ts:51-62` — PostToolUse handler POSTs observation body without subagent fields.
-- `src/services/worker/http/routes/SessionRoutes.ts:555-646` — `handleObservationsByClaudeId` destructures only `{ contentSessionId, tool_name, tool_input, tool_response, cwd }`; `queueObservation` call at line 620 has no subagent field.
+- `src/services/worker/http/routes/SessionRoutes.ts:555-646` — `handleObservationsByCodexId` destructures only `{ contentSessionId, tool_name, tool_input, tool_response, cwd }`; `queueObservation` call at line 620 has no subagent field.
 - `src/services/sqlite/observations/store.ts:75-80` — `INSERT INTO observations` column list has no `agent_type` / `agent_id`.
 - `src/services/sqlite/migrations.ts:578-588` — migrations array ends with `migration009` (version 26). Next migration slot is `migration010` (version 27).
 - `src/utils/logger.ts:195-203` — already reads `input.subagent_type` for formatting Task tool invocations (reference pattern, no downstream storage).
@@ -38,9 +38,9 @@
 ### Anti-patterns to avoid
 
 - Do NOT assume `agent_id` is present on the main session — it is undefined there. Treat presence as the discriminator.
-- Do NOT register SubagentStop as a new hook in `hooks.json` just to "disable" summaries — defensively short-circuiting in the handler is simpler and covers both current and future Claude Code versions where Stop might fire in subagent contexts.
+- Do NOT register SubagentStop as a new hook in `hooks.json` just to "disable" summaries — defensively short-circuiting in the handler is simpler and covers both current and future Codex Code versions where Stop might fire in subagent contexts.
 - Do NOT rely on `session_id` to distinguish — it is shared.
-- Do NOT invent a `parent_tool_use_id` field in hook input. The Claude Code docs do not expose parent tool use ID on hook payloads. Only use `agent_id` + `agent_type`.
+- Do NOT invent a `parent_tool_use_id` field in hook input. The Codex Code docs do not expose parent tool use ID on hook payloads. Only use `agent_id` + `agent_type`.
 - Do NOT break the existing observation hash-dedup logic in `store.ts:19-28` — leave the hash inputs as-is.
 
 ---
@@ -51,11 +51,11 @@
 
 1. Edit `src/cli/types.ts:1-15` — add two optional fields to `NormalizedHookInput`:
    ```ts
-   agentId?: string;      // Claude Code subagent agent_id (undefined in main session)
-   agentType?: string;    // Claude Code subagent agent_type (undefined in main session)
+   agentId?: string;      // Codex Code subagent agent_id (undefined in main session)
+   agentType?: string;    // Codex Code subagent agent_type (undefined in main session)
    ```
 
-2. Edit `src/cli/adapters/claude-code.ts:5-17` — in `normalizeInput`, extract `r.agent_id` and `r.agent_type`:
+2. Edit `src/cli/adapters/codex-code.ts:5-17` — in `normalizeInput`, extract `r.agent_id` and `r.agent_type`:
    ```ts
    return {
      sessionId: r.session_id ?? r.id ?? r.sessionId,
@@ -72,11 +72,11 @@
 
 3. Edit `src/cli/adapters/gemini-cli.ts:88-97` — return matching `undefined` defaults so the interface contract is consistent across adapters. (No behavior change; just explicit `agentId: undefined, agentType: undefined` on the return object, or rely on the optional-field default by leaving it out. Leave it out — TypeScript optional is fine.)
 
-**Documentation references**: Claude Code hooks docs section "Subagent Identification Fields"; gemini-cli adapter metadata pattern at `src/cli/adapters/gemini-cli.ts:77-96`.
+**Documentation references**: Codex Code hooks docs section "Subagent Identification Fields"; gemini-cli adapter metadata pattern at `src/cli/adapters/gemini-cli.ts:77-96`.
 
 **Verification checklist**:
 - `grep -n "agentId" src/cli/types.ts` → finds the new field.
-- `grep -n "agent_id" src/cli/adapters/claude-code.ts` → finds the extraction.
+- `grep -n "agent_id" src/cli/adapters/codex-code.ts` → finds the extraction.
 - `npm run build` succeeds.
 
 **Anti-pattern guards**:
@@ -103,7 +103,7 @@
    }
    ```
 
-2. (Safety) Edit `src/services/worker/http/routes/SessionRoutes.ts` in `handleSummarizeByClaudeId` (around line 655-692): add a defensive guard that rejects the summarize request if the body includes `agentId` or `agentType`. Return `{ status: 'skipped', reason: 'subagent_context' }`. This is belt-and-suspenders in case any caller bypasses the hook layer.
+2. (Safety) Edit `src/services/worker/http/routes/SessionRoutes.ts` in `handleSummarizeByCodexId` (around line 655-692): add a defensive guard that rejects the summarize request if the body includes `agentId` or `agentType`. Return `{ status: 'skipped', reason: 'subagent_context' }`. This is belt-and-suspenders in case any caller bypasses the hook layer.
 
 3. Extend the `/api/sessions/summarize` body in `src/cli/handlers/summarize.ts:73-82` to include `agentId` and `agentType` (passthrough) so the worker can make the same decision independently. Only pass fields when defined:
    ```ts
@@ -164,8 +164,8 @@
 
 **Verification checklist**:
 - Run worker; check logs for `[migration010]`.
-- `sqlite3 ~/.claude-mem/claude-mem.db "PRAGMA table_info(observations);"` → shows `agent_type` and `agent_id` columns.
-- `sqlite3 ~/.claude-mem/claude-mem.db ".indexes observations"` → shows `idx_observations_agent_type`.
+- `sqlite3 ~/.codex-mem/codex-mem.db "PRAGMA table_info(observations);"` → shows `agent_type` and `agent_id` columns.
+- `sqlite3 ~/.codex-mem/codex-mem.db ".indexes observations"` → shows `idx_observations_agent_type`.
 
 **Anti-pattern guards**:
 - Do NOT drop or rename existing columns.
@@ -265,7 +265,7 @@ The SDK agent parses `<observation>` XML into an `ObservationInput` and calls `s
    - When `input.agentType` is set, same behavior.
    - When both are undefined, handler proceeds (mock worker response).
 
-2. Add a unit test at `tests/cli/adapters/claude-code-subagent.test.ts` verifying:
+2. Add a unit test at `tests/cli/adapters/codex-code-subagent.test.ts` verifying:
    - `normalizeInput({ agent_id: "agent-abc", agent_type: "Explore" })` returns `{ agentId: "agent-abc", agentType: "Explore" }`.
    - `normalizeInput({})` returns `agentId: undefined, agentType: undefined`.
 
@@ -296,7 +296,7 @@ After Phases 1-5 land and pass verification:
 3. **Push branch**: push current worktree branch `trail-guarantee` (or a new feature branch — confirm with `git status`). Create PR via `gh pr create` with summary of both features.
 4. **Run `/loop 5m`** to continuously re-check PR review comments: as each CodeRabbit/Greptile/human comment arrives, address it in a new commit, push, and re-check. Exit loop only when all actionable review comments are resolved and status checks pass.
 5. **Merge to main** via `gh pr merge --squash --auto` (or `--merge` per repo convention — inspect `.github/` first).
-6. **Version bump**: `cd ~/Scripts/claude-mem/` and run `/version-bump`.
+6. **Version bump**: `cd ~/Scripts/codex-mem/` and run `/version-bump`.
 
 **Anti-pattern guards for this phase**:
 - Do NOT force-push to main.
@@ -308,8 +308,8 @@ After Phases 1-5 land and pass verification:
 
 ## Final Verification (end of Phase 5, before Phase 6)
 
-- `grep -rn "agent_id\|agentId" src/` → fields present in: `types.ts`, `claude-code.ts`, `summarize.ts`, `observation.ts`, `SessionRoutes.ts`, observation types, store, migration010.
+- `grep -rn "agent_id\|agentId" src/` → fields present in: `types.ts`, `codex-code.ts`, `summarize.ts`, `observation.ts`, `SessionRoutes.ts`, observation types, store, migration010.
 - `grep -rn "subagent_context" src/services/worker/` → worker-side guard present.
-- `sqlite3 ~/.claude-mem/claude-mem.db "PRAGMA table_info(observations);"` → includes `agent_type`, `agent_id`.
+- `sqlite3 ~/.codex-mem/codex-mem.db "PRAGMA table_info(observations);"` → includes `agent_type`, `agent_id`.
 - `npm test && npm run build` → both green.
 - Smoke test: simulate a subagent hook payload end-to-end → observation labeled, no summary fired.

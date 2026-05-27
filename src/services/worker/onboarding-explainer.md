@@ -1,8 +1,8 @@
-# How claude-mem works
+# How codex-mem works
 
 ## What it does
 
-Every Read, Edit, and Bash that Claude makes turns into a compressed observation. Observations get summarized at session end. Relevant ones get auto-injected into future prompts so the next session starts with context from the last one — no re-explaining the codebase, no re-discovering decisions.
+Every Read, Edit, and Bash that Codex makes turns into a compressed observation. Observations get summarized at session end. Relevant ones get auto-injected into future prompts so the next session starts with context from the last one — no re-explaining the codebase, no re-discovering decisions.
 
 ## When it kicks in
 
@@ -12,6 +12,6 @@ The first session in a fresh project seeds memory; subsequent sessions receive a
 
 ## Where data lives
 
-Everything stays in ~/.claude-mem on this machine.
+Everything stays in ~/.codex-mem on this machine.
 
-Nothing leaves your machine except calls to whichever AI provider you configured for compression (Claude / OpenRouter / Gemini). The SQLite database, vector index, logs, and settings all live under that directory and are removed cleanly on `npx claude-mem uninstall`.
+Nothing leaves your machine except calls to whichever AI provider you configured for compression (Codex / OpenRouter / Gemini). The SQLite database, vector index, logs, and settings all live under that directory and are removed cleanly on `npx codex-mem uninstall`.

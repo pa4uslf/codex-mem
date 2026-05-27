@@ -1,12 +1,12 @@
 # Server-Beta: Architecture, Team Vision, and the "It Just Works" Future
 
-> A long-form report on what was built across server-beta Phases 4–13, how it integrates with the rest of claude-mem, what changes for single users, and how the substrate is shaped for team-scale shared memory. Concludes with concrete product ideas that fall out of the architecture and an honest list of what hasn't been built yet.
+> A long-form report on what was built across server-beta Phases 4–13, how it integrates with the rest of codex-mem, what changes for single users, and how the substrate is shaped for team-scale shared memory. Concludes with concrete product ideas that fall out of the architecture and an honest list of what hasn't been built yet.
 
 ---
 
 ## 1. TL;DR
 
-Server-beta turns claude-mem from a single-machine SQLite tool into a multi-tenant runtime backed by Postgres + BullMQ, while preserving the property that made claude-mem worth using in the first place: **the dev does nothing different**. Hooks, MCP tools, the viewer UI, and the search skill all keep their existing contract. Underneath, every event now carries a full identity triad — `api_key_id` × `actor_id` × `request_id` — and lands in a tenant-scoped substrate that supports teams, projects, scopes, audit chains, and split-process generation workers.
+Server-beta turns codex-mem from a single-machine SQLite tool into a multi-tenant runtime backed by Postgres + BullMQ, while preserving the property that made codex-mem worth using in the first place: **the dev does nothing different**. Hooks, MCP tools, the viewer UI, and the search skill all keep their existing contract. Underneath, every event now carries a full identity triad — `api_key_id` × `actor_id` × `request_id` — and lands in a tenant-scoped substrate that supports teams, projects, scopes, audit chains, and split-process generation workers.
 
 PR #2383 lands phases 4–13 (~13K LOC across 72 files) and is **APPROVED + CLEAN** after five rounds of automated review and ~20 fixes ranging from a P1 race in `provider.generate()` to escaping XML in prompts. The result is a substrate that can power solo dev memory, squad-shared memory, and org-scale federated memory using the same code path.
 
@@ -14,7 +14,7 @@ PR #2383 lands phases 4–13 (~13K LOC across 72 files) and is **APPROVED + CLEA
 
 ## 2. The seed problem
 
-claude-mem's original pitch is: install once, work normally, your AI suddenly has cross-session memory that "just works". The capture layer (lifecycle hooks) writes events; an asynchronous worker calls Claude, parses observations, persists them; a search skill makes them retrievable. None of this requires the developer to think about it.
+codex-mem's original pitch is: install once, work normally, your AI suddenly has cross-session memory that "just works". The capture layer (lifecycle hooks) writes events; an asynchronous worker calls Codex, parses observations, persists them; a search skill makes them retrievable. None of this requires the developer to think about it.
 
 That works beautifully for **one developer, one machine, one SQLite file**. It breaks the moment you want any of:
 
@@ -22,7 +22,7 @@ That works beautifully for **one developer, one machine, one SQLite file**. It b
 - Multiple AI agents (CI, MCP clients, IDE extensions) writing into the same memory pool.
 - An audit trail that survives "who told the AI this?" questions from a security or compliance review.
 - Two profiles on the same machine without port collisions.
-- Horizontal scale of generation (a slow Anthropic call shouldn't block the HTTP path).
+- Horizontal scale of generation (a slow Codex call shouldn't block the HTTP path).
 
 The legacy `worker-service.cjs` runtime can't grow into any of these without abandoning its single-process / single-tenant assumption. Server-beta is the parallel runtime that does, while leaving the legacy worker available for users who don't need any of it.
 
@@ -35,12 +35,12 @@ Phases 1–3 (already merged in #2351) delivered the substrate: Postgres schema 
 | Phase | Deliverable | Key files |
 |------:|-------------|-----------|
 | 4 | Event-to-job pipeline (transactional outbox + ingest service) | `src/server/services/IngestEventsService.ts`, `src/server/jobs/outbox.ts` |
-| 5 | Provider observation generator (Claude / Gemini / OpenRouter) | `src/server/generation/ProviderObservationGenerator.ts`, `src/server/generation/providers/*` |
+| 5 | Provider observation generator (Codex / Gemini / OpenRouter) | `src/server/generation/ProviderObservationGenerator.ts`, `src/server/generation/providers/*` |
 | 6 | Independent server session semantics + 3-policy scheduling | `src/storage/postgres/server-sessions.ts`, `src/server/runtime/SessionGenerationPolicy.ts` |
 | 7 | Hooks routed via HTTP (no worker dependency) | `src/services/hooks/runtime-selector.ts`, `src/services/hooks/server-beta-client.ts`, `src/services/hooks/server-beta-bootstrap.ts` |
 | 8 | Dedicated MCP server backed by `/v1/*` core | `src/servers/mcp-server.ts` |
 | 9 | Compatibility adapters for legacy worker payloads | `src/server/compat/SessionsObservationsAdapter.ts`, `src/server/compat/SessionsSummarizeAdapter.ts` |
-| 10 | Docker stack — split-process deployable | `docker-compose.yml`, `docker/claude-mem/Dockerfile`, `scripts/e2e-server-beta-docker.sh` |
+| 10 | Docker stack — split-process deployable | `docker-compose.yml`, `docker/codex-mem/Dockerfile`, `scripts/e2e-server-beta-docker.sh` |
 | 11 | Team-aware generation + audit chain | scope checks + audit writes inside `ProviderObservationGenerator.ts`; identity context in `IngestEventsService.ts`; `audit_logs` plumbing throughout |
 | 12 | Observability + operations | `src/server/middleware/request-id.ts`, request_id in BullMQ payload, `/api/health` queue lanes, `src/cli/server-jobs.ts`, operator routes (`POST /v1/jobs/:id/retry`, `POST /v1/jobs/:id/cancel`) |
 | 13 | Release readiness audit | `docs/server-beta-release-readiness.md` |
@@ -57,7 +57,7 @@ Each one is its own audit trail entry in the PR — but the more interesting sto
 
 ## 4. Anatomy of a single event flow
 
-Reading the code top-down, here's what happens when one Claude Code hook fires a tool-use event with `wait=true`:
+Reading the code top-down, here's what happens when one Codex Code hook fires a tool-use event with `wait=true`:
 
 ```
 Hook → bun-runner → POST /v1/events?wait=true (X-API-Key: cmem_…)
@@ -111,7 +111,7 @@ BullMQ delivers job to ProviderObservationGenerator.process()
    │     (the P1 fix — without it, a redelivered stalled job would call
    │      provider.generate() twice and cost real money)
    ├─ loadEvents() — pulls the agent_event(s) for this source
-   ├─ provider.generate({ job, events, project }) — Anthropic / Gemini / OpenRouter
+   ├─ provider.generate({ job, events, project }) — Codex / Gemini / OpenRouter
    ├─ processGeneratedResponse() — parse XML, persist observations + sources,
    │   transition outbox to completed, write 'generation.completed' audit
    │   carrying bullmqJobId + requestId + duration + model_id
@@ -130,7 +130,7 @@ The plugin's hook layer hasn't changed — `plugin/hooks/hooks.json` still dispa
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  Claude Code session                                     │
+│  Codex Code session                                     │
 │   ├─ UserPromptSubmit hook                              │
 │   ├─ PreToolUse / PostToolUse hooks                     │
 │   ├─ Stop hook                                           │
@@ -141,14 +141,14 @@ The plugin's hook layer hasn't changed — `plugin/hooks/hooks.json` still dispa
 ┌──────────────────────────────────────────────────────────┐
 │  worker-service.cjs                                      │
 │   ├─ runtime-selector.ts decides:                       │
-│   │    • CLAUDE_MEM_RUNTIME=worker     → legacy SQLite  │
-│   │    • CLAUDE_MEM_RUNTIME=server-beta → HTTP client   │
+│   │    • CODEX_MEM_RUNTIME=worker     → legacy SQLite  │
+│   │    • CODEX_MEM_RUNTIME=server-beta → HTTP client   │
 │   └─ ServerBetaClient.recordEvent(input) → /v1/events   │
 └──────────────────────────────────────────────────────────┘
                        │
                        ▼
        ┌──────────────────────────────────────────────────┐
-       │  claude-mem-server (HTTP)                       │
+       │  codex-mem-server (HTTP)                       │
        │   /v1/events            ← hook event ingest     │
        │   /v1/events/batch      ← batch ingest          │
        │   /v1/sessions/start    ← session creation      │
@@ -169,7 +169,7 @@ The plugin's hook layer hasn't changed — `plugin/hooks/hooks.json` still dispa
                                                  │
                                                  ▼
                                   ┌──────────────────────────┐
-                                  │ claude-mem-worker        │
+                                  │ codex-mem-worker        │
                                   │  ProviderObservationGen  │
                                   │  (no HTTP listener)      │
                                   └──────────────────────────┘
@@ -181,7 +181,7 @@ The plugin's hook layer hasn't changed — `plugin/hooks/hooks.json` still dispa
 The same `/v1` surface is hit by:
 
 - **Hooks**, via `ServerBetaClient` from inside `worker-service.cjs`.
-- **MCP clients** (Claude Desktop, Cursor, etc.), via `src/servers/mcp-server.ts` translating MCP tool calls to `/v1/events`, `/v1/search`, `/v1/context`, `/v1/memories`.
+- **MCP clients** (Codex Desktop, Cursor, etc.), via `src/servers/mcp-server.ts` translating MCP tool calls to `/v1/events`, `/v1/search`, `/v1/context`, `/v1/memories`.
 - **The viewer UI** (`plugin/ui/viewer.html`), which reads `/api/health` for queue lanes and the `/v1` read endpoints for memory lists.
 - **The mem-search skill** (`plugin/skills/mem-search/`), which calls `/v1/search` regardless of runtime.
 - **The legacy compat shims**, which translate old `POST /api/sessions/observations` and `/api/sessions/summarize` payloads into the same `IngestEventsService` and `EndSessionService` calls used by the canonical `/v1/*` routes.
@@ -192,20 +192,20 @@ That last point matters: any client written against the legacy worker keeps work
 
 ## 6. The single-user model
 
-For a developer running claude-mem on one machine, server-beta is invisible. Here's what their first run looks like:
+For a developer running codex-mem on one machine, server-beta is invisible. Here's what their first run looks like:
 
-1. `npx claude-mem install` (or upgrading to a server-beta-enabled build).
+1. `npx codex-mem install` (or upgrading to a server-beta-enabled build).
 2. `bootstrapServerBetaApiKey()` (`src/services/hooks/server-beta-bootstrap.ts`) runs on first hook fire. It:
    - finds-or-creates a `local-hook-team` row in `teams`,
    - finds-or-creates a `local-hook-project` row in `projects`,
    - generates a 48-byte url-safe random api key, hashes it (sha256), and creates an `api_keys` row scoped to that team+project with hook-only scopes (`events:write`, `sessions:write`, `observations:read`, `jobs:read`),
-   - writes the raw key + project id + server URL into `~/.claude-mem/settings.json` so subsequent hook fires can authenticate.
+   - writes the raw key + project id + server URL into `~/.codex-mem/settings.json` so subsequent hook fires can authenticate.
 3. The server-beta daemon starts on a UID-derived port: `37877 + (uid % 100)`. (This was a Phase-12 review fix — previously it hardcoded `37877` and two profiles on the same machine collided.)
 4. Hooks now `POST /v1/events` to that local port with the api key. From the user's perspective, their context still appears in their next session, search still returns relevant observations, the viewer still works.
 
 The single-user case is "team_id = local-hook-team, project_id = local-hook-project, you are the only `actor_id`". Everything multi-tenant degrades cleanly to single-tenant with that mapping.
 
-Multi-account on the same machine: set `CLAUDE_MEM_DATA_DIR=$HOME/.claude-mem-work` for the work profile. Every path (DB, settings, pid, port file) derives from it. The UID-derived port plus per-user data dir means two profiles cohabit without conflict.
+Multi-account on the same machine: set `CODEX_MEM_DATA_DIR=$HOME/.codex-mem-work` for the work profile. Every path (DB, settings, pid, port file) derives from it. The UID-derived port plus per-user data dir means two profiles cohabit without conflict.
 
 ---
 
@@ -258,7 +258,7 @@ The substrate is the same regardless of size. What changes is how you wire up te
 **Topology**: one team, one project per repo (or one project total for a monorepo).
 
 **Wiring**:
-- Bootstrap a shared team via `claude-mem server api-key create --team <id> --project <id> --scope memories:write,memories:read`. This is a one-time setup by whoever owns the deployment.
+- Bootstrap a shared team via `codex-mem server api-key create --team <id> --project <id> --scope memories:write,memories:read`. This is a one-time setup by whoever owns the deployment.
 - Each developer gets their own api key (so revocation is per-person). `actor_id` = `human:alice@org`.
 - All hooks write into the shared (team, project). Observations land in a team pool.
 
@@ -282,7 +282,7 @@ The substrate is the same regardless of size. What changes is how you wire up te
 
 **Observability**: per-team queue lanes via `/api/health`. A squad's runaway generation cost shows up in their lane metrics, not the platform's.
 
-**Governance**: keys rotate via `claude-mem server api-key revoke` + `create`. The audit chain records both the revocation and the new key's first use. Compliance teams can grep for `api_key.revoke` events.
+**Governance**: keys rotate via `codex-mem server api-key revoke` + `create`. The audit chain records both the revocation and the new key's first use. Compliance teams can grep for `api_key.revoke` events.
 
 ### 8.3 Large team (50+, regulated / enterprise)
 
@@ -306,7 +306,7 @@ The substrate is the same regardless of size. What changes is how you wire up te
 
 ## 9. Conceptual architecture
 
-Memory in claude-mem is **a write-mostly event log with a derived observation view**. The architecture stacks three loosely-coupled layers:
+Memory in codex-mem is **a write-mostly event log with a derived observation view**. The architecture stacks three loosely-coupled layers:
 
 ```
             ┌────────────────────────────────────┐
@@ -383,9 +383,9 @@ The triad is what turns "the AI remembered X" from a black box into a traceable,
 
 ### 9.4 Provider abstraction
 
-`ProviderObservationGenerator` is provider-agnostic via a small interface. Today's providers: Claude (Anthropic SDK), Gemini (Google Generative AI), OpenRouter (any model behind their gateway). Adding a new provider is implementing one method (`generate(input) → { rawText, modelId, providerLabel }`) and registering it. The XML response format and `processGeneratedResponse` stay the same.
+`ProviderObservationGenerator` is provider-agnostic via a small interface. Today's providers: Codex (Codex CLI), Gemini (Google Generative AI), OpenRouter (any model behind their gateway). Adding a new provider is implementing one method (`generate(input) → { rawText, modelId, providerLabel }`) and registering it. The XML response format and `processGeneratedResponse` stay the same.
 
-This is the "we don't pick winners" property: a team that prefers Gemini for cost, or wants OpenRouter for failover, just sets `CLAUDE_MEM_SERVER_PROVIDER` and the substrate doesn't care.
+This is the "we don't pick winners" property: a team that prefers Gemini for cost, or wants OpenRouter for failover, just sets `CODEX_MEM_SERVER_PROVIDER` and the substrate doesn't care.
 
 ### 9.5 Observability primitives
 
@@ -398,26 +398,26 @@ This is the "we don't pick winners" property: a team that prefers Gemini for cos
 
 ## 10. Developer experience walkthrough
 
-**Day one (single user).** `npx claude-mem install`. Open Claude Code. Type. Observations capture. After a few sessions, search returns relevant prior context. Nothing else to learn.
+**Day one (single user).** `npx codex-mem install`. Open Codex Code. Type. Observations capture. After a few sessions, search returns relevant prior context. Nothing else to learn.
 
 **Day one (team).** A team admin runs `docker compose up -d` against the project's `docker-compose.yml`. They mint api keys for each developer:
 
 ```bash
-POSTGRES_USER=… POSTGRES_PASSWORD=… POSTGRES_DB=… docker compose exec claude-mem-server \
-  bun /opt/claude-mem/scripts/server-beta-service.cjs server api-key create \
+POSTGRES_USER=… POSTGRES_PASSWORD=… POSTGRES_DB=… docker compose exec codex-mem-server \
+  bun /opt/codex-mem/scripts/server-beta-service.cjs server api-key create \
     --team <team_id> --project <project_id> \
     --scope events:write,sessions:write,observations:read,jobs:read \
     --name alice-laptop
 ```
 
-The output is a JSON blob with the raw key. Each developer pastes it into their `~/.claude-mem/settings.json` `CLAUDE_MEM_SERVER_BETA_API_KEY`. Done. They use Claude Code normally; their hooks now write to the team substrate.
+The output is a JSON blob with the raw key. Each developer pastes it into their `~/.codex-mem/settings.json` `CODEX_MEM_SERVER_BETA_API_KEY`. Done. They use Codex Code normally; their hooks now write to the team substrate.
 
 **Day two — operator path**. Something stuck in `processing`?
 
 ```bash
-claude-mem server jobs list --team <team_id> --status processing
-claude-mem server jobs retry <job_id>     # if cancelled or failed
-claude-mem server jobs cancel <job_id>    # active jobs ride out their lifecycle
+codex-mem server jobs list --team <team_id> --status processing
+codex-mem server jobs retry <job_id>     # if cancelled or failed
+codex-mem server jobs cancel <job_id>    # active jobs ride out their lifecycle
 ```
 
 The retry endpoint is now safe across all states (after the Phase-12 + round-4 review fixes): no-op on `queued`, 409 on `processing`, 409 on `completed` (would otherwise duplicate observations due to LLM non-determinism), reset+re-enqueue on `failed`/`cancelled`.
@@ -455,11 +455,11 @@ A condensed list:
 - **Cross-session memory at team scope.** "Sarah figured this out last Thursday" is searchable.
 - **Multi-account isolation.** Two profiles on the same Mac, no port collision.
 - **Read-after-write semantics.** `?wait=true` actually waits.
-- **Provider-agnostic generation.** Switch Anthropic → Gemini with one env var.
+- **Provider-agnostic generation.** Switch Codex → Gemini with one env var.
 - **Compliance-grade audit.** Every action attributable to (api_key_id, actor_id, request_id, team_id, project_id).
 - **Operator surface.** Retry, cancel, list, paginate.
 - **Privacy by default.** `<private>` tags strip at edge.
-- **Horizontal scale.** `--scale claude-mem-worker=N`.
+- **Horizontal scale.** `--scale codex-mem-worker=N`.
 - **Crash-safe persistence.** `reconcileOnStartup` recovers in-flight rows.
 - **Tenant defense in depth.** Auth at HTTP, scope check at worker, ON CONFLICT at storage, audit on every refusal.
 - **Identity-grounded suggestions.** Future: AI suggestions can carry "based on observation X by actor Y at time Z" because the substrate already knows.
@@ -470,7 +470,7 @@ The substrate itself is a product surface. Everything above is unlocked by code 
 
 ## 12. The "it just works" ethos extended
 
-The original claude-mem promise: install once, work normally, get memory as a side effect. The team-mode promise has to be the same — anything less and adoption stalls because somebody has to convince every engineer to opt in.
+The original codex-mem promise: install once, work normally, get memory as a side effect. The team-mode promise has to be the same — anything less and adoption stalls because somebody has to convince every engineer to opt in.
 
 Server-beta deliberately preserves this by making the hook contract identical:
 
@@ -479,7 +479,7 @@ Server-beta deliberately preserves this by making the hook contract identical:
 - Same viewer UI port and surface.
 - Same search skill behavior.
 
-What changes is the substrate, and substrate changes are invisible to the developer at the call site. A team admin sets up the deployment once; everyone else uses claude-mem the way they always did.
+What changes is the substrate, and substrate changes are invisible to the developer at the call site. A team admin sets up the deployment once; everyone else uses codex-mem the way they always did.
 
 This is the property that makes it possible to layer products on top:
 
@@ -535,7 +535,7 @@ A daily standup bot asks "what's blocking you?". The answer becomes an observati
 Filter observations by `kind = 'decision'` or `kind = 'architecture'`. Generate ADRs (architecture decision records) automatically with author attribution from `actor_id` and timestamps from `created_at`. The substrate captures the reasoning in the moment; a thin transformer layer renders it as docs later.
 
 ### 13.13 Trust chains for AI suggestions
-Every observation already has `(api_key_id, actor_id, model_id, request_id)`. A surfacing layer can show "this suggestion is based on N observations from Alice + M from Bob, model claude-3-5-sonnet, generated within the last 14 days." Fully auditable AI provenance.
+Every observation already has `(api_key_id, actor_id, model_id, request_id)`. A surfacing layer can show "this suggestion is based on N observations from Alice + M from Bob, model gpt-5, generated within the last 14 days." Fully auditable AI provenance.
 
 ### 13.14 Multi-modal memory
 Today the capture layer is hook events with text payloads. Tomorrow: screenshots from the IDE (PNG bytes in payload), voice transcripts (audio + transcript), terminal recordings. The substrate's `payload jsonb` column accommodates anything; `source_type` extends.
@@ -589,7 +589,7 @@ The substrate is rich, but the surface is incomplete. Things deliberately not bu
 - **Search ranking tuning.** FTS handles exact terms well. A team-scope ranker that weights recency × authorship × topic relevance is open.
 - **Geo-replication.** Single-region today. Multi-region needs conflict resolution on the unique idempotency keys.
 - **Worker autoscaling.** `docker compose --scale` for manual; Kubernetes HPA on queue depth needs a Prom exporter that doesn't exist yet (the metrics surface does — `/api/health`).
-- **Provider failover.** `CLAUDE_MEM_SERVER_PROVIDER` is single-valued. Retry-on-different-provider would be a small wrapper above `ProviderObservationGenerator`.
+- **Provider failover.** `CODEX_MEM_SERVER_PROVIDER` is single-valued. Retry-on-different-provider would be a small wrapper above `ProviderObservationGenerator`.
 - **Online schema migrations.** `bootstrapServerBetaPostgresSchema` runs on startup. Live deployments need a proper migration tool.
 - **Pre-existing legacy test failures.** 7 tests in the legacy worker path remain skipped/failing; not introduced by server-beta but deferred for a follow-up.
 
@@ -609,7 +609,7 @@ Code referenced throughout this doc, for navigation:
 - Generation layer
   - `src/server/generation/ProviderObservationGenerator.ts` (`process`, `lockOutbox`)
   - `src/server/generation/processGeneratedResponse.ts`
-  - `src/server/generation/providers/*` (claude / gemini / openrouter / shared)
+  - `src/server/generation/providers/*` (codex / gemini / openrouter / shared)
 - Storage
   - `src/storage/postgres/schema.ts`
   - `src/storage/postgres/agent-events.ts`
@@ -642,7 +642,7 @@ Code referenced throughout this doc, for navigation:
   - `src/server/jobs/types.ts`
 - Deployment
   - `docker-compose.yml`
-  - `docker/claude-mem/Dockerfile`
+  - `docker/codex-mem/Dockerfile`
   - `scripts/e2e-server-beta-docker.sh`
 - Tests
   - `tests/server/runtime/*`
@@ -664,4 +664,4 @@ Code referenced throughout this doc, for navigation:
 
 The job of server-beta is to be invisible. A solo developer never knows it's there; their hooks just keep working. A team adopts it; their AI sessions start sharing context across humans, services, and machines without anyone having to learn a new tool. An org deploys it; the audit chain and tenant scope become compliance primitives. The substrate is the same in all three cases — only the wiring changes.
 
-claude-mem's original ethos was *memory that writes itself*. Server-beta extends that to *memory that writes itself, for everyone*. The infrastructure to do this is now merged. The interesting work — feeds, trust labels, federation UX, marketplace packs, cost dashboards, voice capture, multi-modal payloads — is all sitting one layer above a substrate that's already shaped to receive it.
+codex-mem's original ethos was *memory that writes itself*. Server-beta extends that to *memory that writes itself, for everyone*. The infrastructure to do this is now merged. The interesting work — feeds, trust labels, federation UX, marketplace packs, cost dashboards, voice capture, multi-modal payloads — is all sitting one layer above a substrate that's already shaped to receive it.

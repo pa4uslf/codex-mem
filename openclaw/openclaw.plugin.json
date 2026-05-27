@@ -1,12 +1,12 @@
 {
-  "id": "claude-mem",
-  "name": "Claude-Mem (Persistent Memory)",
-  "description": "OpenClaw plugin for Claude-Mem. Records observations from embedded runner sessions and streams them to messaging channels.",
+  "id": "codex-mem",
+  "name": "Codex-Mem (Persistent Memory)",
+  "description": "OpenClaw plugin for Codex-Mem. Records observations from embedded runner sessions and streams them to messaging channels.",
   "kind": "memory",
   "version": "13.3.0",
   "license": "Apache-2.0",
   "author": "thedotmack",
-  "homepage": "https://claude-mem.ai",
+  "homepage": "https://codex-mem.ai",
   "skills": ["skills/make-plan", "skills/do"],
   "configSchema": {
     "type": "object",
@@ -26,12 +26,12 @@
       "workerPort": {
         "type": "number",
         "default": 37777,
-        "description": "Port for Claude-Mem worker service"
+        "description": "Port for Codex-Mem worker service"
       },
       "workerHost": {
         "type": "string",
         "default": "127.0.0.1",
-        "description": "Hostname for Claude-Mem worker service. Set to host.docker.internal when the gateway runs in Docker and the worker runs on the host."
+        "description": "Hostname for Codex-Mem worker service. Set to host.docker.internal when the gateway runs in Docker and the worker runs on the host."
       },
       "project": {
         "type": "string",
@@ -68,15 +68,15 @@
                 "default": "🦞",
                 "description": "Emoji for the main OpenClaw gateway (project='openclaw')"
               },
-              "claudeCode": {
+              "codexCode": {
                 "type": "string",
                 "default": "⌨️",
-                "description": "Emoji for Claude Code sessions (non-OpenClaw)"
+                "description": "Emoji for Codex Code sessions (non-OpenClaw)"
               },
-              "claudeCodeLabel": {
+              "codexCodeLabel": {
                 "type": "string",
-                "default": "Claude Code Session",
-                "description": "Display label prefix for Claude Code sessions in the feed (project identifier is appended automatically)"
+                "default": "Codex Code Session",
+                "description": "Display label prefix for Codex Code sessions in the feed (project identifier is appended automatically)"
               },
               "default": {
                 "type": "string",

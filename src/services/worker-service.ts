@@ -19,8 +19,8 @@ import { sanitizeEnv } from '../supervisor/env-sanitizer.js';
 import { ensureWorkerStarted as ensureWorkerStartedShared, type WorkerStartResult } from './worker-spawner.js';
 import { handleGeneratorExit } from './worker/session/GeneratorExitHandler.js';
 
-export { isPluginDisabledInClaudeSettings } from '../shared/plugin-state.js';
-import { isPluginDisabledInClaudeSettings } from '../shared/plugin-state.js';
+export { isPluginDisabledInCodexSettings } from '../shared/plugin-state.js';
+import { isPluginDisabledInCodexSettings } from '../shared/plugin-state.js';
 
 declare const __DEFAULT_PACKAGE_VERSION__: string;
 const packageVersion = typeof __DEFAULT_PACKAGE_VERSION__ !== 'undefined' ? __DEFAULT_PACKAGE_VERSION__ : '0.0.0-dev';
@@ -68,7 +68,7 @@ import {
 import { DatabaseManager } from './worker/DatabaseManager.js';
 import { SessionManager } from './worker/SessionManager.js';
 import { SSEBroadcaster } from './worker/SSEBroadcaster.js';
-import { ClaudeProvider, classifyClaudeError } from './worker/ClaudeProvider.js';
+import { CodexProvider, classifyCodexError } from './worker/CodexProvider.js';
 import type { WorkerRef } from './worker/agents/types.js';
 import { GeminiProvider, classifyGeminiError, isGeminiSelected, isGeminiAvailable } from './worker/GeminiProvider.js';
 import { OpenRouterProvider, classifyOpenRouterError, isOpenRouterSelected, isOpenRouterAvailable } from './worker/OpenRouterProvider.js';
@@ -126,7 +126,7 @@ export class WorkerService implements WorkerRef {
   private dbManager: DatabaseManager;
   private sessionManager: SessionManager;
   public sseBroadcaster: SSEBroadcaster;
-  private sdkAgent: ClaudeProvider;
+  private sdkAgent: CodexProvider;
   private geminiAgent: GeminiProvider;
   private openRouterAgent: OpenRouterProvider;
   private paginationHelper: PaginationHelper;
@@ -157,7 +157,7 @@ export class WorkerService implements WorkerRef {
     this.dbManager = new DatabaseManager();
     this.sessionManager = new SessionManager(this.dbManager);
     this.sseBroadcaster = new SSEBroadcaster();
-    this.sdkAgent = new ClaudeProvider(this.dbManager, this.sessionManager);
+    this.sdkAgent = new CodexProvider(this.dbManager, this.sessionManager);
     this.geminiAgent = new GeminiProvider(this.dbManager, this.sessionManager);
     this.openRouterAgent = new OpenRouterProvider(this.dbManager, this.sessionManager);
 
@@ -191,7 +191,7 @@ export class WorkerService implements WorkerRef {
       onRestart: () => this.shutdown(),
       workerPath: __filename,
       getAiStatus: () => {
-        let provider = 'claude';
+        let provider = 'codex';
         if (isOpenRouterSelected() && isOpenRouterAvailable()) provider = 'openrouter';
         else if (isGeminiSelected() && isGeminiAvailable()) provider = 'gemini';
         return {
@@ -268,7 +268,7 @@ export class WorkerService implements WorkerRef {
     this.server.registerRoutes(new DataRoutes(this.paginationHelper, this.dbManager, this.sessionManager, this.sseBroadcaster, this, this.startTime));
     this.server.registerRoutes(new SettingsRoutes(this.settingsManager));
     this.server.registerRoutes(new LogsRoutes());
-    this.server.registerRoutes(new MemoryRoutes(this.dbManager, 'claude-mem'));
+    this.server.registerRoutes(new MemoryRoutes(this.dbManager, 'codex-mem'));
     this.server.registerRoutes(new ServerV1Routes({
       getDatabase: () => this.dbManager.getConnection(),
     }));
@@ -312,11 +312,11 @@ export class WorkerService implements WorkerRef {
 
       const settings = SettingsDefaultsManager.loadFromFile(USER_SETTINGS_PATH);
 
-      const modeId = settings.CLAUDE_MEM_MODE;
+      const modeId = settings.CODEX_MEM_MODE;
       ModeManager.getInstance().loadMode(modeId);
       logger.info('SYSTEM', `Mode loaded: ${modeId}`);
 
-      if (settings.CLAUDE_MEM_MODE === 'local' || !settings.CLAUDE_MEM_MODE) {
+      if (settings.CODEX_MEM_MODE === 'local' || !settings.CODEX_MEM_MODE) {
         logger.info('WORKER', 'Checking for one-time Chroma migration...');
         runOneTimeChromaMigration();
       }
@@ -343,12 +343,12 @@ export class WorkerService implements WorkerRef {
         logger.error('WORKER', 'Worktree adoption failed (background)', {}, err instanceof Error ? err : new Error(String(err)));
       });
 
-      const chromaEnabled = settings.CLAUDE_MEM_CHROMA_ENABLED !== 'false';
+      const chromaEnabled = settings.CODEX_MEM_CHROMA_ENABLED !== 'false';
       if (chromaEnabled) {
         this.chromaMcpManager = ChromaMcpManager.getInstance();
         logger.info('SYSTEM', 'ChromaMcpManager initialized (lazy - connects on first use)');
       } else {
-        logger.info('SYSTEM', 'Chroma disabled via CLAUDE_MEM_CHROMA_ENABLED=false, skipping ChromaMcpManager');
+        logger.info('SYSTEM', 'Chroma disabled via CODEX_MEM_CHROMA_ENABLED=false, skipping ChromaMcpManager');
       }
 
       logger.info('WORKER', 'Initializing database manager...');
@@ -455,13 +455,13 @@ export class WorkerService implements WorkerRef {
   }
 
   private async startTranscriptWatcher(settings: ReturnType<typeof SettingsDefaultsManager.loadFromFile>): Promise<void> {
-    const transcriptsEnabled = settings.CLAUDE_MEM_TRANSCRIPTS_ENABLED !== 'false';
+    const transcriptsEnabled = settings.CODEX_MEM_TRANSCRIPTS_ENABLED !== 'false';
     if (!transcriptsEnabled) {
-      logger.info('TRANSCRIPT', 'Transcript watcher disabled via CLAUDE_MEM_TRANSCRIPTS_ENABLED=false');
+      logger.info('TRANSCRIPT', 'Transcript watcher disabled via CODEX_MEM_TRANSCRIPTS_ENABLED=false');
       return;
     }
 
-    const configPath = settings.CLAUDE_MEM_TRANSCRIPTS_CONFIG_PATH || DEFAULT_CONFIG_PATH;
+    const configPath = settings.CODEX_MEM_TRANSCRIPTS_CONFIG_PATH || DEFAULT_CONFIG_PATH;
     const resolvedConfigPath = expandHomePath(configPath);
 
     if (!existsSync(resolvedConfigPath)) {
@@ -471,7 +471,7 @@ export class WorkerService implements WorkerRef {
       return;
     }
 
-    const allowCodexTranscriptIngestion = settings.CLAUDE_MEM_CODEX_TRANSCRIPT_INGESTION === 'true';
+    const allowCodexTranscriptIngestion = settings.CODEX_MEM_CODEX_TRANSCRIPT_INGESTION === 'true';
     const { config: transcriptConfig, removed } = filterNativeHookBackedCodexWatches(
       loadTranscriptWatchConfig(configPath),
       allowCodexTranscriptIngestion
@@ -481,7 +481,7 @@ export class WorkerService implements WorkerRef {
     if (removed > 0) {
       logger.warn('TRANSCRIPT', 'Skipped Codex transcript watch because native Codex hooks are authoritative', {
         removed,
-        optInSetting: 'CLAUDE_MEM_CODEX_TRANSCRIPT_INGESTION=true',
+        optInSetting: 'CODEX_MEM_CODEX_TRANSCRIPT_INGESTION=true',
       });
     }
 
@@ -516,7 +516,7 @@ export class WorkerService implements WorkerRef {
     });
   }
 
-  private getActiveAgent(): ClaudeProvider | GeminiProvider | OpenRouterProvider {
+  private getActiveAgent(): CodexProvider | GeminiProvider | OpenRouterProvider {
     if (isOpenRouterSelected() && isOpenRouterAvailable()) {
       return this.openRouterAgent;
     }
@@ -533,15 +533,15 @@ export class WorkerService implements WorkerRef {
    *
    * Most provider errors should already be classified at the provider
    * boundary — this is a safety net for errors from inside the SDK that
-   * never round-tripped through fetch (e.g. Anthropic SDK exceptions).
+   * never round-tripped through fetch (e.g. Codex CLI exceptions).
    */
   private reclassifyAtDispatch(
     error: unknown,
-    agent: ClaudeProvider | GeminiProvider | OpenRouterProvider
+    agent: CodexProvider | GeminiProvider | OpenRouterProvider
   ): ClassifiedProviderError | null {
     try {
-      if (agent instanceof ClaudeProvider) {
-        return classifyClaudeError(error);
+      if (agent instanceof CodexProvider) {
+        return classifyCodexError(error);
       }
       if (agent instanceof GeminiProvider) {
         // Without a status code we still want network/spawn detection.
@@ -689,7 +689,7 @@ export class WorkerService implements WorkerRef {
     'processtransport',
     'not ready for writing',
     'session generator failed',
-    'claude code process',
+    'codex code process',
   ] as const;
 
   private isSessionTerminatedError(error: unknown): boolean {
@@ -851,7 +851,7 @@ function runServerBetaServiceCli(command: string): void {
   const serverBetaScript = path.join(__dirname, 'server-beta-service.cjs');
   if (!existsSync(serverBetaScript)) {
     console.error(`Server beta script not found at: ${serverBetaScript}`);
-    console.error('Rebuild or reinstall claude-mem so server-beta-service.cjs is available.');
+    console.error('Rebuild or reinstall codex-mem so server-beta-service.cjs is available.');
     process.exit(1);
   }
 
@@ -963,7 +963,7 @@ async function main() {
   const { command, args: commandArgs } = parseWorkerServiceCommand(process.argv.slice(2));
 
   const hookInitiatedCommands = ['start', 'hook', 'restart', '--daemon'];
-  if ((command === undefined || hookInitiatedCommands.includes(command)) && isPluginDisabledInClaudeSettings()) {
+  if ((command === undefined || hookInitiatedCommands.includes(command)) && isPluginDisabledInCodexSettings()) {
     process.exit(0);
   }
 
@@ -1089,8 +1089,8 @@ async function main() {
       const platform = process.argv[3];
       const event = process.argv[4];
       if (!platform || !event) {
-        console.error('Usage: claude-mem hook <platform> <event>');
-        console.error('Platforms: claude-code, codex, cursor, gemini-cli, raw');
+        console.error('Usage: codex-mem hook <platform> <event>');
+        console.error('Platforms: codex-code, codex, cursor, gemini-cli, raw');
         console.error('Events: context, session-init, observation, summarize, user-message');
         process.exit(1);
       }
@@ -1107,16 +1107,16 @@ async function main() {
 
     case 'generate': {
       const dryRun = process.argv.includes('--dry-run');
-      const { generateClaudeMd } = await import('../cli/claude-md-commands.js');
-      const result = await generateClaudeMd(dryRun);
+      const { generateCodexMd } = await import('../cli/codex-md-commands.js');
+      const result = await generateCodexMd(dryRun);
       process.exit(result);
       break;
     }
 
     case 'clean': {
       const dryRun = process.argv.includes('--dry-run');
-      const { cleanClaudeMd } = await import('../cli/claude-md-commands.js');
-      const result = await cleanClaudeMd(dryRun);
+      const { cleanCodexMd } = await import('../cli/codex-md-commands.js');
+      const result = await cleanCodexMd(dryRun);
       process.exit(result);
       break;
     }
@@ -1221,7 +1221,7 @@ async function main() {
 }
 
 async function printQueueStatusIfBullMq(port: number): Promise<void> {
-  if (SettingsDefaultsManager.get('CLAUDE_MEM_QUEUE_ENGINE').trim().toLowerCase() !== 'bullmq') {
+  if (SettingsDefaultsManager.get('CODEX_MEM_QUEUE_ENGINE').trim().toLowerCase() !== 'bullmq') {
     return;
   }
   try {
@@ -1248,14 +1248,14 @@ async function printQueueStatusIfBullMq(port: number): Promise<void> {
     }
     const target = `${redis.host ?? 'unknown'}:${redis.port ?? 'unknown'}`;
     const suffix = redis.status === 'ok' ? '' : ` (${redis.error ?? 'unhealthy'})`;
-    console.log(`  Queue: BullMQ Redis ${redis.status ?? 'unknown'} at ${target} [${redis.mode ?? 'external'}, prefix=${redis.prefix ?? 'claude_mem'}]${suffix}`);
+    console.log(`  Queue: BullMQ Redis ${redis.status ?? 'unknown'} at ${target} [${redis.mode ?? 'external'}, prefix=${redis.prefix ?? 'codex_mem'}]${suffix}`);
   } catch (error) {
     console.log(`  Queue: BullMQ health unavailable (${error instanceof Error ? error.message : String(error)})`);
   }
 }
 
 const isMainModule = typeof require !== 'undefined' && typeof module !== 'undefined'
-  ? require.main === module || !module.parent || process.env.CLAUDE_MEM_MANAGED === 'true'
+  ? require.main === module || !module.parent || process.env.CODEX_MEM_MANAGED === 'true'
   : import.meta.url === `file://${process.argv[1]}`
     || process.argv[1]?.endsWith('worker-service')
     || process.argv[1]?.endsWith('worker-service.cjs')

@@ -178,7 +178,7 @@ describe('MigrationRunner', () => {
           content_session_id TEXT UNIQUE NOT NULL,
           memory_session_id TEXT UNIQUE,
           project TEXT NOT NULL,
-          platform_source TEXT NOT NULL DEFAULT 'claude',
+          platform_source TEXT NOT NULL DEFAULT 'codex',
           user_prompt TEXT,
           started_at TEXT NOT NULL,
           started_at_epoch INTEGER NOT NULL,

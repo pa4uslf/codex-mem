@@ -8,11 +8,11 @@
 // never uses `src/services/worker/*` types.
 //
 // Translation rules:
-//   - `contentSessionId` (Claude Code session UUID) becomes the
+//   - `contentSessionId` (Codex Code session UUID) becomes the
 //     `external_session_id` of a Server beta `server_sessions` row, scoped to
 //     the API key's team and project. The session is create-or-found.
 //   - The tool-use shape (tool_name, tool_input, tool_response, tool_use_id)
-//     is mapped to an `agent_event` with sourceAdapter='claude-code-compat',
+//     is mapped to an `agent_event` with sourceAdapter='codex-code-compat',
 //     eventType='tool_use', payload preserves the legacy fields verbatim.
 //   - The API key MUST be project-scoped. Cross-project compat calls return
 //     400; we never let compat traffic bypass project scope.
@@ -27,7 +27,7 @@ import { requirePostgresServerAuth } from '../middleware/postgres-auth.js';
 import { IngestEventsService } from '../services/IngestEventsService.js';
 import type { CreatePostgresAgentEventInput } from '../../storage/postgres/agent-events.js';
 
-const COMPAT_SOURCE_ADAPTER = 'claude-code-compat';
+const COMPAT_SOURCE_ADAPTER = 'codex-code-compat';
 const COMPAT_EVENT_TYPE = 'tool_use';
 
 const observationsSchema = z.object({

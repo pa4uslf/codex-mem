@@ -1,12 +1,12 @@
-# Claude-Mem 13 Server Beta: Independent BullMQ Observation Runtime
+# Codex-Mem 13 Server Beta: Independent BullMQ Observation Runtime
 
-Status: implementation plan  
-Date: 2026-05-07  
-Release target: claude-mem 13 Server (beta)  
+Status: implementation plan
+Date: 2026-05-07
+Release target: codex-mem 13 Server (beta)
 Relationship to prior plans:
 
-- Extends `plans/2026-05-07-claude-mem-server-apache-bullmq-team-auth.md`.
-- Supersedes the worker-parity parts of `plans/2026-05-07-claude-mem-13-server-beta-full-worker-parity.md` where that plan allowed Server beta to wrap/copy `WorkerService`.
+- Extends `plans/2026-05-07-codex-mem-server-apache-bullmq-team-auth.md`.
+- Supersedes the worker-parity parts of `plans/2026-05-07-codex-mem-13-server-beta-full-worker-parity.md` where that plan allowed Server beta to wrap/copy `WorkerService`.
 - Keeps the existing worker in place, but makes Server beta a fully independent runtime, not a facade over worker internals.
 
 ## Executive Decision
@@ -23,7 +23,7 @@ Server beta should use BullMQ/Valkey as its canonical queue and Postgres as its 
 
 ## Terminology Decision
 
-Claude-mem's domain object is an **observation**. Server beta must preserve that wording in user-facing APIs, docs, jobs, storage names, tests, logs, and implementation plans.
+Codex-mem's domain object is an **observation**. Server beta must preserve that wording in user-facing APIs, docs, jobs, storage names, tests, logs, and implementation plans.
 
 Use "memory" only for legacy compatibility names that already exist in worker-era code or for external library/API concepts that cannot be renamed cleanly. New Server beta/Postgres concepts should be named around observations:
 
@@ -39,16 +39,16 @@ If any compatibility endpoint still uses `/v1/memories`, it should be treated as
 
 ### Local Sources Read
 
-- `plans/2026-05-07-claude-mem-server-apache-bullmq-team-auth.md`
-- `plans/2026-05-07-claude-mem-13-server-beta-full-worker-parity.md`
-- `/Users/alexnewman/Downloads/claude-mem-handoff-docs/claude-mem-server-plan.md`
+- `plans/2026-05-07-codex-mem-server-apache-bullmq-team-auth.md`
+- `plans/2026-05-07-codex-mem-13-server-beta-full-worker-parity.md`
+- `/Users/alexnewman/Downloads/codex-mem-handoff-docs/codex-mem-server-plan.md`
 - `src/server/routes/v1/ServerV1Routes.ts`
 - `src/server/queue/BullMqObservationQueueEngine.ts`
 - `src/server/queue/ObservationQueueEngine.ts`
 - `src/services/worker-service.ts`
 - `src/services/worker/SessionManager.ts`
 - `src/services/worker/agents/ResponseProcessor.ts`
-- `src/services/worker/ClaudeProvider.ts`
+- `src/services/worker/CodexProvider.ts`
 - `src/services/worker/GeminiProvider.ts`
 - `src/services/worker/OpenRouterProvider.ts`
 - `src/services/worker/http/shared.ts`
@@ -76,7 +76,7 @@ If any compatibility endpoint still uses `/v1/memories`, it should be treated as
   - `src/services/worker/SessionManager.ts` consumes queued messages through `getMessageIterator(...)`.
   - `src/services/worker-service.ts` starts provider sessions through `startSessionProcessor(...)`.
   - `src/services/worker/agents/ResponseProcessor.ts` parses provider XML with `parseAgentXml(...)` and writes observations through `sessionStore.storeObservations(...)`.
-- The existing v2 parity plan names `Claude/Gemini/OpenRouter providers`, session ingest routes, queue semantics, and hook routing as parity requirements, but it does not explicitly require `/v1/events` to generate observations.
+- The existing v2 parity plan names `Codex/Gemini/OpenRouter providers`, session ingest routes, queue semantics, and hook routing as parity requirements, but it does not explicitly require `/v1/events` to generate observations.
 - BullMQ official docs establish the primitives Server beta should use directly:
   - `Worker` processes jobs and moves successful jobs to completed or thrown jobs to failed.
   - BullMQ workers should attach an `error` listener.
@@ -91,7 +91,7 @@ If any compatibility endpoint still uses `/v1/memories`, it should be treated as
 - Copy Express pre-body route mounting from `src/services/server/Server.ts` plus Better Auth docs.
 - Copy API-key auth from `src/server/middleware/auth.ts` and `src/server/auth/api-key-service.ts`.
 - Copy repository behavior where useful, but implement Server beta repositories against Postgres; do not reuse worker legacy `SessionStore` as the server observation model.
-- Copy provider request construction from `src/services/worker/ClaudeProvider.ts`, `GeminiProvider.ts`, and `OpenRouterProvider.ts`, then move shared logic into `src/server/generation` or `src/core/generation`.
+- Copy provider request construction from `src/services/worker/CodexProvider.ts`, `GeminiProvider.ts`, and `OpenRouterProvider.ts`, then move shared logic into `src/server/generation` or `src/core/generation`.
 - Copy XML parsing from `src/sdk/parser.ts` and current post-processing rules from `src/services/worker/agents/ResponseProcessor.ts`.
 - Use BullMQ `Queue`, `Worker`, and `QueueEvents` directly for Server beta generation queues.
 - Keep Valkey/Redis health checks from `src/server/queue/redis-config.ts` and existing Docker E2E setup.
@@ -125,7 +125,7 @@ src/server/runtime/ServerBetaService.ts
 ```text
 POST /v1/events
 POST /v1/events/batch
-Claude Code hook routed to Server beta
+Codex Code hook routed to Server beta
 MCP observation_record_* tool
         |
         v
@@ -164,7 +164,7 @@ QueueEvents/SSE/audit/search index update
     - `src/storage/postgres/pool.ts` for the shared `pg.Pool` factory, health check, transactions, and graceful shutdown;
     - `src/storage/postgres/schema.ts` for migration/bootstrap SQL and schema version constants;
     - `src/storage/postgres/index.ts` for exports used by Server beta runtime wiring;
-  - `CLAUDE_MEM_SERVER_DATABASE_URL`;
+  - `CODEX_MEM_SERVER_DATABASE_URL`;
   - connection pool size and timeout settings;
   - startup validation that fails Server beta when Postgres is required but unavailable;
   - graceful shutdown that drains and closes the Postgres pool.
@@ -482,7 +482,7 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
   - SSE/event broadcaster boundary as an inert interface with a disabled/no-op adapter;
   - server storage repositories.
 - Phase 2 creates lifecycle/runtime boundaries only. It must not implement BullMQ queue processing, provider-backed observation generation, generation workers, or SSE broadcasting; actual queue manager implementation starts in Phase 3, provider/generation implementation starts in later generation phases, and the real event broadcaster is wired only when its phase requires it.
-- Route `claude-mem server start|stop|restart|status` to `ServerBetaService`, not `WorkerService`.
+- Route `codex-mem server start|stop|restart|status` to `ServerBetaService`, not `WorkerService`.
 - Keep worker commands routed to `WorkerService`.
 - Add separate runtime state files:
   - `.server-beta.pid`
@@ -501,7 +501,7 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
 
 - `rg -n "WorkerService|services/worker-service|worker/http" src/server src/npx-cli/commands/server.ts src/npx-cli/commands/worker.ts`
   - Server runtime source must not import or instantiate `WorkerService`.
-- `npx claude-mem server status` reports server-beta state independently of worker state.
+- `npx codex-mem server status` reports server-beta state independently of worker state.
 - Worker `start|stop|status` commands still work.
 - Server beta can start while worker is stopped.
 - Server beta can stop without touching worker.
@@ -535,7 +535,7 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
   - enqueue outbox rows in `queued` or stale `processing`;
   - do not enqueue rows for already completed jobs;
   - remove or replace terminal BullMQ jobs before deterministic job ID reuse.
-- Add queue health to `/v1/info`, `/api/health`, and `claude-mem server status`.
+- Add queue health to `/v1/info`, `/api/health`, and `codex-mem server status`.
 
 ### Documentation References
 
@@ -604,7 +604,7 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
 ### Anti-Pattern Guards
 
 - Do not call worker `/api/sessions/observations`.
-- Do not make `/v1/events` depend on Claude Code-specific hook payload shape.
+- Do not make `/v1/events` depend on Codex Code-specific hook payload shape.
 - Do not generate observations inside the HTTP request without queueing first.
 - Do not require provider generation, generated observation IDs, or generated observation duplicate checks for Phase 4 verification.
 
@@ -614,7 +614,7 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
 
 - Add `src/server/generation/ProviderObservationGenerator.ts`.
 - Add provider adapters under `src/server/generation/providers/`:
-  - `ClaudeObservationProvider`
+  - `CodexObservationProvider`
   - `GeminiObservationProvider`
   - `OpenRouterObservationProvider`
 - Extract common prompt construction and provider-call code from worker providers into reusable modules.
@@ -637,7 +637,7 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
 
 - Copy parse/store behavior from `src/services/worker/agents/ResponseProcessor.ts`.
 - Copy provider-specific auth and request construction from:
-  - `src/services/worker/ClaudeProvider.ts`
+  - `src/services/worker/CodexProvider.ts`
   - `src/services/worker/GeminiProvider.ts`
   - `src/services/worker/OpenRouterProvider.ts`
 - Copy compatible field constraints from the existing legacy observation schema in `src/core/schemas/memory-item.ts`, but expose the Server beta create contract as an observation schema.
@@ -654,14 +654,14 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
 - Replaying the same event/job after restart does not duplicate generated observations.
 - Provider classification tests still pass.
 - Worker response processor tests still pass.
-- `rg -n "services/worker/(ClaudeProvider|GeminiProvider|OpenRouterProvider|agents/ResponseProcessor)" src/server`
+- `rg -n "services/worker/(CodexProvider|GeminiProvider|OpenRouterProvider|agents/ResponseProcessor)" src/server`
   - must return no direct imports from Server beta generation.
 
 ### Anti-Pattern Guards
 
 - Do not import `WorkerRef`, `ActiveSession`, or legacy worker session types into server generation.
 - Do not mutate legacy `SessionStore` tables from Server beta generation.
-- Do not make server provider code assume a Claude Code transcript.
+- Do not make server provider code assume a Codex Code transcript.
 
 ## Phase 6: Server Session Semantics Independent Of Worker Sessions
 
@@ -789,7 +789,7 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
 ### Documentation References
 
 - Copy payload normalization from `src/services/worker/http/shared.ts`.
-- Copy Claude Code mapper style from `src/adapters/claude-code/mapper.ts`.
+- Copy Codex Code mapper style from `src/adapters/codex-code/mapper.ts`.
 - Copy route response snapshots from existing worker route tests.
 
 ### Verification Checklist
@@ -817,19 +817,19 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
   - Postgres container for canonical observation/job/session storage;
   - Valkey container for BullMQ.
 - Add env validation:
-  - `CLAUDE_MEM_RUNTIME=server-beta`
-  - `CLAUDE_MEM_QUEUE_ENGINE=bullmq`
+  - `CODEX_MEM_RUNTIME=server-beta`
+  - `CODEX_MEM_QUEUE_ENGINE=bullmq`
   - Postgres URL required.
   - Redis/Valkey URL required.
   - API-key auth required by default.
 - Add optional separate generation worker process mode:
-  - `claude-mem server worker start`
+  - `codex-mem server worker start`
   - same codebase, separate process, same BullMQ queues.
 
 ### Documentation References
 
 - Copy current Docker E2E style from `scripts/e2e-server-beta-docker.sh`.
-- Copy current Docker image layout from `docker/claude-mem/Dockerfile`.
+- Copy current Docker image layout from `docker/codex-mem/Dockerfile`.
 - Copy Valkey settings from `plans/2026-05-06-redis-dependency-strategy.md`.
 
 ### Verification Checklist
@@ -889,10 +889,10 @@ CREATE INDEX idx_audit_log_scope_created ON audit_log(project_id, team_id, creat
 
 ### What To Implement
 
-- Add `claude-mem server jobs status`.
-- Add `claude-mem server jobs retry <id>`.
-- Add `claude-mem server jobs cancel <id>`.
-- Add `claude-mem server jobs failed`.
+- Add `codex-mem server jobs status`.
+- Add `codex-mem server jobs retry <id>`.
+- Add `codex-mem server jobs cancel <id>`.
+- Add `codex-mem server jobs failed`.
 - Add queue metrics:
   - waiting;
   - active;
@@ -952,7 +952,7 @@ Phase 13 is not an implementation phase and does not need the implementation-pha
 ```bash
 rg -n "new WorkerService|services/worker-service|services/worker/http/routes" src/server
 rg -n "PendingMessageStore|SessionQueueProcessor" src/server
-rg -n "CLAUDE_MEM_AUTH_MODE=local-dev|ALLOW_LOCAL_DEV_BYPASS" docker docs/server.md
+rg -n "CODEX_MEM_AUTH_MODE=local-dev|ALLOW_LOCAL_DEV_BYPASS" docker docs/server.md
 rg -n "POST /v1/events|generationJob|wait=true" docs README.md
 ```
 
@@ -969,7 +969,7 @@ Expected:
 3. Start Server beta with Valkey.
 4. Submit a generic REST event.
 5. Confirm observations appear without worker running.
-6. Submit a Claude Code PostToolUse payload through Server beta hook routing.
+6. Submit a Codex Code PostToolUse payload through Server beta hook routing.
 7. Confirm observations appear without worker running.
 8. Restart Server beta during a provider call.
 9. Confirm the job retries and generates once.

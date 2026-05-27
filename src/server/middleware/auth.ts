@@ -31,11 +31,11 @@ export function requireServerAuth(
   options: RequireAuthOptions = {},
 ): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
-    const authMode = options.authMode ?? process.env.CLAUDE_MEM_AUTH_MODE ?? 'api-key';
+    const authMode = options.authMode ?? process.env.CODEX_MEM_AUTH_MODE ?? 'api-key';
     const authorization = req.header('authorization') ?? '';
     const rawKey = parseBearerToken(authorization);
 
-    const allowLocalDevBypass = options.allowLocalDevBypass ?? process.env.CLAUDE_MEM_ALLOW_LOCAL_DEV_BYPASS === '1';
+    const allowLocalDevBypass = options.allowLocalDevBypass ?? process.env.CODEX_MEM_ALLOW_LOCAL_DEV_BYPASS === '1';
     if (
       !rawKey
       && authMode === 'local-dev'

@@ -2,23 +2,23 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { mkdirSync, writeFileSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { isPluginDisabledInClaudeSettings } from '../../src/shared/plugin-state.js';
+import { isPluginDisabledInCodexSettings } from '../../src/shared/plugin-state.js';
 
 let tempDir: string;
-let originalClaudeConfigDir: string | undefined;
+let originalCodexConfigDir: string | undefined;
 
 beforeEach(() => {
   tempDir = join(tmpdir(), `plugin-disabled-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(tempDir, { recursive: true });
-  originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
-  process.env.CLAUDE_CONFIG_DIR = tempDir;
+  originalCodexConfigDir = process.env.CODEX_CONFIG_DIR;
+  process.env.CODEX_CONFIG_DIR = tempDir;
 });
 
 afterEach(() => {
-  if (originalClaudeConfigDir !== undefined) {
-    process.env.CLAUDE_CONFIG_DIR = originalClaudeConfigDir;
+  if (originalCodexConfigDir !== undefined) {
+    process.env.CODEX_CONFIG_DIR = originalCodexConfigDir;
   } else {
-    delete process.env.CLAUDE_CONFIG_DIR;
+    delete process.env.CODEX_CONFIG_DIR;
   }
   try {
     rmSync(tempDir, { recursive: true, force: true });
@@ -27,29 +27,29 @@ afterEach(() => {
   }
 });
 
-describe('isPluginDisabledInClaudeSettings (#781)', () => {
+describe('isPluginDisabledInCodexSettings (#781)', () => {
   it('should return false when settings.json does not exist', () => {
-    expect(isPluginDisabledInClaudeSettings()).toBe(false);
+    expect(isPluginDisabledInCodexSettings()).toBe(false);
   });
 
   it('should return false when plugin is explicitly enabled', () => {
     const settings = {
       enabledPlugins: {
-        'claude-mem@thedotmack': true
+        'codex-mem@thedotmack': true
       }
     };
     writeFileSync(join(tempDir, 'settings.json'), JSON.stringify(settings));
-    expect(isPluginDisabledInClaudeSettings()).toBe(false);
+    expect(isPluginDisabledInCodexSettings()).toBe(false);
   });
 
   it('should return true when plugin is explicitly disabled', () => {
     const settings = {
       enabledPlugins: {
-        'claude-mem@thedotmack': false
+        'codex-mem@thedotmack': false
       }
     };
     writeFileSync(join(tempDir, 'settings.json'), JSON.stringify(settings));
-    expect(isPluginDisabledInClaudeSettings()).toBe(true);
+    expect(isPluginDisabledInCodexSettings()).toBe(true);
   });
 
   it('should return false when enabledPlugins key is missing', () => {
@@ -57,7 +57,7 @@ describe('isPluginDisabledInClaudeSettings (#781)', () => {
       permissions: { allow: [] }
     };
     writeFileSync(join(tempDir, 'settings.json'), JSON.stringify(settings));
-    expect(isPluginDisabledInClaudeSettings()).toBe(false);
+    expect(isPluginDisabledInCodexSettings()).toBe(false);
   });
 
   it('should return false when plugin key is absent from enabledPlugins', () => {
@@ -67,16 +67,16 @@ describe('isPluginDisabledInClaudeSettings (#781)', () => {
       }
     };
     writeFileSync(join(tempDir, 'settings.json'), JSON.stringify(settings));
-    expect(isPluginDisabledInClaudeSettings()).toBe(false);
+    expect(isPluginDisabledInCodexSettings()).toBe(false);
   });
 
   it('should return false when settings.json contains invalid JSON', () => {
     writeFileSync(join(tempDir, 'settings.json'), '{ invalid json }}}');
-    expect(isPluginDisabledInClaudeSettings()).toBe(false);
+    expect(isPluginDisabledInCodexSettings()).toBe(false);
   });
 
   it('should return false when settings.json is empty', () => {
     writeFileSync(join(tempDir, 'settings.json'), '');
-    expect(isPluginDisabledInClaudeSettings()).toBe(false);
+    expect(isPluginDisabledInCodexSettings()).toBe(false);
   });
 });

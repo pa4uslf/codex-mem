@@ -9,11 +9,11 @@ dist/
 *.tmp
 *.temp
 .install-version
-.claude/settings.local.json
-.claude/agents/
-.claude/skills/
-.claude/plans/
-.claude/worktrees/
+.codex/settings.local.json
+.codex/agents/
+.codex/skills/
+.codex/plans/
+.codex/worktrees/
 plugin/data/
 plugin/data.backup/
 package-lock.json
@@ -28,22 +28,22 @@ src/ui/viewer.html
 
 .idea/
 
-.claude-octopus/
-.claude/session-intent.md
-.claude/session-plan.md
-.claude/scheduled_tasks.lock
+.codex-octopus/
+.codex/session-intent.md
+.codex/session-plan.md
+.codex/scheduled_tasks.lock
 .octo/
 
 plugin/.cli-installed
 
-plugin/scripts/claude-mem
+plugin/scripts/codex-mem
 
 CONTRIB_NOTES.md
 
-.docker-claude-mem-data/
+.docker-codex-mem-data/
 
 evals/swebench/runs/
-claude-opus-4-7+claude-mem.*.json
+codex-opus-4-7+codex-mem.*.json
 logs/run_evaluation/
 .venv-swebench/
 .docker-blowout-data/

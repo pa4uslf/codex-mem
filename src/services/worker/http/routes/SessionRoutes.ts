@@ -7,7 +7,7 @@ import { logger } from '../../../../utils/logger.js';
 import { stripMemoryTagsFromPrompt, isInternalProtocolPayload } from '../../../../utils/tag-stripping.js';
 import { SessionManager } from '../../SessionManager.js';
 import { DatabaseManager } from '../../DatabaseManager.js';
-import { ClaudeProvider } from '../../ClaudeProvider.js';
+import { CodexProvider } from '../../CodexProvider.js';
 import { GeminiProvider, isGeminiSelected, isGeminiAvailable } from '../../GeminiProvider.js';
 import { OpenRouterProvider, isOpenRouterSelected, isOpenRouterAvailable } from '../../OpenRouterProvider.js';
 import type { WorkerService } from '../../../worker-service.js';
@@ -28,7 +28,7 @@ export class SessionRoutes extends BaseRouteHandler {
   constructor(
     private sessionManager: SessionManager,
     private dbManager: DatabaseManager,
-    private sdkAgent: ClaudeProvider,
+    private sdkAgent: CodexProvider,
     private geminiAgent: GeminiProvider,
     private openRouterAgent: OpenRouterProvider,
     private eventBroadcaster: SessionEventBroadcaster,
@@ -38,13 +38,13 @@ export class SessionRoutes extends BaseRouteHandler {
     super();
   }
 
-  private getActiveAgent(): ClaudeProvider | GeminiProvider | OpenRouterProvider {
+  private getActiveAgent(): CodexProvider | GeminiProvider | OpenRouterProvider {
     if (isOpenRouterSelected()) {
       if (isOpenRouterAvailable()) {
         logger.debug('SESSION', 'Using OpenRouter agent');
         return this.openRouterAgent;
       } else {
-        throw new Error('OpenRouter provider selected but no API key configured. Set CLAUDE_MEM_OPENROUTER_API_KEY in settings or OPENROUTER_API_KEY environment variable.');
+        throw new Error('OpenRouter provider selected but no API key configured. Set CODEX_MEM_OPENROUTER_API_KEY in settings or OPENROUTER_API_KEY environment variable.');
       }
     }
     if (isGeminiSelected()) {
@@ -52,17 +52,17 @@ export class SessionRoutes extends BaseRouteHandler {
         logger.debug('SESSION', 'Using Gemini agent');
         return this.geminiAgent;
       } else {
-        throw new Error('Gemini provider selected but no API key configured. Set CLAUDE_MEM_GEMINI_API_KEY in settings or GEMINI_API_KEY environment variable.');
+        throw new Error('Gemini provider selected but no API key configured. Set CODEX_MEM_GEMINI_API_KEY in settings or GEMINI_API_KEY environment variable.');
       }
     }
     return this.sdkAgent;
   }
 
-  private getSelectedProvider(): 'claude' | 'gemini' | 'openrouter' {
+  private getSelectedProvider(): 'codex' | 'gemini' | 'openrouter' {
     if (isOpenRouterSelected() && isOpenRouterAvailable()) {
       return 'openrouter';
     }
-    return (isGeminiSelected() && isGeminiAvailable()) ? 'gemini' : 'claude';
+    return (isGeminiSelected() && isGeminiAvailable()) ? 'gemini' : 'codex';
   }
 
   public async ensureGeneratorRunning(sessionDbId: number, source: string): Promise<void> {
@@ -91,7 +91,7 @@ export class SessionRoutes extends BaseRouteHandler {
 
   private async startGeneratorWithProvider(
     session: ReturnType<typeof this.sessionManager.getSession>,
-    provider: 'claude' | 'gemini' | 'openrouter',
+    provider: 'codex' | 'gemini' | 'openrouter',
     source: string
   ): Promise<void> {
     if (!session) return;
@@ -104,7 +104,7 @@ export class SessionRoutes extends BaseRouteHandler {
     }
 
     const agent = provider === 'openrouter' ? this.openRouterAgent : (provider === 'gemini' ? this.geminiAgent : this.sdkAgent);
-    const agentName = provider === 'openrouter' ? 'OpenRouter' : (provider === 'gemini' ? 'Gemini' : 'Claude SDK');
+    const agentName = provider === 'openrouter' ? 'OpenRouter' : (provider === 'gemini' ? 'Gemini' : 'Codex CLI');
 
     const pendingStore = this.sessionManager.getPendingMessageStore();
     const actualQueueDepth = await pendingStore.getPendingCount(session.sessionDbId);
@@ -179,23 +179,23 @@ export class SessionRoutes extends BaseRouteHandler {
   setupRoutes(app: express.Application): void {
     app.post(
       '/api/sessions/init',
-      validateBody(SessionRoutes.sessionInitByClaudeIdSchema),
-      this.handleSessionInitByClaudeId.bind(this)
+      validateBody(SessionRoutes.sessionInitByCodexIdSchema),
+      this.handleSessionInitByCodexId.bind(this)
     );
     app.post(
       '/api/sessions/observations',
-      validateBody(SessionRoutes.observationsByClaudeIdSchema),
-      this.handleObservationsByClaudeId.bind(this)
+      validateBody(SessionRoutes.observationsByCodexIdSchema),
+      this.handleObservationsByCodexId.bind(this)
     );
     app.post(
       '/api/sessions/summarize',
-      validateBody(SessionRoutes.summarizeByClaudeIdSchema),
-      this.handleSummarizeByClaudeId.bind(this)
+      validateBody(SessionRoutes.summarizeByCodexIdSchema),
+      this.handleSummarizeByCodexId.bind(this)
     );
-    app.get('/api/sessions/status', this.handleStatusByClaudeId.bind(this));
+    app.get('/api/sessions/status', this.handleStatusByCodexId.bind(this));
   }
 
-  private static readonly sessionInitByClaudeIdSchema = z.object({
+  private static readonly sessionInitByCodexIdSchema = z.object({
     contentSessionId: z.string().min(1),
     project: z.string().optional(),
     prompt: z.string().optional(),
@@ -203,7 +203,7 @@ export class SessionRoutes extends BaseRouteHandler {
     customTitle: z.string().optional(),
   }).passthrough();
 
-  private static readonly observationsByClaudeIdSchema = z.object({
+  private static readonly observationsByCodexIdSchema = z.object({
     contentSessionId: z.string().min(1),
     tool_name: z.string().min(1),
     tool_input: z.unknown().optional(),
@@ -216,14 +216,14 @@ export class SessionRoutes extends BaseRouteHandler {
     toolUseId: z.string().optional(),
   }).passthrough();
 
-  private static readonly summarizeByClaudeIdSchema = z.object({
+  private static readonly summarizeByCodexIdSchema = z.object({
     contentSessionId: z.string().min(1),
     last_assistant_message: z.string().optional(),
     agentId: z.string().optional(),
     platformSource: z.string().optional(),
   }).passthrough();
 
-  private handleObservationsByClaudeId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
+  private handleObservationsByCodexId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
     const {
       contentSessionId,
       tool_name,
@@ -262,7 +262,7 @@ export class SessionRoutes extends BaseRouteHandler {
     res.json({ status: 'queued' });
   });
 
-  private handleSummarizeByClaudeId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
+  private handleSummarizeByCodexId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
     const { contentSessionId, last_assistant_message, agentId } = req.body;
     const platformSource = normalizePlatformSource(req.body.platformSource);
 
@@ -300,7 +300,7 @@ export class SessionRoutes extends BaseRouteHandler {
     res.json({ status: 'queued' });
   });
 
-  private handleStatusByClaudeId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
+  private handleStatusByCodexId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
     const contentSessionId = req.query.contentSessionId as string;
 
     if (!contentSessionId) {
@@ -328,7 +328,7 @@ export class SessionRoutes extends BaseRouteHandler {
     });
   });
 
-  private handleSessionInitByClaudeId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
+  private handleSessionInitByCodexId = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
     const { contentSessionId } = req.body;
 
     const project = req.body.project || 'unknown';
@@ -359,7 +359,7 @@ export class SessionRoutes extends BaseRouteHandler {
       prompt = buf.subarray(0, end).toString('utf8');
     }
 
-    logger.info('HTTP', 'SessionRoutes: handleSessionInitByClaudeId called', {
+    logger.info('HTTP', 'SessionRoutes: handleSessionInitByCodexId called', {
       contentSessionId,
       project,
       platformSource,
@@ -481,7 +481,7 @@ export class SessionRoutes extends BaseRouteHandler {
 
   private async applyTierRouting(session: NonNullable<ReturnType<typeof this.sessionManager.getSession>>): Promise<void> {
     const settings = SettingsDefaultsManager.loadFromFile(USER_SETTINGS_PATH);
-    if (settings.CLAUDE_MEM_TIER_ROUTING_ENABLED === 'false') {
+    if (settings.CODEX_MEM_TIER_ROUTING_ENABLED === 'false') {
       session.modelOverride = undefined;
       return;
     }
@@ -502,7 +502,7 @@ export class SessionRoutes extends BaseRouteHandler {
     );
 
     if (hasSummarize) {
-      const summaryModel = settings.CLAUDE_MEM_TIER_SUMMARY_MODEL;
+      const summaryModel = settings.CODEX_MEM_TIER_SUMMARY_MODEL;
       if (summaryModel) {
         session.modelOverride = summaryModel;
         logger.debug('SESSION', `Tier routing: summary model`, {
@@ -510,7 +510,7 @@ export class SessionRoutes extends BaseRouteHandler {
         });
       }
     } else if (allSimple) {
-      const simpleModel = settings.CLAUDE_MEM_TIER_SIMPLE_MODEL;
+      const simpleModel = settings.CODEX_MEM_TIER_SIMPLE_MODEL;
       if (simpleModel) {
         session.modelOverride = simpleModel;
         logger.debug('SESSION', `Tier routing: simple model`, {

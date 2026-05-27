@@ -1,34 +1,34 @@
 ---
 title: "Configuration"
-description: "Environment variables and settings for Claude-Mem"
+description: "Environment variables and settings for Codex-Mem"
 ---
 
 # Configuration
 
 ## Settings File
 
-Settings are managed in `~/.claude-mem/settings.json`. The file is auto-created with defaults on first run.
+Settings are managed in `~/.codex-mem/settings.json`. The file is auto-created with defaults on first run.
 
 ### Core Settings
 
 | Setting                       | Default                         | Description                           |
 |-------------------------------|---------------------------------|---------------------------------------|
-| `CLAUDE_MEM_MODEL`            | `claude-haiku-4-5-20251001`     | Claude model used to compress observations (when using the Claude provider) |
-| `CLAUDE_MEM_PROVIDER`         | `claude`                        | AI provider: `claude`, `gemini`, or `openrouter` |
-| `CLAUDE_MEM_CLAUDE_AUTH_METHOD` | `subscription`                | Claude provider auth mode: `subscription`, `api-key`, or `gateway` |
-| `CLAUDE_MEM_MODE`             | `code`                          | Active mode profile (e.g., `code--es`, `email-investigation`) |
-| `CLAUDE_MEM_CONTEXT_OBSERVATIONS` | `50`                        | Number of observations to inject      |
-| `CLAUDE_MEM_WORKER_PORT`      | `37700 + (uid % 100)`           | Worker service port (per-user default; override for fixed port) |
-| `CLAUDE_MEM_WORKER_HOST`      | `127.0.0.1`                     | Worker service host address           |
-| `CLAUDE_MEM_DATA_DIR`         | `~/.claude-mem`                 | Data root — every other path (database, chroma, logs, settings.json, worker.pid) derives from this |
-| `CLAUDE_MEM_SKIP_TOOLS`       | `ListMcpResourcesTool,SlashCommand,Skill,TodoWrite,AskUserQuestion` | Comma-separated tools to exclude from observations |
+| `CODEX_MEM_MODEL`            | `gpt-5-mini`     | Codex model used to compress observations (when using the Codex provider) |
+| `CODEX_MEM_PROVIDER`         | `codex`                        | AI provider: `codex`, `gemini`, or `openrouter` |
+| `CODEX_MEM_CODEX_AUTH_METHOD` | `subscription`                | Codex provider auth mode: `subscription`, `api-key`, or `gateway` |
+| `CODEX_MEM_MODE`             | `code`                          | Active mode profile (e.g., `code--es`, `email-investigation`) |
+| `CODEX_MEM_CONTEXT_OBSERVATIONS` | `50`                        | Number of observations to inject      |
+| `CODEX_MEM_WORKER_PORT`      | `37700 + (uid % 100)`           | Worker service port (per-user default; override for fixed port) |
+| `CODEX_MEM_WORKER_HOST`      | `127.0.0.1`                     | Worker service host address           |
+| `CODEX_MEM_DATA_DIR`         | `~/.codex-mem`                 | Data root — every other path (database, chroma, logs, settings.json, worker.pid) derives from this |
+| `CODEX_MEM_SKIP_TOOLS`       | `ListMcpResourcesTool,SlashCommand,Skill,TodoWrite,AskUserQuestion` | Comma-separated tools to exclude from observations |
 
 ### Gemini Provider Settings
 
 | Setting                       | Default                         | Description                           |
 |-------------------------------|---------------------------------|---------------------------------------|
-| `CLAUDE_MEM_GEMINI_API_KEY`   | —                               | Gemini API key ([get free key](https://aistudio.google.com/app/apikey)) |
-| `CLAUDE_MEM_GEMINI_MODEL`     | `gemini-2.5-flash-lite`          | Gemini model: `gemini-2.5-flash-lite`, `gemini-2.5-flash`, `gemini-3-flash-preview` |
+| `CODEX_MEM_GEMINI_API_KEY`   | —                               | Gemini API key ([get free key](https://aistudio.google.com/app/apikey)) |
+| `CODEX_MEM_GEMINI_MODEL`     | `gemini-2.5-flash-lite`          | Gemini model: `gemini-2.5-flash-lite`, `gemini-2.5-flash`, `gemini-3-flash-preview` |
 
 See [Gemini Provider](usage/gemini-provider) for detailed configuration and free tier information.
 
@@ -36,59 +36,59 @@ See [Gemini Provider](usage/gemini-provider) for detailed configuration and free
 
 | Setting                                      | Default                     | Description                           |
 |----------------------------------------------|-----------------------------|---------------------------------------|
-| `CLAUDE_MEM_OPENROUTER_API_KEY`              | —                           | OpenRouter API key ([get key](https://openrouter.ai/keys)) |
-| `CLAUDE_MEM_OPENROUTER_MODEL`                | `xiaomi/mimo-v2-flash:free` | Model identifier (supports 100+ models) |
-| `CLAUDE_MEM_OPENROUTER_MAX_CONTEXT_MESSAGES` | `20`                        | Max messages in conversation history  |
-| `CLAUDE_MEM_OPENROUTER_MAX_TOKENS`           | `100000`                    | Token budget safety limit             |
-| `CLAUDE_MEM_OPENROUTER_SITE_URL`             | —                           | Optional: URL for analytics           |
-| `CLAUDE_MEM_OPENROUTER_APP_NAME`             | `claude-mem`                | Optional: App name for analytics      |
+| `CODEX_MEM_OPENROUTER_API_KEY`              | —                           | OpenRouter API key ([get key](https://openrouter.ai/keys)) |
+| `CODEX_MEM_OPENROUTER_MODEL`                | `xiaomi/mimo-v2-flash:free` | Model identifier (supports 100+ models) |
+| `CODEX_MEM_OPENROUTER_MAX_CONTEXT_MESSAGES` | `20`                        | Max messages in conversation history  |
+| `CODEX_MEM_OPENROUTER_MAX_TOKENS`           | `100000`                    | Token budget safety limit             |
+| `CODEX_MEM_OPENROUTER_SITE_URL`             | —                           | Optional: URL for analytics           |
+| `CODEX_MEM_OPENROUTER_APP_NAME`             | `codex-mem`                | Optional: App name for analytics      |
 
 See [OpenRouter Provider](usage/openrouter-provider) for detailed configuration, free model list, and usage guide.
 
-### Claude Gateway Settings
+### Codex Gateway Settings
 
-Gateway credentials live in `~/.claude-mem/.env`, not `settings.json`.
+Gateway credentials live in `~/.codex-mem/.env`, not `settings.json`.
 
 | Env var | Default | Description |
 |---------|---------|-------------|
-| `ANTHROPIC_BASE_URL` | none | LiteLLM or Anthropic-compatible gateway URL for the Claude Agent SDK path |
-| `ANTHROPIC_AUTH_TOKEN` | none | Optional LiteLLM master key or virtual key |
-| `ANTHROPIC_API_KEY` | none | Direct Anthropic API key; normally omit this in LiteLLM gateway mode |
+| `CODEX_BASE_URL` | none | LiteLLM or Codex-compatible gateway URL for the Codex CLI path |
+| `CODEX_AUTH_TOKEN` | none | Optional LiteLLM master key or virtual key |
+| `CODEX_API_KEY` | none | Direct Codex API key; normally omit this in LiteLLM gateway mode |
 
-Use [LiteLLM Gateway](configuration/litellm-gateway) when you want `CLAUDE_MEM_PROVIDER=claude` to route through LiteLLM while preserving the Claude Agent SDK worker path.
+Use [LiteLLM Gateway](configuration/litellm-gateway) when you want `CODEX_MEM_PROVIDER=codex` to route through LiteLLM while preserving the Codex CLI worker path.
 
 ### System Configuration
 
 | Setting                       | Default                         | Description                           |
 |-------------------------------|---------------------------------|---------------------------------------|
-| `CLAUDE_MEM_DATA_DIR`         | `~/.claude-mem`                 | Data directory location               |
-| `CLAUDE_MEM_LOG_LEVEL`        | `INFO`                          | Log verbosity (DEBUG, INFO, WARN, ERROR, SILENT) |
-| `CLAUDE_MEM_PYTHON_VERSION`   | `3.13`                          | Python version for chroma-mcp         |
-| `CLAUDE_CODE_PATH`            | _(auto-detect)_                 | Path to Claude Code CLI (for Windows) |
+| `CODEX_MEM_DATA_DIR`         | `~/.codex-mem`                 | Data directory location               |
+| `CODEX_MEM_LOG_LEVEL`        | `INFO`                          | Log verbosity (DEBUG, INFO, WARN, ERROR, SILENT) |
+| `CODEX_MEM_PYTHON_VERSION`   | `3.13`                          | Python version for chroma-mcp         |
+| `CODEX_CODE_PATH`            | _(auto-detect)_                 | Path to Codex Code CLI (for Windows) |
 
 ## Model Configuration
 
-Configure which Claude model compresses your observations (only applies when `CLAUDE_MEM_PROVIDER=claude`).
+Configure which Codex model compresses your observations (only applies when `CODEX_MEM_PROVIDER=codex`).
 
 ### Available Models
 
 | Value | Notes |
 |-------|-------|
-| `claude-haiku-4-5-20251001` | Default — fast and cheap, ideal for compression |
-| `claude-sonnet-4-6` | Balanced quality and cost |
-| `claude-opus-4-7` | Highest quality, most expensive |
+| `gpt-5-mini` | Default — fast and cheap, ideal for compression |
+| `gpt-5` | Balanced quality and cost |
+| `gpt-5` | Highest quality, most expensive |
 
 ### Picking via the Installer
 
-`npx claude-mem install` prompts for the Claude model (when the Claude provider is selected) and persists the choice to `~/.claude-mem/settings.json`.
+`npx codex-mem install` prompts for the Codex model (when the Codex provider is selected) and persists the choice to `~/.codex-mem/settings.json`.
 
 ### Manual Configuration
 
-Edit `~/.claude-mem/settings.json`:
+Edit `~/.codex-mem/settings.json`:
 
 ```json
 {
-  "CLAUDE_MEM_MODEL": "claude-haiku-4-5-20251001"
+  "CODEX_MEM_MODEL": "gpt-5-mini"
 }
 ```
 
@@ -100,21 +100,21 @@ Configure the active workflow mode and language.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `CLAUDE_MEM_MODE` | `code` | Defines behavior and language. See [Modes & Languages](modes). |
+| `CODEX_MEM_MODE` | `code` | Defines behavior and language. See [Modes & Languages](modes). |
 
 ### Examples
 
 **Spanish Code Mode:**
 ```json
 {
-  "CLAUDE_MEM_MODE": "code--es"
+  "CODEX_MEM_MODE": "code--es"
 }
 ```
 
 **Email Investigation Mode:**
 ```json
 {
-  "CLAUDE_MEM_MODE": "email-investigation"
+  "CODEX_MEM_MODE": "email-investigation"
 }
 ```
 
@@ -123,13 +123,13 @@ Configure the active workflow mode and language.
 ### Data Directory Structure
 
 The data directory location depends on the environment:
-- **Production (installed plugin)**: `~/.claude-mem/` (always, regardless of CLAUDE_PLUGIN_ROOT)
-- **Development**: Can be overridden with `CLAUDE_MEM_DATA_DIR`
+- **Production (installed plugin)**: `~/.codex-mem/` (always, regardless of CODEX_PLUGIN_ROOT)
+- **Development**: Can be overridden with `CODEX_MEM_DATA_DIR`
 
 ```
-~/.claude-mem/
-├── claude-mem.db           # SQLite database
-├── .install-version        # Version marker written by `npx claude-mem install`/`repair`
+~/.codex-mem/
+├── codex-mem.db           # SQLite database
+├── .install-version        # Version marker written by `npx codex-mem install`/`repair`
 ├── settings.json           # Worker port + provider/model settings
 └── logs/
     ├── worker-out.log      # Worker stdout logs
@@ -139,8 +139,8 @@ The data directory location depends on the environment:
 ### Plugin Directory Structure
 
 ```
-${CLAUDE_PLUGIN_ROOT}/
-├── .claude-plugin/
+${CODEX_PLUGIN_ROOT}/
+├── .codex-legacy-plugin/
 │   └── plugin.json         # Plugin metadata
 ├── .mcp.json               # MCP server configuration
 ├── hooks/
@@ -161,35 +161,35 @@ ${CLAUDE_PLUGIN_ROOT}/
 
 ### Hooks Configuration
 
-Hooks are registered in `plugin/hooks/hooks.json`. The current shape uses a single dispatcher (`worker-service.cjs hook claude-code <event>`) launched through `bun-runner.js`, plus a fast Setup-phase `version-check.js`. The events wired up are:
+Hooks are registered in `plugin/hooks/hooks.json`. The current shape uses a single dispatcher (`worker-service.cjs hook codex-code <event>`) launched through `bun-runner.js`, plus a fast Setup-phase `version-check.js`. The events wired up are:
 
 - `Setup` → `version-check.js` (sub-100ms `.install-version` check)
-- `SessionStart` → start the worker, then `hook claude-code context` (context injection)
-- `UserPromptSubmit` → `hook claude-code session-init`
-- `PreToolUse` (matcher `Read`) → `hook claude-code file-context`
-- `PostToolUse` (matcher `*`) → `hook claude-code observation`
-- `Stop` → `hook claude-code summarize`
+- `SessionStart` → start the worker, then `hook codex-code context` (context injection)
+- `UserPromptSubmit` → `hook codex-code session-init`
+- `PreToolUse` (matcher `Read`) → `hook codex-code file-context`
+- `PostToolUse` (matcher `*`) → `hook codex-code observation`
+- `Stop` → `hook codex-code summarize`
 
 The exact `hooks.json` entries are written by the installer; do not hand-edit them in the marketplace copy unless you know what you're doing.
 
 ### Search Configuration
 
-Claude-Mem provides MCP search tools for querying your project history.
+Codex-Mem provides MCP search tools for querying your project history.
 
-**No configuration required** - MCP tools are automatically available in Claude Code sessions.
+**No configuration required** - MCP tools are automatically available in Codex Code sessions.
 
 Search operations are provided via:
 - **MCP Server**: 3 tools (search, timeline, get_observations) with progressive disclosure
-- **HTTP API**: 10 endpoints on the worker service port (per-user, default `37700 + (uid % 100)`; see `~/.claude-mem/settings.json`)
-- **Auto-Invocation**: Claude recognizes natural language queries about past work
+- **HTTP API**: 10 endpoints on the worker service port (per-user, default `37700 + (uid % 100)`; see `~/.codex-mem/settings.json`)
+- **Auto-Invocation**: Codex recognizes natural language queries about past work
 
 ## Version Channel
 
-Claude-Mem supports switching between stable and beta versions via the web viewer UI.
+Codex-Mem supports switching between stable and beta versions via the web viewer UI.
 
 ### Accessing Version Channel
 
-1. Open the viewer at the worker URL (default `http://127.0.0.1:<worker-port>`; the active port is the value of `CLAUDE_MEM_WORKER_PORT` in `~/.claude-mem/settings.json`)
+1. Open the viewer at the worker URL (default `http://127.0.0.1:<worker-port>`; the active port is the value of `CODEX_MEM_WORKER_PORT` in `~/.codex-mem/settings.json`)
 2. Click the Settings gear icon
 3. Find the **Version Channel** section
 
@@ -211,17 +211,17 @@ Worker service is managed by Bun as a background process. The worker auto-starts
 
 ## Folder Context Files
 
-Claude-mem can automatically generate `CLAUDE.md` files in your project folders with activity timelines. This feature is disabled by default.
+Codex-mem can automatically generate `CODEX.md` files in your project folders with activity timelines. This feature is disabled by default.
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `CLAUDE_MEM_FOLDER_CLAUDEMD_ENABLED` | `false` | Enable auto-generation of folder CLAUDE.md files |
+| `CODEX_MEM_FOLDER_CODEXMD_ENABLED` | `false` | Enable auto-generation of folder CODEX.md files |
 
 See [Folder Context Files](usage/folder-context) for full documentation on how this feature works, configuration options, and git integration recommendations.
 
 ## Context Injection Configuration
 
-Claude-Mem injects past observations into each new session, giving Claude awareness of recent work. You can configure exactly what gets injected using the **Context Settings Modal**.
+Codex-Mem injects past observations into each new session, giving Codex awareness of recent work. You can configure exactly what gets injected using the **Context Settings Modal**.
 
 ### Context Settings Modal
 
@@ -232,7 +232,7 @@ Access the settings modal from the web viewer (the worker prints its URL on star
 3. See changes reflected live in the **Terminal Preview** on the left
 4. Settings auto-save as you change them
 
-The Terminal Preview shows exactly what will be injected at the start of your next Claude Code session for the selected project.
+The Terminal Preview shows exactly what will be injected at the start of your next Codex Code session for the selected project.
 
 ### Loading Settings
 
@@ -296,29 +296,29 @@ Token economics help you understand the value of cached observations vs. re-read
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| **Model** | sonnet | AI model for generating observations |
-| **Worker Port** | `37700 + (uid % 100)` | Port for background worker service (override with `CLAUDE_MEM_WORKER_PORT`) |
+| **Model** | gpt-5 | AI model for generating observations |
+| **Worker Port** | `37700 + (uid % 100)` | Port for background worker service (override with `CODEX_MEM_WORKER_PORT`) |
 | **MCP search server** | true | Enable Model Context Protocol search tools |
 | **Include last summary** | false | Add previous session's summary to context |
 | **Include last message** | false | Add previous session's final message |
 
 ### Manual Configuration
 
-Settings are stored in `~/.claude-mem/settings.json`:
+Settings are stored in `~/.codex-mem/settings.json`:
 
 ```json
 {
-  "CLAUDE_MEM_CONTEXT_OBSERVATIONS": "100",
-  "CLAUDE_MEM_CONTEXT_SESSION_COUNT": "20",
-  "CLAUDE_MEM_CONTEXT_OBSERVATION_TYPES": "bugfix,decision,discovery",
-  "CLAUDE_MEM_CONTEXT_OBSERVATION_CONCEPTS": "how-it-works,gotcha",
-  "CLAUDE_MEM_CONTEXT_FULL_COUNT": "10",
-  "CLAUDE_MEM_CONTEXT_FULL_FIELD": "narrative",
-  "CLAUDE_MEM_CONTEXT_SHOW_READ_TOKENS": "true",
-  "CLAUDE_MEM_CONTEXT_SHOW_WORK_TOKENS": "true",
-  "CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT": "true",
-  "CLAUDE_MEM_CONTEXT_SHOW_LAST_SUMMARY": "false",
-  "CLAUDE_MEM_CONTEXT_SHOW_LAST_MESSAGE": "false"
+  "CODEX_MEM_CONTEXT_OBSERVATIONS": "100",
+  "CODEX_MEM_CONTEXT_SESSION_COUNT": "20",
+  "CODEX_MEM_CONTEXT_OBSERVATION_TYPES": "bugfix,decision,discovery",
+  "CODEX_MEM_CONTEXT_OBSERVATION_CONCEPTS": "how-it-works,gotcha",
+  "CODEX_MEM_CONTEXT_FULL_COUNT": "10",
+  "CODEX_MEM_CONTEXT_FULL_FIELD": "narrative",
+  "CODEX_MEM_CONTEXT_SHOW_READ_TOKENS": "true",
+  "CODEX_MEM_CONTEXT_SHOW_WORK_TOKENS": "true",
+  "CODEX_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT": "true",
+  "CODEX_MEM_CONTEXT_SHOW_LAST_SUMMARY": "false",
+  "CODEX_MEM_CONTEXT_SHOW_LAST_MESSAGE": "false"
 }
 ```
 
@@ -326,23 +326,23 @@ Settings are stored in `~/.claude-mem/settings.json`:
 
 ## Customization
 
-Settings can be customized in `~/.claude-mem/settings.json`.
+Settings can be customized in `~/.codex-mem/settings.json`.
 
 ### Custom Data Directory
 
-Edit `~/.claude-mem/settings.json`:
+Edit `~/.codex-mem/settings.json`:
 ```json
 {
-  "CLAUDE_MEM_DATA_DIR": "/custom/path"
+  "CODEX_MEM_DATA_DIR": "/custom/path"
 }
 ```
 
 ### Custom Worker Port
 
-Edit `~/.claude-mem/settings.json`:
+Edit `~/.codex-mem/settings.json`:
 ```json
 {
-  "CLAUDE_MEM_WORKER_PORT": "38000"
+  "CODEX_MEM_WORKER_PORT": "38000"
 }
 ```
 
@@ -353,25 +353,25 @@ npm run worker:restart
 
 ### Custom Model
 
-Edit `~/.claude-mem/settings.json`:
+Edit `~/.codex-mem/settings.json`:
 ```json
 {
-  "CLAUDE_MEM_MODEL": "opus"
+  "CODEX_MEM_MODEL": "gpt-5"
 }
 ```
 
 Then restart the worker:
 ```bash
-export CLAUDE_MEM_MODEL=opus
+export CODEX_MEM_MODEL=gpt-5
 npm run worker:restart
 ```
 
 ### Custom Skip Tools
 
-Control which tools are excluded from observations. Edit `~/.claude-mem/settings.json`:
+Control which tools are excluded from observations. Edit `~/.codex-mem/settings.json`:
 ```json
 {
-  "CLAUDE_MEM_SKIP_TOOLS": "ListMcpResourcesTool,SlashCommand,Skill"
+  "CODEX_MEM_SKIP_TOOLS": "ListMcpResourcesTool,SlashCommand,Skill"
 }
 ```
 
@@ -402,7 +402,7 @@ Hook timeouts are written into `plugin/hooks/hooks.json` by the installer. The c
 - PostToolUse (observation): 120s
 - Stop (summary): 120s
 
-The Setup hook never installs anything — runtime install (Bun, uv, `bun install`) happens in `npx claude-mem install` / `npx claude-mem repair` outside the session lifecycle.
+The Setup hook never installs anything — runtime install (Bun, uv, `bun install`) happens in `npx codex-mem install` / `npx codex-mem repair` outside the session lifecycle.
 
 ### Worker Memory Limit
 
@@ -413,7 +413,7 @@ The worker service is managed by Bun and will automatically restart if it encoun
 Enable debug logging:
 
 ```bash
-export DEBUG=claude-mem:*
+export DEBUG=codex-mem:*
 npm run worker:restart
 npm run worker:logs
 ```
@@ -437,8 +437,8 @@ npm run worker:logs
 
 2. Verify environment variables:
    ```bash
-   echo $CLAUDE_MEM_MODEL
-   echo $CLAUDE_MEM_WORKER_PORT
+   echo $CODEX_MEM_MODEL
+   echo $CODEX_MEM_WORKER_PORT
    ```
 
 3. Check worker logs:
@@ -448,11 +448,11 @@ npm run worker:logs
 
 ### Invalid Model Name
 
-If you specify an invalid Claude model name, the worker logs a warning and uses the default. Valid Claude models for `CLAUDE_MEM_MODEL`:
+If you specify an invalid Codex model name, the worker logs a warning and uses the default. Valid Codex models for `CODEX_MEM_MODEL`:
 
-- `claude-haiku-4-5-20251001` (default)
-- `claude-sonnet-4-6`
-- `claude-opus-4-7`
+- `gpt-5-mini` (default)
+- `gpt-5`
+- `gpt-5`
 
 ### Port Already in Use
 
@@ -460,7 +460,7 @@ The default worker port is `37700 + (uid % 100)`, so different OS users on the s
 
 1. Set custom port:
    ```bash
-   export CLAUDE_MEM_WORKER_PORT=38000
+   export CODEX_MEM_WORKER_PORT=38000
    ```
 
 2. Restart worker:
@@ -470,7 +470,7 @@ The default worker port is `37700 + (uid % 100)`, so different OS users on the s
 
 3. Verify new port:
    ```bash
-   curl -s http://127.0.0.1:$CLAUDE_MEM_WORKER_PORT/api/health | jq .port
+   curl -s http://127.0.0.1:$CODEX_MEM_WORKER_PORT/api/health | jq .port
    ```
 
 ## Next Steps

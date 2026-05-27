@@ -5,11 +5,11 @@ import { join } from 'path';
 mock.module('../../../src/shared/SettingsDefaultsManager.js', () => ({
   SettingsDefaultsManager: {
     get: (key: string) => {
-      if (key === 'CLAUDE_MEM_DATA_DIR') return join(homedir(), '.claude-mem');
+      if (key === 'CODEX_MEM_DATA_DIR') return join(homedir(), '.codex-mem');
       return '';
     },
     getInt: () => 0,
-    loadFromFile: () => ({ CLAUDE_MEM_EXCLUDED_PROJECTS: [] }),
+    loadFromFile: () => ({ CODEX_MEM_EXCLUDED_PROJECTS: [] }),
   },
 }));
 
@@ -52,7 +52,7 @@ describe('summarizeHandler — subagent short-circuit', () => {
     const result = await summarizeHandler.execute({
       sessionId: 'session-abc',
       cwd: '/tmp',
-      platform: 'claude-code',
+      platform: 'codex-code',
       transcriptPath: '/tmp/does-not-matter.jsonl',
       agentId: 'agent-abc',
     });
@@ -69,7 +69,7 @@ describe('summarizeHandler — subagent short-circuit', () => {
     const result = await summarizeHandler.execute({
       sessionId: 'session-def',
       cwd: '/tmp',
-      platform: 'claude-code',
+      platform: 'codex-code',
       agentType: 'Explore',
       // transcriptPath intentionally omitted
     });
@@ -85,7 +85,7 @@ describe('summarizeHandler — subagent short-circuit', () => {
     const result = await summarizeHandler.execute({
       sessionId: 'session-both',
       cwd: '/tmp',
-      platform: 'claude-code',
+      platform: 'codex-code',
       transcriptPath: '/tmp/does-not-matter.jsonl',
       agentId: 'agent-xyz',
       agentType: 'Plan',
@@ -103,7 +103,7 @@ describe('summarizeHandler — subagent short-circuit', () => {
     const result = await summarizeHandler.execute({
       sessionId: 'session-main',
       cwd: '/tmp',
-      platform: 'claude-code',
+      platform: 'codex-code',
       // transcriptPath intentionally omitted
     });
 

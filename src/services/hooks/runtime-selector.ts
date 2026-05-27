@@ -2,7 +2,7 @@
 //
 // Phase 7 — Runtime selector for hook subcommands.
 //
-// Reads `CLAUDE_MEM_RUNTIME` from `~/.claude-mem/settings.json` (via
+// Reads `CODEX_MEM_RUNTIME` from `~/.codex-mem/settings.json` (via
 // `loadFromFileOnce`) and decides whether the hook should call the
 // server-beta /v1 endpoints or fall through to the worker compat path.
 //
@@ -31,16 +31,16 @@ export type RuntimeContext = ServerBetaRuntimeContext | WorkerRuntimeContext;
 
 export function selectRuntime(): SelectedRuntime {
   const settings = loadFromFileOnce();
-  const raw = (settings.CLAUDE_MEM_RUNTIME ?? 'worker').trim().toLowerCase();
+  const raw = (settings.CODEX_MEM_RUNTIME ?? 'worker').trim().toLowerCase();
   if (raw === 'server-beta') return 'server-beta';
   return 'worker';
 }
 
 export function buildServerBetaContext(): ServerBetaRuntimeContext | null {
   const settings = loadFromFileOnce();
-  const serverBaseUrl = (settings.CLAUDE_MEM_SERVER_BETA_URL ?? '').trim();
-  const apiKey = (settings.CLAUDE_MEM_SERVER_BETA_API_KEY ?? '').trim();
-  const projectId = (settings.CLAUDE_MEM_SERVER_BETA_PROJECT_ID ?? '').trim();
+  const serverBaseUrl = (settings.CODEX_MEM_SERVER_BETA_URL ?? '').trim();
+  const apiKey = (settings.CODEX_MEM_SERVER_BETA_API_KEY ?? '').trim();
+  const projectId = (settings.CODEX_MEM_SERVER_BETA_PROJECT_ID ?? '').trim();
 
   if (!serverBaseUrl) {
     logger.warn('HOOK', '[server-beta-fallback] reason=missing_base_url');

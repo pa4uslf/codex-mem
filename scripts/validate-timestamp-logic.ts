@@ -3,7 +3,7 @@
 import Database from 'bun:sqlite';
 import { resolve } from 'path';
 
-const DB_PATH = resolve(process.env.HOME!, '.claude-mem/claude-mem.db');
+const DB_PATH = resolve(process.env.HOME!, '.codex-mem/codex-mem.db');
 
 function formatTimestamp(epoch: number): string {
   return new Date(epoch).toLocaleString('en-US', {
@@ -96,7 +96,7 @@ function main() {
     console.log('\nTimestamp Logic Validation:\n');
     console.log('✅ Code Flow:');
     console.log('   1. SessionManager.yieldNextMessage() tracks earliestPendingTimestamp');
-    console.log('   2. ClaudeProvider captures originalTimestamp before processing');
+    console.log('   2. CodexProvider captures originalTimestamp before processing');
     console.log('   3. processSDKResponse passes originalTimestamp to storeObservation/storeSummary');
     console.log('   4. SessionStore uses overrideTimestampEpoch ?? Date.now()');
     console.log('   5. earliestPendingTimestamp reset after batch completes\n');

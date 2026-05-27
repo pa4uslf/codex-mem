@@ -1,10 +1,10 @@
-# Feature Parity: Claude-Mem Hooks vs Cursor Hooks
+# Feature Parity: Codex-Mem Hooks vs Cursor Hooks
 
-This document compares claude-mem's Claude Code hooks with the Cursor hooks implementation to ensure feature parity.
+This document compares codex-mem's Codex Code hooks with the Cursor hooks implementation to ensure feature parity.
 
 ## Hook Mapping
 
-| Claude Code Hook | Cursor Hook | Status | Notes |
+| Codex Code Hook | Cursor Hook | Status | Notes |
 |-----------------|-------------|--------|-------|
 | `SessionStart` → `context-hook.js` | `beforeSubmitPrompt` → `context-inject.sh` | ✅ Partial | Context fetched but not injectable in Cursor |
 | `SessionStart` → `user-message-hook.js` | (Optional) `user-message.sh` | ⚠️ Optional | No SessionStart equivalent; can run on beforeSubmitPrompt |
@@ -17,7 +17,7 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 
 ### 1. Session Initialization (`new-hook.js` ↔ `session-init.sh`)
 
-| Feature | Claude Code | Cursor | Status |
+| Feature | Codex Code | Cursor | Status |
 |---------|-------------|--------|--------|
 | Worker health check | ✅ 75 retries (15s) | ✅ 75 retries (15s) | ✅ Match |
 | Session init API call | ✅ `/api/sessions/init` | ✅ `/api/sessions/init` | ✅ Match |
@@ -29,7 +29,7 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 
 ### 2. Context Injection (`context-hook.js` ↔ `context-inject.sh`)
 
-| Feature | Claude Code | Cursor | Status |
+| Feature | Codex Code | Cursor | Status |
 |---------|-------------|--------|--------|
 | Worker health check | ✅ 75 retries | ✅ 75 retries | ✅ Match |
 | Context fetch | ✅ `/api/context/inject` | ✅ `/api/context/inject` | ✅ Match |
@@ -40,14 +40,14 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 **Status**: ✅ Complete parity via auto-updated rules file
 
 **How it works**:
-- Hook writes context to `.cursor/rules/claude-mem-context.mdc`
+- Hook writes context to `.cursor/rules/codex-mem-context.mdc`
 - File has `alwaysApply: true` frontmatter
 - Cursor auto-includes this rule in all chat sessions
 - Context refreshes on every prompt submission
 
 ### 3. User Message Display (`user-message-hook.js` ↔ `user-message.sh`)
 
-| Feature | Claude Code | Cursor | Status |
+| Feature | Codex Code | Cursor | Status |
 |---------|-------------|--------|--------|
 | Context fetch with colors | ✅ `/api/context/inject?colors=true` | ✅ `/api/context/inject?colors=true` | ✅ Match |
 | Output channel | ✅ stderr | ✅ stderr | ✅ Match |
@@ -60,7 +60,7 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 
 ### 4. Observation Capture (`save-hook.js` ↔ `save-observation.sh`)
 
-| Feature | Claude Code | Cursor | Status |
+| Feature | Codex Code | Cursor | Status |
 |---------|-------------|--------|--------|
 | Worker health check | ✅ 75 retries | ✅ 75 retries | ✅ Match |
 | Tool name extraction | ✅ From `tool_name` | ✅ From `tool_name` or "Bash" | ✅ Match |
@@ -74,18 +74,18 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 
 ### 5. File Edit Capture (N/A ↔ `save-file-edit.sh`)
 
-| Feature | Claude Code | Cursor | Status |
+| Feature | Codex Code | Cursor | Status |
 |---------|-------------|--------|--------|
 | File path extraction | N/A | ✅ From `file_path` | ✅ New |
 | Edit details | N/A | ✅ From `edits` array | ✅ New |
 | Tool name | N/A | ✅ "write_file" | ✅ New |
 | Edit summary | N/A | ✅ Generated from edits | ✅ New |
 
-**Status**: ✅ New feature (Cursor-specific, not in Claude Code)
+**Status**: ✅ New feature (Cursor-specific, not in Codex Code)
 
 ### 6. Session Summary (`summary-hook.js` ↔ `session-summary.sh`)
 
-| Feature | Claude Code | Cursor | Status |
+| Feature | Codex Code | Cursor | Status |
 |---------|-------------|--------|--------|
 | Worker health check | ✅ 75 retries | ✅ 75 retries | ✅ Match |
 | Transcript parsing | ✅ Extracts last messages | ❌ No transcript access | ⚠️ Cursor limitation |
@@ -100,29 +100,29 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 ## Implementation Details
 
 ### Worker Health Checks
-- **Claude Code**: 75 retries × 200ms = 15 seconds
+- **Codex Code**: 75 retries × 200ms = 15 seconds
 - **Cursor**: 75 retries × 200ms = 15 seconds
 - **Status**: ✅ Match
 
 ### Error Handling
-- **Claude Code**: Fire-and-forget with logging
+- **Codex Code**: Fire-and-forget with logging
 - **Cursor**: Fire-and-forget with graceful exit (exit 0)
 - **Status**: ✅ Match (adapted for Cursor's hook system)
 
 ### Privacy Handling
-- **Claude Code**: Worker performs privacy checks, hooks respect `skipped` flag
+- **Codex Code**: Worker performs privacy checks, hooks respect `skipped` flag
 - **Cursor**: Worker performs privacy checks, hooks respect `skipped` flag
 - **Status**: ✅ Match
 
 ### Tag Stripping
-- **Claude Code**: Worker handles `<private>` and `<claude-mem-context>` tags
+- **Codex Code**: Worker handles `<private>` and `<codex-mem-context>` tags
 - **Cursor**: Worker handles tags (hooks don't need to strip)
 - **Status**: ✅ Match
 
 ## Missing Features (Cursor Limitations)
 
 1. ~~**Direct Context Injection**~~: **SOLVED** via auto-updated rules file
-   - Hook writes context to `.cursor/rules/claude-mem-context.mdc`
+   - Hook writes context to `.cursor/rules/codex-mem-context.mdc`
    - Cursor auto-includes rules with `alwaysApply: true`
    - Context refreshes on every prompt
 
@@ -141,13 +141,13 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 ## Enhancements (Cursor-Specific)
 
 1. **Shell Command Capture**: Maps shell commands to "Bash" tool observations
-   - **Status**: ✅ Enhanced beyond Claude Code
+   - **Status**: ✅ Enhanced beyond Codex Code
 
 2. **File Edit Capture**: Dedicated hook for file edits
    - **Status**: ✅ New feature
 
 3. **MCP Tool Capture**: Captures MCP tool usage separately
-   - **Status**: ✅ Enhanced beyond Claude Code
+   - **Status**: ✅ Enhanced beyond Codex Code
 
 ## Summary
 
@@ -160,7 +160,7 @@ This document compares claude-mem's Claude Code hooks with the Cursor hooks impl
 | Summary Generation | ⚠️ Partial (no transcript) |
 | User Experience | ⚠️ Partial (no SessionStart) |
 
-**Overall**: The Cursor hooks implementation achieves **full functional parity** with claude-mem's Claude Code hooks:
+**Overall**: The Cursor hooks implementation achieves **full functional parity** with codex-mem's Codex Code hooks:
 - ✅ Session initialization
 - ✅ Context injection (via auto-updated `.cursor/rules/` file)
 - ✅ Observation capture (MCP tools, shell commands, file edits)

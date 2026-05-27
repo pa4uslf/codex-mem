@@ -72,7 +72,7 @@ interface SessionDeletedEvent {
 }
 
 function resolveWorkerPort(): string {
-  const fromEnv = process.env.CLAUDE_MEM_WORKER_PORT;
+  const fromEnv = process.env.CODEX_MEM_WORKER_PORT;
   const parsed = fromEnv ? Number.parseInt(fromEnv.trim(), 10) : NaN;
   if (Number.isInteger(parsed) && parsed >= 1 && parsed <= 65535) {
     return String(parsed);
@@ -97,7 +97,7 @@ function workerPostFireAndForget(
   }).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : String(error);
     if (!message.includes("ECONNREFUSED")) {
-      console.warn(`[claude-mem] Worker POST ${path} failed: ${message}`);
+      console.warn(`[codex-mem] Worker POST ${path} failed: ${message}`);
     }
   });
 }
@@ -106,14 +106,14 @@ async function workerGetText(path: string): Promise<string | null> {
   try {
     const response = await fetch(`${WORKER_BASE_URL}${path}`, { headers: JSON_HEADERS });
     if (!response.ok) {
-      console.warn(`[claude-mem] Worker GET ${path} returned ${response.status}`);
+      console.warn(`[codex-mem] Worker GET ${path} returned ${response.status}`);
       return null;
     }
     return await response.text();
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     if (!message.includes("ECONNREFUSED")) {
-      console.warn(`[claude-mem] Worker GET ${path} failed: ${message}`);
+      console.warn(`[codex-mem] Worker GET ${path} failed: ${message}`);
     }
     return null;
   }
@@ -141,10 +141,10 @@ function getOrCreateContentSessionId(openCodeSessionId: string): string {
   return contentSessionIdsByOpenCodeSessionId.get(openCodeSessionId)!;
 }
 
-export const ClaudeMemPlugin = async (ctx: OpenCodePluginContext) => {
+export const CodexMemPlugin = async (ctx: OpenCodePluginContext) => {
   const projectName = ctx.project?.name || "opencode";
 
-  console.log(`[claude-mem] OpenCode plugin loading (project: ${projectName})`);
+  console.log(`[codex-mem] OpenCode plugin loading (project: ${projectName})`);
 
   return {
     hooks: {
@@ -245,9 +245,9 @@ export const ClaudeMemPlugin = async (ctx: OpenCodePluginContext) => {
     },
 
     tool: {
-      claude_mem_search: {
+      codex_mem_search: {
         description:
-          "Search claude-mem memory database for past observations, sessions, and context",
+          "Search codex-mem memory database for past observations, sessions, and context",
         args: {
           query: z.string().describe("Search query for memory observations"),
         },
@@ -264,14 +264,14 @@ export const ClaudeMemPlugin = async (ctx: OpenCodePluginContext) => {
           );
 
           if (!text) {
-            return "claude-mem worker is not running. Start it with: npx claude-mem start";
+            return "codex-mem worker is not running. Start it with: npx codex-mem start";
           }
 
           let data: any;
           try {
             data = JSON.parse(text);
           } catch (error: unknown) {
-            console.warn('[claude-mem] Failed to parse search results:', error instanceof Error ? error.message : String(error));
+            console.warn('[codex-mem] Failed to parse search results:', error instanceof Error ? error.message : String(error));
             return "Failed to parse search results.";
           }
 
@@ -294,4 +294,4 @@ export const ClaudeMemPlugin = async (ctx: OpenCodePluginContext) => {
   };
 };
 
-export default ClaudeMemPlugin;
+export default CodexMemPlugin;

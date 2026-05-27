@@ -9,26 +9,26 @@ export interface ConversationMessage {
 
 export interface ActiveSession {
   sessionDbId: number;
-  contentSessionId: string;      
-  memorySessionId: string | null; 
+  contentSessionId: string;
+  memorySessionId: string | null;
   project: string;
   platformSource: string;
   userPrompt: string;
-  pendingMessages: PendingMessage[];  
+  pendingMessages: PendingMessage[];
   abortController: AbortController;
   generatorPromise: Promise<void> | null;
   lastPromptNumber: number;
   startTime: number;
-  cumulativeInputTokens: number;   
-  cumulativeOutputTokens: number;  
-  earliestPendingTimestamp: number | null;  
+  cumulativeInputTokens: number;
+  cumulativeOutputTokens: number;
+  earliestPendingTimestamp: number | null;
   claimedMessageIds: number[];
-  conversationHistory: ConversationMessage[];  
-  currentProvider: 'claude' | 'gemini' | 'openrouter' | null;  
-  consecutiveRestarts: number;  
+  conversationHistory: ConversationMessage[];
+  currentProvider: 'codex' | 'gemini' | 'openrouter' | null;
+  consecutiveRestarts: number;
   restartGuard?: RestartGuard;
-  forceInit?: boolean;  
-  idleTimedOut?: boolean;  
+  forceInit?: boolean;
+  idleTimedOut?: boolean;
   lastGeneratorActivity: number;
   modelOverride?: string;
   lastSummaryStored?: boolean;
@@ -97,7 +97,7 @@ export interface ViewerSettings {
 
 export interface Observation {
   id: number;
-  memory_session_id: string;  
+  memory_session_id: string;
   project: string;
   merged_into_project: string | null;
   platform_source: string;
@@ -117,7 +117,7 @@ export interface Observation {
 
 export interface Summary {
   id: number;
-  session_id: string; 
+  session_id: string;
   project: string;
   platform_source: string;
   request: string | null;
@@ -132,8 +132,8 @@ export interface Summary {
 
 export interface UserPrompt {
   id: number;
-  content_session_id: string;  
-  project: string; 
+  content_session_id: string;
+  project: string;
   platform_source: string;
   prompt_number: number;
   prompt_text: string;
@@ -143,19 +143,17 @@ export interface UserPrompt {
 
 export interface DBSession {
   id: number;
-  content_session_id: string;    
+  content_session_id: string;
   project: string;
   platform_source: string;
   user_prompt: string;
-  memory_session_id: string | null;  
+  memory_session_id: string | null;
   status: 'active' | 'completed' | 'failed';
   started_at: string;
   started_at_epoch: number;
   completed_at: string | null;
   completed_at_epoch: number | null;
 }
-
-export type { SDKUserMessage } from '@anthropic-ai/claude-agent-sdk';
 
 export interface ParsedObservation {
   type: string;

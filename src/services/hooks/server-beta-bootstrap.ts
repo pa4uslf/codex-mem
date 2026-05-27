@@ -3,18 +3,18 @@
 // Phase 7 — Local API key bootstrap for the server-beta runtime.
 //
 // When the operator selects `runtime: "server-beta"` during install (or via
-// the `claude-mem server keys rotate` command), we provision a local hook
+// the `codex-mem server keys rotate` command), we provision a local hook
 // API key against the local Postgres so hooks can authenticate to /v1/*.
 //
 // Bootstrapping flow:
-//   1. Connect to Postgres (CLAUDE_MEM_SERVER_DATABASE_URL).
+//   1. Connect to Postgres (CODEX_MEM_SERVER_DATABASE_URL).
 //   2. Find or create a "local-hook" team and project so the api_key has
 //      proper tenant scope.
 //   3. Generate a `cmem_<random>` key, hash with SHA-256, insert into
 //      `api_keys` with the scopes hooks need: events:write, sessions:write,
 //      observations:read, jobs:read.
-//   4. Persist the plaintext key to ~/.claude-mem/settings.json under
-//      `CLAUDE_MEM_SERVER_BETA_API_KEY`, then chmod that file to 0600 so
+//   4. Persist the plaintext key to ~/.codex-mem/settings.json under
+//      `CODEX_MEM_SERVER_BETA_API_KEY`, then chmod that file to 0600 so
 //      only the owner can read it.
 //
 // The plaintext key is NEVER written into the generated bundle and never
@@ -144,10 +144,10 @@ export function persistServerBetaSettings(
     ? existing.env
     : existing) as Record<string, unknown>;
 
-  flat.CLAUDE_MEM_SERVER_BETA_API_KEY = values.apiKey;
-  flat.CLAUDE_MEM_SERVER_BETA_PROJECT_ID = values.projectId;
+  flat.CODEX_MEM_SERVER_BETA_API_KEY = values.apiKey;
+  flat.CODEX_MEM_SERVER_BETA_PROJECT_ID = values.projectId;
   if (values.serverBaseUrl) {
-    flat.CLAUDE_MEM_SERVER_BETA_URL = values.serverBaseUrl;
+    flat.CODEX_MEM_SERVER_BETA_URL = values.serverBaseUrl;
   }
 
   writeFileSync(settingsPath, JSON.stringify(flat, null, 2), 'utf-8');
@@ -202,7 +202,7 @@ function buildPoolFromEnv(): PostgresPool {
   const config = parsePostgresConfig({ requireDatabaseUrl: true });
   if (!config) {
     throw new Error(
-      'Cannot bootstrap server-beta API key: CLAUDE_MEM_SERVER_DATABASE_URL is not set.',
+      'Cannot bootstrap server-beta API key: CODEX_MEM_SERVER_DATABASE_URL is not set.',
     );
   }
   return createPostgresPool(config);

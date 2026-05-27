@@ -50,10 +50,10 @@ export class ServerV1Routes implements RouteHandler {
 
     app.get('/v1/info', (_req, res) => {
       res.json({
-        name: 'claude-mem-server',
+        name: 'codex-mem-server',
         version: BUILT_IN_VERSION,
         ...(this.options.runtime ? { runtime: this.options.runtime } : {}),
-        authMode: this.options.authMode ?? process.env.CLAUDE_MEM_AUTH_MODE ?? 'api-key',
+        authMode: this.options.authMode ?? process.env.CODEX_MEM_AUTH_MODE ?? 'api-key',
       });
     });
 

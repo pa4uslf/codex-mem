@@ -51,7 +51,7 @@ python -m swebench.harness.run_evaluation \
   --run_id "$RUN_ID" \
   --timeout "$TIMEOUT"
 
-REPORTS_DIR="logs/run_evaluation/$RUN_ID/claude-opus-4-7+claude-mem"
+REPORTS_DIR="logs/run_evaluation/$RUN_ID/codex-opus-4-7+codex-mem"
 echo ""
 echo "[eval.sh] Done. Per-instance reports at:"
 echo "  $REPORTS_DIR/<instance_id>/report.json"

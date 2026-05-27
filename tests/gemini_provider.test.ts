@@ -51,17 +51,17 @@ describe('GeminiProvider', () => {
 
     loadFromFileSpy = spyOn(SettingsDefaultsManager, 'loadFromFile').mockImplementation(() => ({
       ...SettingsDefaultsManager.getAllDefaults(),
-      CLAUDE_MEM_GEMINI_API_KEY: 'test-api-key',
-      CLAUDE_MEM_GEMINI_MODEL: 'gemini-2.5-flash-lite',
-      CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED: rateLimitingEnabled,
-      CLAUDE_MEM_DATA_DIR: '/tmp/claude-mem-test',
+      CODEX_MEM_GEMINI_API_KEY: 'test-api-key',
+      CODEX_MEM_GEMINI_MODEL: 'gemini-2.5-flash-lite',
+      CODEX_MEM_GEMINI_RATE_LIMITING_ENABLED: rateLimitingEnabled,
+      CODEX_MEM_DATA_DIR: '/tmp/codex-mem-test',
     }));
 
     getSpy = spyOn(SettingsDefaultsManager, 'get').mockImplementation((key: string) => {
-      if (key === 'CLAUDE_MEM_GEMINI_API_KEY') return 'test-api-key';
-      if (key === 'CLAUDE_MEM_GEMINI_MODEL') return 'gemini-2.5-flash-lite';
-      if (key === 'CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED') return rateLimitingEnabled;
-      if (key === 'CLAUDE_MEM_DATA_DIR') return '/tmp/claude-mem-test';
+      if (key === 'CODEX_MEM_GEMINI_API_KEY') return 'test-api-key';
+      if (key === 'CODEX_MEM_GEMINI_MODEL') return 'gemini-2.5-flash-lite';
+      if (key === 'CODEX_MEM_GEMINI_RATE_LIMITING_ENABLED') return rateLimitingEnabled;
+      if (key === 'CODEX_MEM_DATA_DIR') return '/tmp/codex-mem-test';
       return SettingsDefaultsManager.getAllDefaults()[key as keyof ReturnType<typeof SettingsDefaultsManager.getAllDefaults>] ?? '';
     });
 
@@ -232,7 +232,7 @@ describe('GeminiProvider', () => {
     expect(session.cumulativeInputTokens).toBeGreaterThan(0);
   });
 
-  it('should throw on rate limit (429) error — no Claude fallback (#2087)', async () => {
+  it('should throw on rate limit (429) error — no Codex fallback (#2087)', async () => {
     const session = {
       sessionDbId: 1,
       contentSessionId: 'test-session',
@@ -357,12 +357,12 @@ describe('GeminiProvider', () => {
     it('should always keep at least the newest message even if it exceeds token limit', async () => {
       loadFromFileSpy.mockImplementation(() => ({
         ...SettingsDefaultsManager.getAllDefaults(),
-        CLAUDE_MEM_GEMINI_API_KEY: 'test-api-key',
-        CLAUDE_MEM_GEMINI_MODEL: 'gemini-2.5-flash-lite',
-        CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED: 'false',
-        CLAUDE_MEM_GEMINI_MAX_CONTEXT_MESSAGES: '20',
-        CLAUDE_MEM_GEMINI_MAX_TOKENS: '1000',  // Very low: ~250 chars
-        CLAUDE_MEM_DATA_DIR: '/tmp/claude-mem-test',
+        CODEX_MEM_GEMINI_API_KEY: 'test-api-key',
+        CODEX_MEM_GEMINI_MODEL: 'gemini-2.5-flash-lite',
+        CODEX_MEM_GEMINI_RATE_LIMITING_ENABLED: 'false',
+        CODEX_MEM_GEMINI_MAX_CONTEXT_MESSAGES: '20',
+        CODEX_MEM_GEMINI_MAX_TOKENS: '1000',  // Very low: ~250 chars
+        CODEX_MEM_DATA_DIR: '/tmp/codex-mem-test',
       }));
 
       const largeContent = 'x'.repeat(8000);  

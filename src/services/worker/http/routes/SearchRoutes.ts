@@ -35,7 +35,7 @@ const cachedOnboardingExplainer: string | null = (() => {
 // TTL-cached settings reader. handleContextInject runs on every hook callback
 // (PostToolUse fires after every Read/Edit), so re-parsing settings.json from
 // disk on every request would mean a sync read per tool call. 5s is short
-// enough that toggling CLAUDE_MEM_WELCOME_HINT_ENABLED is responsive in
+// enough that toggling CODEX_MEM_WELCOME_HINT_ENABLED is responsive in
 // practice and long enough to absorb hook bursts.
 const SETTINGS_CACHE_TTL_MS = 5000;
 let cachedSettings: ReturnType<typeof SettingsDefaultsManager.loadFromFile> | null = null;
@@ -72,7 +72,7 @@ function projectsHaveObservations(
   return false;
 }
 
-const WELCOME_HINT_TEMPLATE = `# claude-mem status
+const WELCOME_HINT_TEMPLATE = `# codex-mem status
 
 This project has no memory yet. The current session will seed it; subsequent sessions will receive auto-injected context for relevant past work.
 
@@ -352,13 +352,13 @@ export class SearchRoutes extends BaseRouteHandler {
     }
 
     const settings = getCachedSettings();
-    const hintEnabled = String(settings.CLAUDE_MEM_WELCOME_HINT_ENABLED ?? '').toLowerCase() === 'true';
+    const hintEnabled = String(settings.CODEX_MEM_WELCOME_HINT_ENABLED ?? '').toLowerCase() === 'true';
     if (hintEnabled && !full) {
       const sessionStore = this.searchManager.getSessionStore();
       // Memoized: skips the COUNT(*) query once any project in the set has
       // observations. Hot-path: PostToolUse fires after every Read/Edit.
       if (!projectsHaveObservations(sessionStore, projects)) {
-        const port = settings.CLAUDE_MEM_WORKER_PORT;
+        const port = settings.CODEX_MEM_WORKER_PORT;
         const viewerUrl = `http://localhost:${port}`;
         const hintBody = WELCOME_HINT_TEMPLATE.replace('{viewer_url}', viewerUrl);
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -442,7 +442,7 @@ export class SearchRoutes extends BaseRouteHandler {
   private handleSearchHelp = this.wrapHandler((req: Request, res: Response): void => {
     const baseUrl = `http://${req.headers.host ?? 'localhost'}`;
     res.json({
-      title: 'Claude-Mem Search API',
+      title: 'Codex-Mem Search API',
       description: 'HTTP API for searching persistent memory',
       endpoints: [
         {
@@ -545,7 +545,7 @@ export class SearchRoutes extends BaseRouteHandler {
       examples: [
         `curl "${baseUrl}/api/search/observations?query=authentication&limit=5"`,
         `curl "${baseUrl}/api/search/by-type?type=bugfix&limit=10"`,
-        `curl "${baseUrl}/api/context/recent?project=claude-mem&limit=3"`,
+        `curl "${baseUrl}/api/context/recent?project=codex-mem&limit=3"`,
         `curl "${baseUrl}/api/context/timeline?anchor=123&depth_before=5&depth_after=5"`
       ]
     });

@@ -40,7 +40,7 @@ function getReleaseNotes(version) {
 
 function cleanNotes(notes) {
   return notes
-    .replace(/🤖 Generated with \[Claude Code\].*$/s, '')
+    .replace(/🤖 Generated with \[Codex Code\].*$/s, '')
     .replace(/---\n*$/s, '')
     .trim();
 }
@@ -52,29 +52,29 @@ function truncate(text, maxLength) {
 
 async function postToDiscord(webhookUrl, version, notes) {
   const cleanedNotes = notes ? cleanNotes(notes) : 'No release notes available.';
-  const repoUrl = 'https://github.com/thedotmack/claude-mem';
+  const repoUrl = 'https://github.com/thedotmack/codex-mem';
 
   const payload = {
     embeds: [
       {
-        title: `🚀 claude-mem ${version} released`,
+        title: `🚀 codex-mem ${version} released`,
         url: `${repoUrl}/releases/tag/${version}`,
         description: truncate(cleanedNotes, 2000),
         color: 0x7c3aed, // Purple
         fields: [
           {
             name: '📦 Install',
-            value: 'Update via Claude Code plugin marketplace',
+            value: 'Update via Codex Code plugin marketplace',
             inline: true,
           },
           {
             name: '📚 Docs',
-            value: '[docs.claude-mem.ai](https://docs.claude-mem.ai)',
+            value: '[docs.codex-mem.ai](https://docs.codex-mem.ai)',
             inline: true,
           },
         ],
         footer: {
-          text: 'claude-mem • Persistent memory for Claude Code',
+          text: 'codex-mem • Persistent memory for Codex Code',
         },
         timestamp: new Date().toISOString(),
       },

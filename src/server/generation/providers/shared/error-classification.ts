@@ -71,7 +71,7 @@ interface ClassifyHttpInput {
 /**
  * Generic HTTP-error → ServerClassifiedProviderError mapping shared by
  * Gemini and OpenRouter server adapters. Provider-specific overrides (e.g.
- * Anthropic OverloadedError, Gemini quota body markers) are layered on top
+ * Codex OverloadedError, Gemini quota body markers) are layered on top
  * by the per-provider classifier wrappers in this module.
  */
 export function classifyHttpProviderError(input: ClassifyHttpInput): ServerClassifiedProviderError {

@@ -5,7 +5,7 @@ import path from 'path';
 import { tmpdir } from 'os';
 import { Database } from 'bun:sqlite';
 import { runOneTimeV12_4_3Cleanup } from '../../src/services/infrastructure/CleanupV12_4_3.js';
-import { ClaudeMemDatabase } from '../../src/services/sqlite/Database.js';
+import { CodexMemDatabase } from '../../src/services/sqlite/Database.js';
 import { OBSERVER_SESSIONS_PROJECT } from '../../src/shared/paths.js';
 import { logger } from '../../src/utils/logger.js';
 
@@ -26,7 +26,7 @@ function restoreLogger(): void {
 }
 
 function seedDatabase(dbPath: string, opts: { observerSessions: number; stuckCount: number }): { observerSessionDbIds: number[]; keepSessionDbId: number } {
-  const seed = new ClaudeMemDatabase(dbPath);
+  const seed = new CodexMemDatabase(dbPath);
   const db = seed.db;
   const now = new Date().toISOString();
   const epoch = Date.now();
@@ -94,7 +94,7 @@ describe('runOneTimeV12_4_3Cleanup', () => {
   });
 
   it('purges observer-sessions and stuck pending_messages, writes marker, wipes chroma', () => {
-    const dbPath = path.join(tmpDataDir, 'claude-mem.db');
+    const dbPath = path.join(tmpDataDir, 'codex-mem.db');
     seedDatabase(dbPath, { observerSessions: 3, stuckCount: 12 });
 
     mkdirSync(path.join(tmpDataDir, 'chroma'), { recursive: true });
@@ -133,7 +133,7 @@ describe('runOneTimeV12_4_3Cleanup', () => {
   });
 
   it('preserves pending_messages when stuck count is below the threshold of 10', () => {
-    const dbPath = path.join(tmpDataDir, 'claude-mem.db');
+    const dbPath = path.join(tmpDataDir, 'codex-mem.db');
     seedDatabase(dbPath, { observerSessions: 0, stuckCount: 9 });
 
     runOneTimeV12_4_3Cleanup(tmpDataDir);
@@ -149,7 +149,7 @@ describe('runOneTimeV12_4_3Cleanup', () => {
   });
 
   it('is idempotent: a second invocation does no work and does not create a second backup', () => {
-    const dbPath = path.join(tmpDataDir, 'claude-mem.db');
+    const dbPath = path.join(tmpDataDir, 'codex-mem.db');
     seedDatabase(dbPath, { observerSessions: 1, stuckCount: 10 });
 
     runOneTimeV12_4_3Cleanup(tmpDataDir);
@@ -161,17 +161,17 @@ describe('runOneTimeV12_4_3Cleanup', () => {
     expect(backupsAfterSecond).toEqual(backupsAfterFirst);
   });
 
-  it('honors CLAUDE_MEM_SKIP_CLEANUP_V12_4_3=1 by exiting without writing the marker', () => {
-    const dbPath = path.join(tmpDataDir, 'claude-mem.db');
+  it('honors CODEX_MEM_SKIP_CLEANUP_V12_4_3=1 by exiting without writing the marker', () => {
+    const dbPath = path.join(tmpDataDir, 'codex-mem.db');
     seedDatabase(dbPath, { observerSessions: 1, stuckCount: 10 });
 
-    const original = process.env.CLAUDE_MEM_SKIP_CLEANUP_V12_4_3;
-    process.env.CLAUDE_MEM_SKIP_CLEANUP_V12_4_3 = '1';
+    const original = process.env.CODEX_MEM_SKIP_CLEANUP_V12_4_3;
+    process.env.CODEX_MEM_SKIP_CLEANUP_V12_4_3 = '1';
     try {
       runOneTimeV12_4_3Cleanup(tmpDataDir);
     } finally {
-      if (original === undefined) delete process.env.CLAUDE_MEM_SKIP_CLEANUP_V12_4_3;
-      else process.env.CLAUDE_MEM_SKIP_CLEANUP_V12_4_3 = original;
+      if (original === undefined) delete process.env.CODEX_MEM_SKIP_CLEANUP_V12_4_3;
+      else process.env.CODEX_MEM_SKIP_CLEANUP_V12_4_3 = original;
     }
 
     expect(existsSync(path.join(tmpDataDir, '.cleanup-v12.4.3-applied'))).toBe(false);

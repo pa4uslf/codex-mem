@@ -1,8 +1,8 @@
 # Cynical Deletion Plan — 29 issues → ~7 deletions
 
 **Date:** 2026-04-25
-**Branch:** `claude-mem-skill-invocation-and-github-issue-2139`
-**Source:** Triage of all 29 open issues for `thedotmack/claude-mem` applied with delete-first lens.
+**Branch:** `codex-mem-skill-invocation-and-github-issue-2139`
+**Source:** Triage of all 29 open issues for `thedotmack/codex-mem` applied with delete-first lens.
 
 ## Headline
 
@@ -13,7 +13,7 @@ The codebase has accumulated **defenders** (orphan cleanup → duplicate detecti
 | Phase | Action | Closes |
 |---|---|---|
 | P1 | DEL-1 + DEL-2: process-management theater + shell-string spawning | #2090, #2095, #2107, #2111, #2114, #2117, #2135, #2123, #2097 |
-| P2 | DEL-9: observer-sessions trust boundary (`CLAUDE_MEM_INTERNAL` env) | #2126, #2118 |
+| P2 | DEL-9: observer-sessions trust boundary (`CODEX_MEM_INTERNAL` env) | #2126, #2118 |
 | P3 | CON-2 + DEL-7: multi-account commit, port/path de-hardcoding | #2103, #2109, #2101 |
 | P4 | CON-1: extend env sanitizer to proxy vars | #2115, #2099 |
 | P5 | FF-1: fail-fast cleanup | #2089, #2094, #2116 |
@@ -30,11 +30,11 @@ The codebase has accumulated **defenders** (orphan cleanup → duplicate detecti
 
 - `child_process.spawn(cmd, [args], { detached, stdio, env })` — Node API used in `ProcessManager.ts`. Bun.spawn does NOT support `detached:true` (per `process-registry.ts:633-639` comment). Use Node `child_process` for daemon spawning.
 - `Bun.spawn([args], { env })` — used for non-detached children (e.g. `chroma-vector-sync.test.ts:25`). Arg-array form bypasses shell on all platforms.
-- `Agent SDK query({ cwd, env, spawnClaudeCodeProcess })` — used by `SDKAgent.ts:145-163` and `KnowledgeAgent.ts:75-84`. Custom `spawnClaudeCodeProcess` lets us inject env vars into the spawned `claude` subprocess.
-- `sanitizeEnv()` from `src/supervisor/env-sanitizer.ts` — currently strips `CLAUDE_CODE_*` and `CLAUDECODE_*` (preserve list: `CLAUDE_CODE_OAUTH_TOKEN`, `CLAUDE_CODE_GIT_BASH_PATH`).
-- `SettingsDefaultsManager.get('CLAUDE_MEM_WORKER_PORT')` — canonical port reader. Default: `37700 + (uid % 100)`.
-- `paths.ts` exports: `DATA_DIR`, `OBSERVER_SESSIONS_DIR`, `OBSERVER_SESSIONS_PROJECT`, `USER_SETTINGS_PATH`, `DB_PATH`. All resolve under `CLAUDE_MEM_DATA_DIR` if set.
-- Hook exit-code contract (CLAUDE.md:48-58): exit 0 = success, exit 1 = non-blocking error, exit 2 = blocking error. Worker errors should exit 0 to prevent Windows Terminal tab accumulation.
+- `Agent SDK query({ cwd, env, spawnCodexCodeProcess })` — used by `SDKAgent.ts:145-163` and `KnowledgeAgent.ts:75-84`. Custom `spawnCodexCodeProcess` lets us inject env vars into the spawned `codex` subprocess.
+- `sanitizeEnv()` from `src/supervisor/env-sanitizer.ts` — currently strips `CODEX_CODE_*` and `CODEXCODE_*` (preserve list: `CODEX_CODE_OAUTH_TOKEN`, `CODEX_CODE_GIT_BASH_PATH`).
+- `SettingsDefaultsManager.get('CODEX_MEM_WORKER_PORT')` — canonical port reader. Default: `37700 + (uid % 100)`.
+- `paths.ts` exports: `DATA_DIR`, `OBSERVER_SESSIONS_DIR`, `OBSERVER_SESSIONS_PROJECT`, `USER_SETTINGS_PATH`, `DB_PATH`. All resolve under `CODEX_MEM_DATA_DIR` if set.
+- Hook exit-code contract (CODEX.md:48-58): exit 0 = success, exit 1 = non-blocking error, exit 2 = blocking error. Worker errors should exit 0 to prevent Windows Terminal tab accumulation.
 
 ### Anti-patterns to avoid
 
@@ -48,7 +48,7 @@ The codebase has accumulated **defenders** (orphan cleanup → duplicate detecti
 
 - **#2090/#2095** may already be fixed: `session-init.ts:78` returns `EXIT_CODE.SUCCESS` on worker-unreachable. Verify against the issue's repro before patching.
 - **#2115** root cause confirmed: `sanitizeEnv` does NOT strip `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`. Extend the sanitizer; don't add a passthrough knob (#2099).
-- **#2094** `file-context.ts:184,196` truncation is intentional token economics. The bug is that the truncated Read return value confuses Claude into infinite Edit retries. Fix: don't return a partial Read result from a hook — emit an injected-context note instead, or let the full Read happen.
+- **#2094** `file-context.ts:184,196` truncation is intentional token economics. The bug is that the truncated Read return value confuses Codex into infinite Edit retries. Fix: don't return a partial Read result from a hook — emit an injected-context note instead, or let the full Read happen.
 - **#2126** items 2, 3, 4, 6 collapse into the P2 trust-boundary fix. Items 1 (basename glob) and 5 (cleanup CLI extension) are real but small.
 
 ---
@@ -72,7 +72,7 @@ The codebase has accumulated **defenders** (orphan cleanup → duplicate detecti
 ### What stays
 
 - **`verifyPidFileOwnership()`** at `process-registry.ts:160-182` and `captureProcessStartToken()` at lines 94-146 — these are correct. PID file with start-time token is exactly the OS-trust pattern we want.
-- **The PID file itself** at `~/.claude-mem/worker.pid` (or `$DATA_DIR/worker.pid`). This is the lock.
+- **The PID file itself** at `~/.codex-mem/worker.pid` (or `$DATA_DIR/worker.pid`). This is the lock.
 - **`waitForPortFree()`** with a short timeout — used to confirm shutdown completed. Stays.
 
 ### Implementation steps
@@ -123,12 +123,12 @@ Replace the `cwd === OBSERVER_SESSIONS_DIR` discriminator pattern (which has to 
 ### Implementation steps
 
 1. **Set the env var at every spawn site:**
-   - `src/services/worker/SDKAgent.ts:113` (`buildIsolatedEnv`) — add `CLAUDE_MEM_INTERNAL: '1'` to the returned env.
+   - `src/services/worker/SDKAgent.ts:113` (`buildIsolatedEnv`) — add `CODEX_MEM_INTERNAL: '1'` to the returned env.
    - `src/services/worker/knowledge/KnowledgeAgent.ts:73` — same.
-   - Confirm both call `Agent SDK query()` with `env: isolatedEnv` so the spawned `claude` subprocess inherits.
+   - Confirm both call `Agent SDK query()` with `env: isolatedEnv` so the spawned `codex` subprocess inherits.
 
 2. **Check the env var first in `shouldTrackProject`:**
-   - `src/shared/should-track-project.ts:35-44` — first line of function: `if (process.env.CLAUDE_MEM_INTERNAL === '1') return false;`
+   - `src/shared/should-track-project.ts:35-44` — first line of function: `if (process.env.CODEX_MEM_INTERNAL === '1') return false;`
    - Keep the existing `isWithin(cwd, OBSERVER_SESSIONS_DIR)` check as a belt-and-braces fallback.
 
 3. **Delete now-redundant filters:**
@@ -142,14 +142,14 @@ Replace the `cwd === OBSERVER_SESSIONS_DIR` discriminator pattern (which has to 
 
 ### Verification
 
-- Add a test: spawn `SDKAgent`, verify the spawned subprocess has `CLAUDE_MEM_INTERNAL=1` in its env.
-- Add a test: `shouldTrackProject('/any/path')` with `CLAUDE_MEM_INTERNAL=1` set returns `false`.
+- Add a test: spawn `SDKAgent`, verify the spawned subprocess has `CODEX_MEM_INTERNAL=1` in its env.
+- Add a test: `shouldTrackProject('/any/path')` with `CODEX_MEM_INTERNAL=1` set returns `false`.
 - Manual: trigger an observer session, confirm zero new rows under user's project in the DB.
 - SSE: connect a client to `/api/events`, trigger an observer session, confirm no observer events on the SSE stream.
 
 ### Anti-pattern guards
 
-- Don't add a `CLAUDE_MEM_OBSERVER_SESSION_DIR` env override (#2126 item 2). `CLAUDE_MEM_DATA_DIR` already overrides; the observer dir is derived.
+- Don't add a `CODEX_MEM_OBSERVER_SESSION_DIR` env override (#2126 item 2). `CODEX_MEM_DATA_DIR` already overrides; the observer dir is derived.
 - Don't add per-consumer filter knobs. One trust boundary, two existing filters (PaginationHelper, SSE), shared helper.
 
 ---
@@ -164,24 +164,24 @@ Discovery showed multi-account is ~80% there: `DATA_DIR` is fully overridable, p
 
 1. **Eliminate every hardcoded `37777`:**
    - `src/ui/viewer/constants/settings.ts:8` — change to read from settings/env at runtime if possible; otherwise leave as build-time default (least bad).
-   - `src/npx-cli/commands/runtime.ts:154`, `install.ts:545`, `uninstall.ts:109` — replace fallback with `SettingsDefaultsManager.get('CLAUDE_MEM_WORKER_PORT')`.
+   - `src/npx-cli/commands/runtime.ts:154`, `install.ts:545`, `uninstall.ts:109` — replace fallback with `SettingsDefaultsManager.get('CODEX_MEM_WORKER_PORT')`.
    - `src/integrations/opencode-plugin/index.ts:97` — same. Read from settings.
    - `src/services/integrations/OpenClawInstaller.ts:171` — drop the default; require the caller to pass it.
-   - `plugin/skills/timeline-report/SKILL.md:23,53` — replace literal with `${CLAUDE_MEM_WORKER_PORT:-37700}` or instruct the skill to read from settings.json. Closes #2103.
+   - `plugin/skills/timeline-report/SKILL.md:23,53` — replace literal with `${CODEX_MEM_WORKER_PORT:-37700}` or instruct the skill to read from settings.json. Closes #2103.
 
 2. **Fix hooks.json port handling for #2109:**
    - `plugin/hooks/hooks.json` — every hook command needs to either (a) inherit the port from env or (b) read from settings.json. Update the `bun-runner.js` wrapper to do this once.
    - On Windows + Git Bash, ensure POSIX path → Windows path conversion happens before passing to `node.exe`. The `bun-runner.js` wrapper is the right place.
 
 3. **Multi-account commit:**
-   - Document in CLAUDE.md: multi-account works by setting `CLAUDE_MEM_DATA_DIR=/path/to/account-N` per shell. All paths derive from it. Per-UID port collision is handled automatically.
-   - Add a one-line CLI command: `claude-mem profile use <name>` that exports the right env vars (or just print the export command for user to eval).
+   - Document in CODEX.md: multi-account works by setting `CODEX_MEM_DATA_DIR=/path/to/account-N` per shell. All paths derive from it. Per-UID port collision is handled automatically.
+   - Add a one-line CLI command: `codex-mem profile use <name>` that exports the right env vars (or just print the export command for user to eval).
    - Close #2101 with documentation pointing at the above.
 
 ### Verification
 
 - `git grep -nE "37777" src/ plugin/` returns only the build-time default in `settings.ts`.
-- Run two workers in parallel under different `CLAUDE_MEM_DATA_DIR` values; both bind successfully on different ports; both have separate PID files; both serve separate SSE streams.
+- Run two workers in parallel under different `CODEX_MEM_DATA_DIR` values; both bind successfully on different ports; both have separate PID files; both serve separate SSE streams.
 - Run timeline-report skill against a non-default port; it picks up the right port from settings.
 
 ### Anti-pattern guards
@@ -200,7 +200,7 @@ Discovery showed multi-account is ~80% there: `DATA_DIR` is fully overridable, p
 1. `src/supervisor/env-sanitizer.ts` — extend `ENV_PREFIXES` and/or add a `PROXY_VARS` set that strips:
    - `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, `NO_PROXY` (and lowercase variants)
    - Optionally: `npm_config_proxy`, `npm_config_https_proxy`
-2. Decide whether the strip should be unconditional or opt-in. Default: unconditional. Worker spawns `claude` for internal AI calls; the user's proxy config should not bleed in.
+2. Decide whether the strip should be unconditional or opt-in. Default: unconditional. Worker spawns `codex` for internal AI calls; the user's proxy config should not bleed in.
 3. **Reject #2099's passthrough-whitelist feature.** Close with: "we now strip proxy vars by default; if you have a real use case for letting them through, file a new issue with details."
 
 ### Verification
@@ -220,11 +220,11 @@ Discovery showed multi-account is ~80% there: `DATA_DIR` is fully overridable, p
 
 ### #2094 — PreToolUse:Read truncation causes Edit deadlock
 
-`src/cli/handlers/file-context.ts:141-143, 184, 196` — the truncation is intentional (token economics), but returning a truncated Read result confuses Claude. Fix:
+`src/cli/handlers/file-context.ts:141-143, 184, 196` — the truncation is intentional (token economics), but returning a truncated Read result confuses Codex. Fix:
 
 - Hooks should not return modified Read results. They can inject context as `additionalContext` or skip entirely.
-- Audit what the handler returns to Claude Code. If it returns a fake Read response with 1 line, that's the bug. It should either return `{ continue: true }` (let the real Read happen) or inject context via `additionalContext` field.
-- Read Claude Code's PreToolUse hook contract for what fields are allowed in the response.
+- Audit what the handler returns to Codex Code. If it returns a fake Read response with 1 line, that's the bug. It should either return `{ continue: true }` (let the real Read happen) or inject context via `additionalContext` field.
+- Read Codex Code's PreToolUse hook contract for what fields are allowed in the response.
 
 ### #2116 — `/api/memory/save` silently drops metadata
 
@@ -259,7 +259,7 @@ Discovery showed multi-account is ~80% there: `DATA_DIR` is fully overridable, p
 - `src/services/worker/GeminiAgent.ts:365` — delete the `if (this.fallbackAgent)` branch. On 429: log + throw.
 - `src/services/worker/OpenRouterAgent.ts:79-81` — same.
 - `tests/gemini_agent.test.ts:279, 313` — delete the fallback tests; add an explicit "429 throws" test.
-- Update docs anywhere that mentions Gemini-falls-back-to-Claude (it never did in production).
+- Update docs anywhere that mentions Gemini-falls-back-to-Codex (it never did in production).
 
 ### DEL-6 — Delete the 4-hour session timeout knob request (#2127, #2098)
 
@@ -274,11 +274,11 @@ Discovery showed multi-account is ~80% there: `DATA_DIR` is fully overridable, p
 - `plugin/scripts/smart-install.js:633` — delete the call.
 - `src/npx-cli/commands/uninstall.ts` — add a one-time legacy-alias-strip pass:
   - Read `~/.bashrc`, `~/.zshrc`, `~/Documents/PowerShell/Microsoft.PowerShell_profile.ps1`.
-  - Remove any line matching `^alias claude-mem=` or `^function claude-mem`.
-  - Print "Removed legacy claude-mem alias from <file>" so users know.
-- Update README + docs: canonical entry points are `npx claude-mem <cmd>` and `bunx claude-mem <cmd>`.
+  - Remove any line matching `^alias codex-mem=` or `^function codex-mem`.
+  - Print "Removed legacy codex-mem alias from <file>" so users know.
+- Update README + docs: canonical entry points are `npx codex-mem <cmd>` and `bunx codex-mem <cmd>`.
 
-**Verification:** Fresh install creates no shell-config mutations. Existing user with the alias runs uninstall — alias is gone. `which claude-mem` after uninstall returns nothing.
+**Verification:** Fresh install creates no shell-config mutations. Existing user with the alias runs uninstall — alias is gone. `which codex-mem` after uninstall returns nothing.
 
 ---
 
@@ -291,12 +291,12 @@ Discovery showed multi-account is ~80% there: `DATA_DIR` is fully overridable, p
 1. **Item 1 — multiselect default:** `src/npx-cli/commands/install.ts:275-277` — change `initialValues: detected.filter(...).map(...)` to `initialValues: []`. Force explicit opt-in.
 2. **Item 3 — install-shutdown-before-overwrite:** Extract `uninstall.ts:109-132` (HTTP shutdown + poll) to `src/services/install/shutdown-helper.ts`. Call it from both `uninstall.ts` and `install.ts` before `copyPluginToMarketplace`.
 3. **Item 4 — uninstall path coverage:** `src/npx-cli/commands/uninstall.ts` — add removal of:
-   - `~/.npm/_npx/*/node_modules/claude-mem`
-   - `~/.cache/claude-cli-nodejs/*/mcp-logs-plugin-claude-mem-*`
-   - `~/.claude/plugins/data/claude-mem-thedotmack/`
+   - `~/.npm/_npx/*/node_modules/codex-mem`
+   - `~/.cache/codex-cli-nodejs/*/mcp-logs-plugin-codex-mem-*`
+   - `~/.codex/plugins/data/codex-mem-thedotmack/`
    - Cascade shutdown to chroma-mcp (call its shutdown endpoint or kill PID).
 4. **Item 6 — real port query:** `install.ts:545` — after `smart-install.js` completes, hit `http://127.0.0.1:<settingsPort>/api/health` and report the actually-bound port. If health fails, just print "worker not yet ready" and exit cleanly.
-5. **Item 5 — documentation:** Add to install summary output: "Close all Claude Code sessions before uninstalling, or `~/.claude-mem` will be recreated by active hooks."
+5. **Item 5 — documentation:** Add to install summary output: "Close all Codex Code sessions before uninstalling, or `~/.codex-mem` will be recreated by active hooks."
 
 ### Close
 
@@ -307,7 +307,7 @@ Discovery showed multi-account is ~80% there: `DATA_DIR` is fully overridable, p
 
 - Fresh install on a clean VM: only the IDEs the user explicitly checks are installed.
 - Reinstall while worker is running: install succeeds, no "overwrite" loop.
-- Uninstall + `find ~/.npm ~/.cache ~/.claude -name "*claude-mem*"` returns empty.
+- Uninstall + `find ~/.npm ~/.cache ~/.codex -name "*codex-mem*"` returns empty.
 - Install summary prints the actual port when the user has overridden via env or settings.
 
 ---
@@ -330,7 +330,7 @@ Full sqlite-vec migration is a separate plan (would require replacing the embedd
 
 ### Verification
 
-- Fresh install on a clean machine: `~/.claude-mem/chroma/` populates, `chroma_query_documents` returns results without errors.
+- Fresh install on a clean machine: `~/.codex-mem/chroma/` populates, `chroma_query_documents` returns results without errors.
 - No "No module named 'httpcore'" error in worker logs (closes #2046, #2085).
 - Force a chroma-mcp timeout (e.g. kill the subprocess); confirm the worker reconnects after backoff without spawning duplicate subprocesses (closes #2102).
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { ClaudeMemDatabase } from '../../../../src/services/sqlite/Database.js';
+import { CodexMemDatabase } from '../../../../src/services/sqlite/Database.js';
 import { storeObservation } from '../../../../src/services/sqlite/Observations.js';
 import {
   createSDKSession,
@@ -12,7 +12,7 @@ describe('storeObservation — subagent labeling', () => {
   let db: Database;
 
   beforeEach(() => {
-    db = new ClaudeMemDatabase(':memory:').db;
+    db = new CodexMemDatabase(':memory:').db;
   });
 
   afterEach(() => {

@@ -1,6 +1,6 @@
 ---
 title: "Installation"
-description: "Install Claude-Mem plugin for persistent memory across sessions"
+description: "Install Codex-Mem plugin for persistent memory across sessions"
 ---
 
 # Installation Guide
@@ -9,42 +9,42 @@ description: "Install Claude-Mem plugin for persistent memory across sessions"
 
 ### Option 1: npx (Recommended)
 
-Install and configure Claude-Mem with a single command:
+Install and configure Codex-Mem with a single command:
 
 ```bash
-npx claude-mem install
+npx codex-mem install
 ```
 
 The interactive installer will:
 - Run a runtime check (auto-installs Bun and uv if missing)
-- Detect your installed IDEs (Claude Code, Cursor, Gemini CLI, Windsurf, OpenCode, Codex CLI) and let you multi-select which ones to wire up
-- Offer to install Claude Code if it isn't found
-- Prompt for an LLM provider (Claude Code auth, Gemini API key, or OpenRouter API key)
-- Prompt for the Claude model used to compress observations (Haiku / Sonnet / Opus) when the Claude provider is selected
+- Detect your installed IDEs (Codex Code, Cursor, Gemini CLI, Windsurf, OpenCode, Codex CLI) and let you multi-select which ones to wire up
+- Offer to install Codex Code if it isn't found
+- Prompt for an LLM provider (Codex Code auth, Gemini API key, or OpenRouter API key)
+- Prompt for the Codex model used to compress observations (Haiku / Sonnet / Opus) when the Codex provider is selected
 - Copy plugin files into the marketplace directory and register the plugin
 - Auto-start the worker service
 
 ### Option 2: Plugin Marketplace
 
-Install Claude-Mem directly from the plugin marketplace inside Claude Code:
+Install Codex-Mem directly from the plugin marketplace inside Codex Code:
 
 ```bash
-/plugin marketplace add thedotmack/claude-mem
-/plugin install claude-mem
+/plugin marketplace add thedotmack/codex-mem
+/plugin install codex-mem
 ```
 
-Both methods will automatically configure hooks and start the worker service. Start a new Claude Code session and you'll see context from previous sessions automatically loaded.
+Both methods will automatically configure hooks and start the worker service. Start a new Codex Code session and you'll see context from previous sessions automatically loaded.
 
-> **Important:** Claude-Mem is published on npm, but running `npm install -g claude-mem` installs the
+> **Important:** Codex-Mem is published on npm, but running `npm install -g codex-mem` installs the
 > **SDK/library only**. It does **not** register plugin hooks or start the worker service.
-> Always install via `npx claude-mem install` or the `/plugin` commands above.
+> Always install via `npx codex-mem install` or the `/plugin` commands above.
 
 ## System Requirements
 
 - **Node.js**: 20.0.0 or higher
-- **Bun** ≥ 1.0 (auto-installed by `npx claude-mem install` if missing)
+- **Bun** ≥ 1.0 (auto-installed by `npx codex-mem install` if missing)
 - **uv** (auto-installed if missing — provides Python for Chroma's embedding service)
-- **Claude Code** or another supported IDE (Cursor, Gemini CLI, Windsurf, OpenCode, Codex CLI, OpenClaw)
+- **Codex Code** or another supported IDE (Cursor, Gemini CLI, Windsurf, OpenCode, Codex CLI, OpenClaw)
 - **SQLite 3**: bundled via `bun:sqlite`
 
 ## Advanced Installation
@@ -55,8 +55,8 @@ For development or testing, you can clone and build from source:
 
 ```bash
 # Clone the repository
-git clone https://github.com/thedotmack/claude-mem.git
-cd claude-mem
+git clone https://github.com/thedotmack/codex-mem.git
+cd codex-mem
 
 # Install dependencies
 npm install
@@ -64,7 +64,7 @@ npm install
 # Build hooks and worker service
 npm run build
 
-# Worker service will auto-start on first Claude Code session
+# Worker service will auto-start on first Codex Code session
 # Or manually start with:
 npm run worker:start
 
@@ -76,27 +76,27 @@ npm run worker:status
 
 #### 1. Automatic Dependency Installation
 
-Dependencies are installed automatically by `npx claude-mem install` and `npx claude-mem repair`. Heavy lifting (Bun + uv install, `bun install` inside the plugin cache) happens behind a visible installer spinner. The Setup hook only performs a sub-100ms `version-check.js` read of the `.install-version` marker — on mismatch it prints `run: npx claude-mem repair` to stderr and exits 0, so it never blocks a session. Works cross-platform on Windows, macOS, and Linux.
+Dependencies are installed automatically by `npx codex-mem install` and `npx codex-mem repair`. Heavy lifting (Bun + uv install, `bun install` inside the plugin cache) happens behind a visible installer spinner. The Setup hook only performs a sub-100ms `version-check.js` read of the `.install-version` marker — on mismatch it prints `run: npx codex-mem repair` to stderr and exits 0, so it never blocks a session. Works cross-platform on Windows, macOS, and Linux.
 
 #### 2. Verify Plugin Installation
 
-Check that hooks are configured in Claude Code:
+Check that hooks are configured in Codex Code:
 ```bash
 cat plugin/hooks/hooks.json
 ```
 
 #### 3. Data Directory Location
 
-Data is stored in `~/.claude-mem/`:
-- Database: `~/.claude-mem/claude-mem.db`
-- PID file: `~/.claude-mem/.worker.pid`
-- Port file: `~/.claude-mem/.worker.port`
-- Logs: `~/.claude-mem/logs/worker-YYYY-MM-DD.log`
-- Settings: `~/.claude-mem/settings.json`
+Data is stored in `~/.codex-mem/`:
+- Database: `~/.codex-mem/codex-mem.db`
+- PID file: `~/.codex-mem/.worker.pid`
+- Port file: `~/.codex-mem/.worker.port`
+- Logs: `~/.codex-mem/logs/worker-YYYY-MM-DD.log`
+- Settings: `~/.codex-mem/settings.json`
 
 Override with environment variable:
 ```bash
-export CLAUDE_MEM_DATA_DIR=/custom/path
+export CODEX_MEM_DATA_DIR=/custom/path
 ```
 
 #### 4. Check Worker Logs
@@ -113,12 +113,12 @@ npm run test:context
 
 ## Upgrading
 
-Upgrades are automatic when updating via the plugin marketplace. After an external upgrade (for example `claude plugin update`), the Setup hook detects a version-marker mismatch and asks you to run `npx claude-mem repair`, which installs any missing runtime dependencies and refreshes the marker.
+Upgrades are automatic when updating via the plugin marketplace. After an external upgrade (for example `codex plugin update`), the Setup hook detects a version-marker mismatch and asks you to run `npx codex-mem repair`, which installs any missing runtime dependencies and refreshes the marker.
 
-See [CHANGELOG](https://github.com/thedotmack/claude-mem/blob/main/CHANGELOG.md) for complete version history.
+See [CHANGELOG](https://github.com/thedotmack/codex-mem/blob/main/CHANGELOG.md) for complete version history.
 
 ## Next Steps
 
-- [Getting Started Guide](usage/getting-started) - Learn how Claude-Mem works automatically
+- [Getting Started Guide](usage/getting-started) - Learn how Codex-Mem works automatically
 - [MCP Search Tools](usage/search-tools) - Query your project history
-- [Configuration](configuration) - Customize Claude-Mem behavior
+- [Configuration](configuration) - Customize Codex-Mem behavior

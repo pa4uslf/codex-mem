@@ -10,8 +10,8 @@ const rootDir = path.resolve(__dirname, '..');
 const packageJsonPath = path.join(rootDir, 'package.json');
 const codexPluginPath = path.join(rootDir, '.codex-plugin', 'plugin.json');
 const bundledCodexPluginPath = path.join(rootDir, 'plugin', '.codex-plugin', 'plugin.json');
-const claudePluginPath = path.join(rootDir, '.claude-plugin', 'plugin.json');
-const bundledClaudePluginPath = path.join(rootDir, 'plugin', '.claude-plugin', 'plugin.json');
+const legacyPluginPath = path.join(rootDir, '.codex-legacy-plugin', 'plugin.json');
+const bundledLegacyPluginPath = path.join(rootDir, 'plugin', '.codex-legacy-plugin', 'plugin.json');
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -46,23 +46,6 @@ function syncCodexPlugin(plugin, pkg) {
   };
 }
 
-function syncClaudePlugin(plugin, pkg) {
-  return {
-    ...plugin,
-    name: pkg.name,
-    version: pkg.version,
-    description: pkg.description,
-    homepage: pkg.homepage,
-    repository: normalizeRepositoryUrl(pkg.repository),
-    license: pkg.license,
-    keywords: pkg.keywords,
-    author: {
-      ...(typeof plugin.author === 'object' && plugin.author ? plugin.author : {}),
-      name: normalizeAuthorName(pkg.author),
-    },
-  };
-}
-
 function normalizeAuthorName(author) {
   if (typeof author === 'string') return author;
   if (author && typeof author === 'object' && typeof author.name === 'string') return author.name;
@@ -77,7 +60,7 @@ function normalizeRepositoryUrl(repository) {
 }
 
 function main() {
-  for (const filePath of [packageJsonPath, codexPluginPath, bundledCodexPluginPath, claudePluginPath, bundledClaudePluginPath]) {
+  for (const filePath of [packageJsonPath, codexPluginPath, bundledCodexPluginPath, legacyPluginPath, bundledLegacyPluginPath]) {
     if (!fs.existsSync(filePath)) {
       console.error(`Missing required file: ${filePath}`);
       process.exit(1);
@@ -87,13 +70,13 @@ function main() {
   const pkg = readJson(packageJsonPath);
   const codexPlugin = readJson(codexPluginPath);
   const bundledCodexPlugin = readJson(bundledCodexPluginPath);
-  const claudePlugin = readJson(claudePluginPath);
-  const bundledClaudePlugin = readJson(bundledClaudePluginPath);
+  const legacyPlugin = readJson(legacyPluginPath);
+  const bundledLegacyPlugin = readJson(bundledLegacyPluginPath);
 
   writeJson(codexPluginPath, syncCodexPlugin(codexPlugin, pkg));
   writeJson(bundledCodexPluginPath, syncCodexPlugin(bundledCodexPlugin, pkg));
-  writeJson(claudePluginPath, syncClaudePlugin(claudePlugin, pkg));
-  writeJson(bundledClaudePluginPath, syncClaudePlugin(bundledClaudePlugin, pkg));
+  writeJson(legacyPluginPath, syncCodexPlugin(legacyPlugin, pkg));
+  writeJson(bundledLegacyPluginPath, syncCodexPlugin(bundledLegacyPlugin, pkg));
 
   console.log('✓ Synced plugin manifests from package.json');
 }

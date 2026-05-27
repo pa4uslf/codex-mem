@@ -38,7 +38,7 @@ function formatDate(isoDate) {
 
 function cleanReleaseBody(body) {
   return body
-    .replace(/🤖 Generated with \[Claude Code\].*$/s, '')
+    .replace(/🤖 Generated with \[Codex Code\].*$/s, '')
     .replace(/---\n*$/s, '')
     .trim();
 }

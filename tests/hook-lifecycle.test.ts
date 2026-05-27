@@ -64,34 +64,34 @@ describe('Codex CLI Compatibility (#744)', () => {
     });
   });
 
-  describe('claudeCodeAdapter session_id fallbacks', () => {
+  describe('codexCodeAdapter session_id fallbacks', () => {
     it('should use session_id when present', async () => {
-      const { claudeCodeAdapter } = await import('../src/cli/adapters/claude-code.js');
-      const input = claudeCodeAdapter.normalizeInput({ session_id: 'claude-123', cwd: '/tmp' });
-      expect(input.sessionId).toBe('claude-123');
+      const { codexCodeAdapter } = await import('../src/cli/adapters/codex-code.js');
+      const input = codexCodeAdapter.normalizeInput({ session_id: 'codex-123', cwd: '/tmp' });
+      expect(input.sessionId).toBe('codex-123');
     });
 
     it('should fall back to id field (Codex CLI format)', async () => {
-      const { claudeCodeAdapter } = await import('../src/cli/adapters/claude-code.js');
-      const input = claudeCodeAdapter.normalizeInput({ id: 'codex-456', cwd: '/tmp' });
+      const { codexCodeAdapter } = await import('../src/cli/adapters/codex-code.js');
+      const input = codexCodeAdapter.normalizeInput({ id: 'codex-456', cwd: '/tmp' });
       expect(input.sessionId).toBe('codex-456');
     });
 
     it('should fall back to sessionId field (camelCase format)', async () => {
-      const { claudeCodeAdapter } = await import('../src/cli/adapters/claude-code.js');
-      const input = claudeCodeAdapter.normalizeInput({ sessionId: 'camel-789', cwd: '/tmp' });
+      const { codexCodeAdapter } = await import('../src/cli/adapters/codex-code.js');
+      const input = codexCodeAdapter.normalizeInput({ sessionId: 'camel-789', cwd: '/tmp' });
       expect(input.sessionId).toBe('camel-789');
     });
 
     it('should return undefined when no session ID field is present', async () => {
-      const { claudeCodeAdapter } = await import('../src/cli/adapters/claude-code.js');
-      const input = claudeCodeAdapter.normalizeInput({ cwd: '/tmp' });
+      const { codexCodeAdapter } = await import('../src/cli/adapters/codex-code.js');
+      const input = codexCodeAdapter.normalizeInput({ cwd: '/tmp' });
       expect(input.sessionId).toBeUndefined();
     });
 
     it('should handle undefined input gracefully', async () => {
-      const { claudeCodeAdapter } = await import('../src/cli/adapters/claude-code.js');
-      const input = claudeCodeAdapter.normalizeInput(undefined);
+      const { codexCodeAdapter } = await import('../src/cli/adapters/codex-code.js');
+      const input = codexCodeAdapter.normalizeInput(undefined);
       expect(input.sessionId).toBeUndefined();
       expect(input.cwd).toBe(process.cwd());
     });
@@ -356,10 +356,10 @@ describe('Cursor IDE Compatibility (#838, #1049)', () => {
   });
 });
 
-describe('Hook Lifecycle - Claude Code Adapter', () => {
+describe('Hook Lifecycle - Codex Code Adapter', () => {
   const fmt = async (input: any) => {
-    const { claudeCodeAdapter } = await import('../src/cli/adapters/claude-code.js');
-    return claudeCodeAdapter.formatOutput(input);
+    const { codexCodeAdapter } = await import('../src/cli/adapters/codex-code.js');
+    return codexCodeAdapter.formatOutput(input);
   };
 
   it('should return empty object for empty result', async () => {
@@ -408,7 +408,7 @@ describe('Hook Lifecycle - Claude Code Adapter', () => {
     })).toEqual({ systemMessage: 'msg' });
   });
 
-  it('should only emit keys from the Claude Code hook contract', async () => {
+  it('should only emit keys from the Codex Code hook contract', async () => {
     const allowedKeys = new Set(['hookSpecificOutput', 'systemMessage', 'decision', 'reason']);
     const cases = [
       {},
@@ -449,7 +449,7 @@ describe('Hook Lifecycle - stderr Suppression (#1181)', () => {
     const handler = getEventHandler('unknown-event-type');
     await handler.execute({ sessionId: 'test', cwd: '/tmp' });
 
-    const dispatcherStderr = stderrOutput.filter(s => s.includes('[claude-mem] Unknown event'));
+    const dispatcherStderr = stderrOutput.filter(s => s.includes('[codex-mem] Unknown event'));
     expect(dispatcherStderr).toHaveLength(0);
   });
 });
@@ -476,7 +476,7 @@ describe('hookCommand - stderr suppression', () => {
     expect(hookCommandSource).toContain("logger.error('HOOK'");
     expect(hookCommandSource).toContain("process.stderr.write = (() => true)");
     expect(hookCommandSource).toContain("process.stderr.write = originalStderrWrite");
-    expect(hookCommandSource).not.toContain("console.error(`[claude-mem]");
+    expect(hookCommandSource).not.toContain("console.error(`[codex-mem]");
     expect(hookCommandSource).not.toContain("console.error(`Hook error:");
   });
 });

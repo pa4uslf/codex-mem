@@ -36,7 +36,7 @@ interface TimestampMapping {
 }
 
 function buildTimestampMap(): TimestampMapping {
-  const transcriptDir = join(homedir(), '.claude', 'projects', '-Users-alexnewman-Scripts-claude-mem');
+  const transcriptDir = join(homedir(), '.codex', 'projects', '-Users-alexnewman-Scripts-codex-mem');
   const map: TimestampMapping = {};
 
   console.log(`Reading transcript files from ${transcriptDir}...`);
@@ -173,10 +173,10 @@ function main() {
   const db = new SessionStore();
 
   console.log('\nCreating SDK sessions for imported data...');
-  const claudeSessionToSdkSession = new Map<string, string>();
+  const codexSessionToSdkSession = new Map<string, string>();
 
   for (const sessionMeta of Object.values(timestampMap)) {
-    if (!claudeSessionToSdkSession.has(sessionMeta.sessionId)) {
+    if (!codexSessionToSdkSession.has(sessionMeta.sessionId)) {
       const syntheticSdkSessionId = `imported-${sessionMeta.sessionId}`;
 
       const existingQuery = db['db'].prepare(`
@@ -187,11 +187,11 @@ function main() {
       const existing = existingQuery.get(sessionMeta.sessionId) as { memory_session_id: string | null } | undefined;
 
       if (existing && existing.memory_session_id) {
-        claudeSessionToSdkSession.set(sessionMeta.sessionId, existing.memory_session_id);
+        codexSessionToSdkSession.set(sessionMeta.sessionId, existing.memory_session_id);
       } else if (existing && !existing.memory_session_id) {
         db['db'].prepare('UPDATE sdk_sessions SET memory_session_id = ? WHERE content_session_id = ?')
           .run(syntheticSdkSessionId, sessionMeta.sessionId);
-        claudeSessionToSdkSession.set(sessionMeta.sessionId, syntheticSdkSessionId);
+        codexSessionToSdkSession.set(sessionMeta.sessionId, syntheticSdkSessionId);
       } else {
         db.createSDKSession(
           sessionMeta.sessionId,
@@ -202,12 +202,12 @@ function main() {
         db['db'].prepare('UPDATE sdk_sessions SET memory_session_id = ? WHERE content_session_id = ?')
           .run(syntheticSdkSessionId, sessionMeta.sessionId);
 
-        claudeSessionToSdkSession.set(sessionMeta.sessionId, syntheticSdkSessionId);
+        codexSessionToSdkSession.set(sessionMeta.sessionId, syntheticSdkSessionId);
       }
     }
   }
 
-  console.log(`Prepared ${claudeSessionToSdkSession.size} SDK sessions\n`);
+  console.log(`Prepared ${codexSessionToSdkSession.size} SDK sessions\n`);
 
   const xmlPath = join(process.cwd(), 'actual_xml_only_with_timestamps.xml');
   console.log(`Reading XML file: ${xmlPath}`);
@@ -244,7 +244,7 @@ function main() {
       continue;
     }
 
-    const memorySessionId = claudeSessionToSdkSession.get(sessionMeta.sessionId);
+    const memorySessionId = codexSessionToSdkSession.get(sessionMeta.sessionId);
     if (!memorySessionId) {
       skipped++;
       continue;

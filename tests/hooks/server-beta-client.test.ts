@@ -80,7 +80,7 @@ describe('ServerBetaClient', () => {
       projectId: 'p1',
       externalSessionId: 'ext',
       contentSessionId: 'ext',
-      platformSource: 'claude-code',
+      platformSource: 'codex-code',
     });
     expect(captured).toHaveLength(1);
     expect(captured[0]?.url).toBe('http://localhost:9999/v1/sessions/start');

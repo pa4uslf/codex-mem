@@ -13,14 +13,14 @@ import type { ServerGenerationProvider } from '../../../src/server/generation/pr
 import type { Job } from 'bullmq';
 import type { GenerateObservationsForEventJob } from '../../../src/server/jobs/types.js';
 
-const testDatabaseUrl = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const testDatabaseUrl = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 function quoteIdentifier(name: string): string {
   return `"${name.replaceAll('"', '""')}"`;
 }
 
 class StubProvider implements ServerGenerationProvider {
-  readonly providerLabel = 'claude' as const;
+  readonly providerLabel = 'codex' as const;
   calls = 0;
 
   constructor(private readonly response: string | Error) {}
@@ -34,7 +34,7 @@ class StubProvider implements ServerGenerationProvider {
 
 describe('ProviderObservationGenerator', () => {
   if (!testDatabaseUrl) {
-    it.skip('requires CLAUDE_MEM_TEST_POSTGRES_URL', () => {});
+    it.skip('requires CODEX_MEM_TEST_POSTGRES_URL', () => {});
     return;
   }
 

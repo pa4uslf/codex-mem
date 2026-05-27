@@ -1,17 +1,17 @@
 ---
 title: "Architecture Evolution"
-description: "How claude-mem evolved from v3 to v5+"
+description: "How codex-mem evolved from v3 to v5+"
 ---
 
 # Architecture Evolution
 
 ## The Problem We Solved
 
-**Goal:** Create a memory system that makes Claude smarter across sessions without the user noticing it exists.
+**Goal:** Create a memory system that makes Codex smarter across sessions without the user noticing it exists.
 
 **Challenge:** How do you observe AI agent behavior, compress it intelligently, and serve it back at the right time - all without slowing down or interfering with the main workflow?
 
-This is the story of how claude-mem evolved from a simple idea to a production-ready system, and the key architectural decisions that made it work.
+This is the story of how codex-mem evolved from a simple idea to a production-ready system, and the key architectural decisions that made it work.
 
 ---
 
@@ -34,11 +34,11 @@ After establishing the solid v4 architecture, v5.x focused on user experience, v
 // Theme context with persistence
 const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>(() => {
-    return localStorage.getItem('claude-mem-theme') || 'system';
+    return localStorage.getItem('codex-mem-theme') || 'system';
   });
 
   useEffect(() => {
-    localStorage.setItem('claude-mem-theme', theme);
+    localStorage.setItem('codex-mem-theme', theme);
   }, [theme]);
 
   return (
@@ -61,7 +61,7 @@ const ThemeProvider = ({ children }) => {
 
 **Current Approach**: The project now uses Bun for process management, which provides better cross-platform compatibility and eliminates these PATH-related issues.
 
-**Impact**: Cross-platform compatibility restored, Windows users can now use claude-mem without issues.
+**Impact**: Cross-platform compatibility restored, Windows users can now use codex-mem without issues.
 
 ### v5.1.0: Web-Based Viewer UI (October 2025)
 
@@ -269,11 +269,11 @@ Problems:
 - Overlapping operations (search_observations vs find_by_type)
 - Complex parameter schemas (~2,500 tokens in tool definitions)
 - No built-in workflow guidance
-- High cognitive load for Claude (which tool to use?)
+- High cognitive load for Codex (which tool to use?)
 - Code size: ~2,718 lines in mcp-server.ts
 ```
 
-**The Insight:** Progressive disclosure should be built into tool design itself, not something Claude has to remember.
+**The Insight:** Progressive disclosure should be built into tool design itself, not something Codex has to remember.
 
 ### The Solution: 3-Layer Workflow
 
@@ -311,8 +311,8 @@ Benefits:
 
 **Now:** Removed skill-based approach
 - MCP-only architecture
-- Native MCP protocol (better Claude integration)
-- Works with both Claude Desktop and Claude Code
+- Native MCP protocol (better Codex integration)
+- Works with both Codex Desktop and Codex Code
 - Simpler to maintain (no skill files)
 - All 19 mem-search skill files removed (~2,744 lines)
 
@@ -354,7 +354,7 @@ After:
 
 **Workflow Enforcement:**
 
-Before: Claude had to remember progressive disclosure pattern
+Before: Codex had to remember progressive disclosure pattern
 
 After: Tool structure makes it impossible to skip steps
 - Can't get details without IDs from search
@@ -385,7 +385,7 @@ Traditional: Fetch 20 observations upfront
 - Same natural language interaction
 - Better token efficiency
 - Clearer architecture
-- Works identically on Claude Desktop and Claude Code
+- Works identically on Codex Desktop and Codex Code
 
 ### Design Philosophy
 
@@ -397,7 +397,7 @@ The 3-layer workflow embodies progressive disclosure at the architectural level:
 2. **Layer 2 (Timeline)** - "What was happening?" - Context around specific points
 3. **Layer 3 (Details)** - "Tell me everything" - Full details only when justified
 
-Each layer provides a decision point where Claude can:
+Each layer provides a decision point where Codex can:
 - Stop if irrelevant
 - Get more context if uncertain
 - Dive deep if confident
@@ -437,7 +437,7 @@ SessionStart loaded:
 
 ### The Breakthrough: AI-Powered Compression
 
-**New idea:** Use Claude itself to compress observations
+**New idea:** Use Codex itself to compress observations
 
 **Architecture:**
 ```
@@ -445,7 +445,7 @@ PostToolUse Hook → Queue observation → SDK Worker → AI compression → Sto
 ```
 
 **What we added:**
-1. **Claude Agent SDK integration** - Use AI to compress observations
+1. **Codex CLI integration** - Use AI to compress observations
 2. **Background worker** - Don't block main session
 3. **Structured observations** - Extract facts, decisions, insights
 4. **Session summaries** - Generate comprehensive summaries
@@ -460,7 +460,7 @@ PostToolUse Hook → Queue observation → SDK Worker → AI compression → Sto
 - ❌ Still loaded everything upfront
 - ❌ Session ID management was broken
 - ❌ Aggressive cleanup interrupted summaries
-- ❌ Multiple SDK sessions per Claude Code session
+- ❌ Multiple SDK sessions per Codex Code session
 
 ---
 
@@ -564,16 +564,16 @@ async function sessionEnd(sessionId: string) {
 
 ### Realization 4: One Session, Not Many
 
-**Problem:** We were creating multiple SDK sessions per Claude Code session.
+**Problem:** We were creating multiple SDK sessions per Codex Code session.
 
 **What we thought:**
 ```
-Claude Code session → Create SDK session per observation → 100+ SDK sessions
+Codex Code session → Create SDK session per observation → 100+ SDK sessions
 ```
 
 **Reality should be:**
 ```
-Claude Code session → ONE long-running SDK session → Streaming input
+Codex Code session → ONE long-running SDK session → Streaming input
 ```
 
 **Why this matters:**
@@ -618,8 +618,8 @@ const response = query({
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              CLAUDE CODE SESSION                         │
-│  User → Claude → Tools (Read, Edit, Write, Bash)        │
+│              CODEX CODE SESSION                         │
+│  User → Codex → Tools (Read, Edit, Write, Bash)        │
 │                    ↓                                     │
 │              PostToolUse Hook                            │
 │              (queues observation)                        │
@@ -627,7 +627,7 @@ const response = query({
                      ↓ SQLite queue
 ┌─────────────────────────────────────────────────────────┐
 │              SDK WORKER PROCESS                          │
-│  ONE streaming session per Claude Code session          │
+│  ONE streaming session per Codex Code session          │
 │                                                          │
 │  AsyncIterable<UserMessage>                             │
 │    → Yields observations from queue                     │
@@ -651,7 +651,7 @@ const response = query({
   <Tab title="SessionStart">
     **Purpose:** Inject context from previous sessions
 
-    **Timing:** When Claude Code starts
+    **Timing:** When Codex Code starts
 
     **What it does:**
     - Queries last 10 session summaries
@@ -667,7 +667,7 @@ const response = query({
   <Tab title="UserPromptSubmit">
     **Purpose:** Initialize session tracking
 
-    **Timing:** Before Claude processes prompt
+    **Timing:** Before Codex processes prompt
 
     **What it does:**
     - Creates session record
@@ -700,7 +700,7 @@ const response = query({
 
     **What it does:**
     - Gathers observations
-    - Sends to Claude for summarization
+    - Sends to Codex for summarization
     - Stores structured summary
 
     **Key change from v3:**
@@ -844,7 +844,7 @@ npm WARN deprecated ...
 ```
 
 **Why it broke:**
-- Claude Code expects clean JSON or plain text
+- Codex Code expects clean JSON or plain text
 - stderr/stdout from npm install mixed with hook output
 - Context didn't inject properly
 
@@ -910,7 +910,7 @@ const results = db.query(
 **Problem:** Session creation failed when prompt was empty
 
 ```sql
-INSERT INTO sdk_sessions (claude_session_id, user_prompt, ...)
+INSERT INTO sdk_sessions (codex_session_id, user_prompt, ...)
 VALUES ('abc123', NULL, ...)  -- ❌ user_prompt is NOT NULL
 ```
 
@@ -1099,20 +1099,20 @@ createObservation({
 ### Step 1: Backup Database
 
 ```bash
-cp ~/.claude-mem/claude-mem.db ~/.claude-mem/claude-mem-v3-backup.db
+cp ~/.codex-mem/codex-mem.db ~/.codex-mem/codex-mem-v3-backup.db
 ```
 
 ### Step 2: Update Plugin
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 git pull
 ```
 
 ### Step 3: Update Plugin
 
 ```bash
-/plugin update claude-mem
+/plugin update codex-mem
 ```
 
 **What happens automatically:**
@@ -1124,8 +1124,8 @@ git pull
 ### Step 4: Test
 
 ```bash
-# Start Claude Code
-claude
+# Start Codex Code
+codex
 
 # Check that context is injected
 # (Should see progressive disclosure index with v5 viewer link)
@@ -1207,7 +1207,7 @@ The journey from v3 to v5 was about understanding these fundamental truths:
 4. **State is hard** - Use SDK's built-in mechanisms
 5. **Graceful wins** - Let processes finish cleanly
 
-The result is a memory system that's both powerful and invisible. Users never notice it working - Claude just gets smarter over time.
+The result is a memory system that's both powerful and invisible. Users never notice it working - Codex just gets smarter over time.
 
 **v5 adds visibility**: Now users CAN see the memory system working if they want (via viewer UI), but it's still non-intrusive.
 

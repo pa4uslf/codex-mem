@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { Database } from 'bun:sqlite';
-import { ClaudeMemDatabase } from '../../../src/services/sqlite/Database.js';
+import { CodexMemDatabase } from '../../../src/services/sqlite/Database.js';
 import { SessionStore } from '../../../src/services/sqlite/SessionStore.js';
 import type { DatabaseManager } from '../../../src/services/worker/DatabaseManager.js';
 import { SessionManager } from '../../../src/services/worker/SessionManager.js';
@@ -11,7 +11,7 @@ describe('SessionManager queue integration', () => {
   let manager: SessionManager;
 
   beforeEach(() => {
-    db = new ClaudeMemDatabase(':memory:').db;
+    db = new CodexMemDatabase(':memory:').db;
     store = new SessionStore(db);
 
     const dbManager = {
@@ -77,8 +77,8 @@ describe('SessionManager queue integration', () => {
   });
 
   test('initializeQueueEngine does not require the database before sqlite mode is used', async () => {
-    const previous = process.env.CLAUDE_MEM_QUEUE_ENGINE;
-    process.env.CLAUDE_MEM_QUEUE_ENGINE = 'sqlite';
+    const previous = process.env.CODEX_MEM_QUEUE_ENGINE;
+    process.env.CODEX_MEM_QUEUE_ENGINE = 'sqlite';
     try {
       const earlyManager = new SessionManager({
         getSessionStore: () => {
@@ -89,9 +89,9 @@ describe('SessionManager queue integration', () => {
       await expect(earlyManager.initializeQueueEngine()).resolves.toBeUndefined();
     } finally {
       if (previous === undefined) {
-        delete process.env.CLAUDE_MEM_QUEUE_ENGINE;
+        delete process.env.CODEX_MEM_QUEUE_ENGINE;
       } else {
-        process.env.CLAUDE_MEM_QUEUE_ENGINE = previous;
+        process.env.CODEX_MEM_QUEUE_ENGINE = previous;
       }
     }
   });

@@ -5,13 +5,13 @@ description: "Complete guide to the 5-stage memory agent lifecycle for platform 
 
 # Hook Lifecycle
 
-Claude-Mem implements a **5-stage hook system** that captures development work across Claude Code sessions. This document provides a complete technical reference for developers implementing this pattern on other platforms.
+Codex-Mem implements a **5-stage hook system** that captures development work across Codex Code sessions. This document provides a complete technical reference for developers implementing this pattern on other platforms.
 
 ## Architecture Overview
 
 ### System Architecture
 
-This two-process architecture works in both Claude Code and VS Code:
+This two-process architecture works in both Codex Code and VS Code:
 
 ```mermaid
 graph TB
@@ -41,9 +41,9 @@ graph TB
         API --> AGENT[SDK Agent]
         API --> DB[Database Manager]
 
-        AGENT -->|Event-Driven| CLAUDE[Claude Agent SDK]
-        CLAUDE --> SQLITE[(SQLite + FTS5)]
-        CLAUDE --> CHROMA[(Chroma Vectors)]
+        AGENT -->|Event-Driven| CODEX[Codex CLI]
+        CODEX --> SQLITE[(SQLite + FTS5)]
+        CODEX --> CHROMA[(Chroma Vectors)]
     end
 
     style EXT fill:#e1f5ff
@@ -137,7 +137,7 @@ workspace.onDidSaveTextDocument(async (document) => {
   await fetch('http://localhost:37777/api/sessions/observations', {
     method: 'POST',
     body: JSON.stringify({
-      claudeSessionId: sessionId,
+      codexSessionId: sessionId,
       tool_name: 'FileSave',
       tool_input: { path: document.uri.path },
       tool_response: 'File saved successfully'
@@ -161,7 +161,7 @@ graph TB
 
     D -.Async Path.-> G["Worker: Queue Observation"]
     G --> H["SDK Agent picks up<br/>(event-driven)"]
-    H --> I["Call Claude API<br/>(compress observation)"]
+    H --> I["Call Codex API<br/>(compress observation)"]
     I --> J["Parse XML response"]
     J --> K["Save to SQLite<br/>(sdk_sessions table)"]
     K --> L["Sync to Chroma<br/>(vector embeddings)"]
@@ -177,9 +177,9 @@ graph TB
 
 | Stage | Hook | Trigger | Purpose |
 |-------|------|---------|---------|
-| **1. SessionStart** | `context-hook.js` | User opens Claude Code | Inject prior context silently |
+| **1. SessionStart** | `context-hook.js` | User opens Codex Code | Inject prior context silently |
 | **2. UserPromptSubmit** | `new-hook.js` | User submits a prompt | Create/get session, save prompt, init worker |
-| **3. PostToolUse** | `save-hook.js` | Claude uses any tool | Queue observation for AI compression |
+| **3. PostToolUse** | `save-hook.js` | Codex uses any tool | Queue observation for AI compression |
 | **4. Stop** | `summary-hook.js` | User stops asking questions | Generate session summary |
 | **5. SessionEnd** | `cleanup-hook.js` | Session closes | Mark session completed |
 
@@ -193,7 +193,7 @@ Hooks are configured in `plugin/hooks/hooks.json`:
     "Setup": [{
       "hooks": [{
         "type": "command",
-        "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/version-check.js",
+        "command": "node ${CODEX_PLUGIN_ROOT}/scripts/version-check.js",
         "timeout": 60
       }]
     }],
@@ -201,18 +201,18 @@ Hooks are configured in `plugin/hooks/hooks.json`:
       "matcher": "startup|clear|compact",
       "hooks": [{
         "type": "command",
-        "command": "bun ${CLAUDE_PLUGIN_ROOT}/scripts/worker-service.cjs start",
+        "command": "bun ${CODEX_PLUGIN_ROOT}/scripts/worker-service.cjs start",
         "timeout": 60
       }, {
         "type": "command",
-        "command": "bun ${CLAUDE_PLUGIN_ROOT}/scripts/context-hook.js",
+        "command": "bun ${CODEX_PLUGIN_ROOT}/scripts/context-hook.js",
         "timeout": 60
       }]
     }],
     "UserPromptSubmit": [{
       "hooks": [{
         "type": "command",
-        "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/new-hook.js",
+        "command": "node ${CODEX_PLUGIN_ROOT}/scripts/new-hook.js",
         "timeout": 120
       }]
     }],
@@ -220,21 +220,21 @@ Hooks are configured in `plugin/hooks/hooks.json`:
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/save-hook.js",
+        "command": "node ${CODEX_PLUGIN_ROOT}/scripts/save-hook.js",
         "timeout": 120
       }]
     }],
     "Stop": [{
       "hooks": [{
         "type": "command",
-        "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/summary-hook.js",
+        "command": "node ${CODEX_PLUGIN_ROOT}/scripts/summary-hook.js",
         "timeout": 120
       }]
     }],
     "SessionEnd": [{
       "hooks": [{
         "type": "command",
-        "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-hook.js",
+        "command": "node ${CODEX_PLUGIN_ROOT}/scripts/cleanup-hook.js",
         "timeout": 120
       }]
     }]
@@ -246,16 +246,16 @@ Hooks are configured in `plugin/hooks/hooks.json`:
 
 ## Stage 1: SessionStart
 
-**Timing**: When user opens Claude Code or resumes session
+**Timing**: When user opens Codex Code or resumes session
 
 **Hooks Triggered** (in order):
 1. `worker-service.cjs start` - Starts the worker service
 2. `context-hook.js` - Fetches and silently injects prior session context
 
-(Runtime setup is handled out-of-band by `npx claude-mem install` / `npx claude-mem repair`. The Setup phase runs a sub-100ms `version-check.js` that prompts the user to repair if the `.install-version` marker is stale.)
+(Runtime setup is handled out-of-band by `npx codex-mem install` / `npx codex-mem repair`. The Setup phase runs a sub-100ms `version-check.js` that prompts the user to repair if the `.install-version` marker is stale.)
 
 <Note>
-As of Claude Code 2.1.0 (ultrathink update), SessionStart hooks no longer display user-visible messages. Context is silently injected via `hookSpecificOutput.additionalContext`.
+As of Codex Code 2.1.0 (ultrathink update), SessionStart hooks no longer display user-visible messages. Context is silently injected via `hookSpecificOutput.additionalContext`.
 </Note>
 
 ### Sequence Diagram
@@ -279,7 +279,7 @@ sequenceDiagram
         DB-->>Worker: Last 50 observations
         Worker-->>ContextHook: Context markdown
         ContextHook-->>IDE: hookSpecificOutput.additionalContext
-        IDE->>IDE: Inject context to Claude's prompt
+        IDE->>IDE: Inject context to Codex's prompt
         IDE-->>User: Session ready with context
     else Worker Not Ready
         ContextHook-->>IDE: Empty context (graceful degradation)
@@ -291,12 +291,12 @@ sequenceDiagram
 
 ### Context Hook (`context-hook.js`)
 
-**Purpose**: Inject context from previous sessions into Claude's initial context.
+**Purpose**: Inject context from previous sessions into Codex's initial context.
 
 **Input** (via stdin):
 ```json
 {
-  "session_id": "claude-session-123",
+  "session_id": "codex-session-123",
   "cwd": "/path/to/project",
   "source": "startup"
 }
@@ -346,7 +346,7 @@ sequenceDiagram
     alt Prompt fully private (empty after stripping)
         NewHook-->>IDE: Skip (don't save)
     else Prompt has content
-        NewHook->>DB: INSERT OR IGNORE INTO sdk_sessions<br/>(claude_session_id, project, first_user_prompt)
+        NewHook->>DB: INSERT OR IGNORE INTO sdk_sessions<br/>(codex_session_id, project, first_user_prompt)
         DB-->>NewHook: sessionDbId (new or existing)
 
         NewHook->>DB: UPDATE sdk_sessions<br/>SET prompt_counter = prompt_counter + 1<br/>WHERE id = sessionDbId
@@ -369,7 +369,7 @@ sequenceDiagram
 **Input** (via stdin):
 ```json
 {
-  "session_id": "claude-session-123",
+  "session_id": "codex-session-123",
   "cwd": "/path/to/project",
   "prompt": "User's actual prompt text"
 }
@@ -391,7 +391,7 @@ promptNumber = db.incrementPromptCounter(sessionDbId)
 
 // 4. Strip privacy tags
 cleanedPrompt = stripMemoryTagsFromPrompt(prompt)
-// Removes <private>...</private> and <claude-mem-context>...</claude-mem-context>
+// Removes <private>...</private> and <codex-mem-context>...</codex-mem-context>
 
 // 5. Skip if fully private
 if (!cleanedPrompt || cleanedPrompt.trim() === '') {
@@ -421,7 +421,7 @@ The same `session_id` flows through ALL hooks in a conversation. The `createSDKS
 
 ## Stage 3: PostToolUse
 
-**Timing**: After Claude uses any tool (Read, Bash, Grep, Write, etc.)
+**Timing**: After Codex uses any tool (Read, Bash, Grep, Write, etc.)
 
 **Hook**: `save-hook.js`
 
@@ -429,14 +429,14 @@ The same `session_id` flows through ALL hooks in a conversation. The `createSDKS
 
 ```mermaid
 sequenceDiagram
-    participant Claude as Claude AI
+    participant Codex as Codex AI
     participant IDE as IDE/Extension
     participant SaveHook as save-hook.js
     participant Worker as Worker Service
     participant Agent as SDK Agent
     participant DB as SQLite + Chroma
 
-    Claude->>IDE: Uses tool: Read("/src/auth.ts")
+    Codex->>IDE: Uses tool: Read("/src/auth.ts")
     IDE->>SaveHook: PostToolUse hook triggered<br/>{ session_id, tool_name, tool_input, tool_response }
 
     SaveHook->>SaveHook: Check skip list<br/>(TodoWrite, AskUserQuestion, etc.)
@@ -448,17 +448,17 @@ sequenceDiagram
 
         SaveHook->>SaveHook: Ensure worker running<br/>(health check)
 
-        SaveHook->>Worker: POST /api/sessions/observations<br/>{ claudeSessionId, tool_name, tool_input, tool_response, cwd }<br/>(fire-and-forget, 2s timeout)
+        SaveHook->>Worker: POST /api/sessions/observations<br/>{ codexSessionId, tool_name, tool_input, tool_response, cwd }<br/>(fire-and-forget, 2s timeout)
 
         SaveHook-->>IDE: { continue: true, suppressOutput: true }
-        IDE-->>Claude: Tool execution complete
+        IDE-->>Codex: Tool execution complete
 
         Note over Worker,DB: Async path (doesn't block IDE)
 
-        Worker->>Worker: createSDKSession(claudeSessionId)<br/>→ returns sessionDbId
+        Worker->>Worker: createSDKSession(codexSessionId)<br/>→ returns sessionDbId
         Worker->>Worker: Check if prompt was private<br/>(skip if fully private)
         Worker->>Agent: Queue observation for processing
-        Agent->>Agent: Call Claude SDK to compress<br/>observation into structured format
+        Agent->>Agent: Call Codex CLI to compress<br/>observation into structured format
         Agent->>DB: Save compressed observation<br/>to sdk_sessions table
         Agent->>DB: Sync to Chroma vector DB
     end
@@ -466,12 +466,12 @@ sequenceDiagram
     Note over SaveHook,DB: Total sync time: ~2ms<br/>AI processing: 1-3s (async)
 ```
 
-**Key Pattern:** The hook returns immediately after HTTP POST. AI compression happens asynchronously in the worker without blocking Claude's tool execution.
+**Key Pattern:** The hook returns immediately after HTTP POST. AI compression happens asynchronously in the worker without blocking Codex's tool execution.
 
 **Input** (via stdin):
 ```json
 {
-  "session_id": "claude-session-123",
+  "session_id": "codex-session-123",
   "cwd": "/path/to/project",
   "tool_name": "Read",
   "tool_input": { "file_path": "/src/index.ts" },
@@ -499,7 +499,7 @@ await ensureWorkerRunning()
 // 3. Send to worker (fire-and-forget HTTP)
 POST http://127.0.0.1:37777/api/sessions/observations
 Body: {
-  claudeSessionId: session_id,
+  codexSessionId: session_id,
   tool_name,
   tool_input,
   tool_response,
@@ -509,12 +509,12 @@ Timeout: 2000ms
 ```
 
 **Worker Processing**:
-1. Looks up or creates session: `createSDKSession(claudeSessionId, '', '')`
+1. Looks up or creates session: `createSDKSession(codexSessionId, '', '')`
 2. Gets prompt counter
 3. Checks privacy (skips if user prompt was entirely private)
 4. Strips memory tags from `tool_input` and `tool_response`
 5. Queues observation for SDK agent processing
-6. SDK agent calls Claude to compress into structured observation
+6. SDK agent calls Codex to compress into structured observation
 7. Stores observation in database and syncs to Chroma
 
 **Output**:
@@ -550,7 +550,7 @@ sequenceDiagram
     SummaryHook->>SummaryHook: Extract last user message<br/>(type: "user")
     SummaryHook->>SummaryHook: Extract last assistant message<br/>(type: "assistant", filter &lt;system-reminder&gt;)
 
-    SummaryHook->>Worker: POST /api/sessions/summarize<br/>{ claudeSessionId, last_user_message, last_assistant_message }<br/>(fire-and-forget, 2s timeout)
+    SummaryHook->>Worker: POST /api/sessions/summarize<br/>{ codexSessionId, last_user_message, last_assistant_message }<br/>(fire-and-forget, 2s timeout)
 
     SummaryHook->>Worker: POST /api/processing<br/>{ isProcessing: false }<br/>(stop spinner)
 
@@ -559,9 +559,9 @@ sequenceDiagram
 
     Note over Worker,DB: Async path
 
-    Worker->>Worker: Lookup sessionDbId from claudeSessionId
+    Worker->>Worker: Lookup sessionDbId from codexSessionId
     Worker->>Agent: Queue summarization request
-    Agent->>Agent: Call Claude SDK with prompt:<br/>"Summarize: request, investigated, learned, completed, next_steps"
+    Agent->>Agent: Call Codex CLI with prompt:<br/>"Summarize: request, investigated, learned, completed, next_steps"
     Agent->>Agent: Parse XML response
     Agent->>DB: INSERT INTO session_summaries<br/>{ session_id, request, investigated, learned, completed, next_steps }
     Agent->>DB: Sync to Chroma (for semantic search)
@@ -574,7 +574,7 @@ sequenceDiagram
 **Input** (via stdin):
 ```json
 {
-  "session_id": "claude-session-123",
+  "session_id": "codex-session-123",
   "cwd": "/path/to/project",
   "transcript_path": "/path/to/transcript.jsonl"
 }
@@ -594,7 +594,7 @@ await ensureWorkerRunning()
 // 3. Send summarization request (fire-and-forget HTTP)
 POST http://127.0.0.1:37777/api/sessions/summarize
 Body: {
-  claudeSessionId: session_id,
+  codexSessionId: session_id,
   last_user_message: string,
   last_assistant_message: string
 }
@@ -607,7 +607,7 @@ Body: { isProcessing: false }
 
 **Worker Processing**:
 1. Queues summarization for SDK agent
-2. Agent calls Claude to generate structured summary
+2. Agent calls Codex to generate structured summary
 3. Summary stored in database with fields: `request`, `investigated`, `learned`, `completed`, `next_steps`
 
 **Output**:
@@ -621,7 +621,7 @@ Body: { isProcessing: false }
 
 ## Stage 5: SessionEnd
 
-**Timing**: When Claude Code session closes (exit, clear, logout, etc.)
+**Timing**: When Codex Code session closes (exit, clear, logout, etc.)
 
 **Hook**: `cleanup-hook.js`
 
@@ -639,15 +639,15 @@ sequenceDiagram
     User->>IDE: Closes session<br/>(exit, clear, logout)
     IDE->>CleanupHook: SessionEnd hook triggered<br/>{ session_id, cwd, transcript_path, reason }
 
-    CleanupHook->>Worker: POST /api/sessions/complete<br/>{ claudeSessionId, reason }<br/>(fire-and-forget, 2s timeout)
+    CleanupHook->>Worker: POST /api/sessions/complete<br/>{ codexSessionId, reason }<br/>(fire-and-forget, 2s timeout)
 
     CleanupHook-->>IDE: { continue: true, suppressOutput: true }
     IDE-->>User: Session closed
 
     Note over Worker,SSE: Async path
 
-    Worker->>Worker: Lookup sessionDbId from claudeSessionId
-    Worker->>DB: UPDATE sdk_sessions<br/>SET status = 'completed', completed_at = NOW()<br/>WHERE claude_session_id = claudeSessionId
+    Worker->>Worker: Lookup sessionDbId from codexSessionId
+    Worker->>DB: UPDATE sdk_sessions<br/>SET status = 'completed', completed_at = NOW()<br/>WHERE codex_session_id = codexSessionId
     Worker->>SSE: Broadcast session completion event<br/>(for live viewer UI updates)
 
     SSE-->>SSE: Update UI to show session as completed
@@ -660,7 +660,7 @@ sequenceDiagram
 **Input** (via stdin):
 ```json
 {
-  "session_id": "claude-session-123",
+  "session_id": "codex-session-123",
   "cwd": "/path/to/project",
   "transcript_path": "/path/to/transcript.jsonl",
   "reason": "exit"
@@ -673,14 +673,14 @@ sequenceDiagram
 // Send session complete (fire-and-forget HTTP)
 POST http://127.0.0.1:37777/api/sessions/complete
 Body: {
-  claudeSessionId: session_id,
+  codexSessionId: session_id,
   reason: string  // 'exit' | 'clear' | 'logout' | 'prompt_input_exit' | 'other'
 }
 Timeout: 2000ms
 ```
 
 **Worker Processing**:
-1. Finds session by `claudeSessionId`
+1. Finds session by `codexSessionId`
 2. Marks session as 'completed' in database
 3. Broadcasts session completion event to SSE clients
 
@@ -720,7 +720,7 @@ stateDiagram-v2
     Completed --> [*]
 
     note right of Active
-        session_id: constant (e.g., "claude-session-abc123")
+        session_id: constant (e.g., "codex-session-abc123")
         sessionDbId: constant (e.g., 42)
         promptNumber: increments (1, 2, 3, ...)
         All operations use same sessionDbId
@@ -753,7 +753,7 @@ erDiagram
 
     SDK_SESSIONS {
         integer id PK "Auto-increment primary key"
-        text claude_session_id UK "From IDE (e.g., 'claude-session-123')"
+        text codex_session_id UK "From IDE (e.g., 'codex-session-123')"
         text project "Project name from cwd basename"
         text first_user_prompt "Initial prompt that started session"
         integer prompt_counter "Increments with each UserPromptSubmit"
@@ -797,7 +797,7 @@ erDiagram
 
 ```sql
 -- This ensures same session_id always maps to same sessionDbId
-INSERT OR IGNORE INTO sdk_sessions (claude_session_id, project, first_user_prompt)
+INSERT OR IGNORE INTO sdk_sessions (codex_session_id, project, first_user_prompt)
 VALUES (?, ?, ?)
 RETURNING id;
 
@@ -827,7 +827,7 @@ Never generate your own session IDs. Always use the `session_id` provided by the
 <private>sensitive data</private>
 
 // System-Level Recursion Prevention (auto-injected)
-<claude-mem-context>...</claude-mem-context>
+<codex-mem-context>...</codex-mem-context>
 ```
 
 ### Processing Pipeline
@@ -860,11 +860,11 @@ async startSession(session: ActiveSession, worker?: any) {
   // 1. Create event-driven message generator
   const messageGenerator = this.createMessageGenerator(session)
 
-  // 2. Run Agent SDK query loop
+  // 2. Run Codex CLI query loop
   const queryResult = query({
     prompt: messageGenerator,
     options: {
-      model: 'claude-sonnet-4-6',
+      model: 'gpt-5',
       disallowedTools: ['Bash', 'Read', 'Write', ...],  // Observer-only
       abortController: session.abortController
     }
@@ -922,7 +922,7 @@ For developers implementing this pattern on other platforms:
 - [ ] Max tag count = 100 (ReDoS protection)
 
 ### SDK Integration
-- [ ] Call Claude Agent SDK to process observations/summaries
+- [ ] Call Codex CLI to process observations/summaries
 - [ ] Parse XML responses for structured data
 - [ ] Store to database + sync to vector DB
 

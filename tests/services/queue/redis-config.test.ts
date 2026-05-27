@@ -24,22 +24,22 @@ describe('redis queue config', () => {
   });
 
   test('loads queue settings from settings file with env override precedence', async () => {
-    tempDir = mkdtempSync(join(tmpdir(), 'claude-mem-redis-config-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'codex-mem-redis-config-'));
     const settingsPath = join(tempDir, 'settings.json');
     writeFileSync(settingsPath, JSON.stringify({
-      CLAUDE_MEM_QUEUE_ENGINE: 'bullmq',
-      CLAUDE_MEM_REDIS_MODE: 'external',
-      CLAUDE_MEM_REDIS_HOST: 'settings-host',
-      CLAUDE_MEM_REDIS_PORT: '6381',
-      CLAUDE_MEM_REDIS_URL: '',
-      CLAUDE_MEM_QUEUE_REDIS_PREFIX: 'settings-prefix',
+      CODEX_MEM_QUEUE_ENGINE: 'bullmq',
+      CODEX_MEM_REDIS_MODE: 'external',
+      CODEX_MEM_REDIS_HOST: 'settings-host',
+      CODEX_MEM_REDIS_PORT: '6381',
+      CODEX_MEM_REDIS_URL: '',
+      CODEX_MEM_QUEUE_REDIS_PREFIX: 'settings-prefix',
     }), 'utf-8');
 
     mock.module('../../../src/shared/paths.js', () => ({
       USER_SETTINGS_PATH: settingsPath,
     }));
 
-    setEnv('CLAUDE_MEM_REDIS_HOST', 'env-host');
+    setEnv('CODEX_MEM_REDIS_HOST', 'env-host');
 
     const { getRedisQueueConfig, getObservationQueueEngineName } = await import('../../../src/server/queue/redis-config.js');
 

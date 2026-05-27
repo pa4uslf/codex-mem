@@ -41,7 +41,7 @@ All 45 remaining branch failures are present on `main` and therefore **pre-exist
 - `server REST API v1 routes` (5) — pre-existing
 - `Schema repair on malformed database` (3) — pre-existing
 - `Logger Usage Standards` (2) — pre-existing
-- `redis queue config`, `SessionManager queue integration`, `SearchRoutes Welcome Hint`, `SettingsDefaultsManager`, `WelcomeCard`, `ensureWorkerStarted`, `export-memories`, `updateFolderClaudeMdFiles` (12 misc) — all pre-existing
+- `redis queue config`, `SessionManager queue integration`, `SearchRoutes Welcome Hint`, `SettingsDefaultsManager`, `WelcomeCard`, `ensureWorkerStarted`, `export-memories`, `updateFolderCodexMdFiles` (12 misc) — all pre-existing
 
 ### Targeted areas (`tests/server tests/storage/postgres tests/services tests/hooks tests/servers tests/compat tests/cli`)
 
@@ -63,7 +63,7 @@ All 45 remaining branch failures are present on `main` and therefore **pre-exist
 | - | ----------------------------------------------------------------------------------- | -------------------- | ------ |
 | 1 | `rg -n "new WorkerService\|services/worker-service\|services/worker/http/routes" src/server` | no matches           | **PASS** — empty output |
 | 2 | `rg -n "PendingMessageStore\|SessionQueueProcessor" src/server`                      | no server-beta runtime imports | **PASS (with annotation)** — 6 matches all in `src/server/queue/{ObservationQueueEngine,BullMqObservationQueueEngine}.ts`. These files implement the SQLite engine class that the **legacy worker** consumes via `src/services/worker/SessionManager.ts`. Verified via `rg -n "PendingMessageStore\|SessionQueueProcessor\|SqliteObservationQueueEngine" src/server/runtime src/server/jobs src/server/routes src/server/generation src/server/compat src/server/mcp src/server/services src/server/middleware src/server/auth` → empty. The server-beta runtime path does not pull these. |
-| 3 | `rg -n "CLAUDE_MEM_AUTH_MODE=local-dev\|ALLOW_LOCAL_DEV_BYPASS" docker docs/server.md` | no recommendations   | **PASS** — only matches are explicit *rejection* statements: `docs/server.md:59` lists it as a value that must NOT be set in Docker; `:122` has a "Do not enable …" warning; `:162` says local-dev is rejected inside Docker. |
+| 3 | `rg -n "CODEX_MEM_AUTH_MODE=local-dev\|ALLOW_LOCAL_DEV_BYPASS" docker docs/server.md` | no recommendations   | **PASS** — only matches are explicit *rejection* statements: `docs/server.md:59` lists it as a value that must NOT be set in Docker; `:122` has a "Do not enable …" warning; `:162` says local-dev is rejected inside Docker. |
 | 4 | `rg -n "POST /v1/events\|generationJob\|wait=true" docs README.md`                    | docs mention generation semantics | **PASS** — `docs/api.md` documents `POST /v1/events`, `POST /v1/events/batch`, the `wait=true` query flag, and the `generationJob` response field; `docs/server.md:157` documents `POST /v1/events?wait=true` returns a `generationJob` descriptor; `docs/server-beta-parity-map.md` maps the legacy route to `/v1/events`. |
 
 ---
@@ -79,8 +79,8 @@ Last 20 lines:
 [e2e] phase1 passed session=dcef676a-... event=2239a1ad-... job=629abbe8-...
 [e2e] revoking read-only key inside server container
 [e2e] restarting server container to verify persisted state and queue durability
- Container ...claude-mem-worker-1  Started
- Container ...claude-mem-server-1  Started
+ Container ...codex-mem-worker-1  Started
+ Container ...codex-mem-server-1  Started
 [e2e] verifying no legacy worker process is running
 [e2e] no legacy worker processes detected
 [e2e] running phase2 persistence and revoked-key checks in test container
@@ -104,10 +104,10 @@ Phases verified: API key auth, generic event submission and observation generati
 | - | ------------------------------------------------------------------------------------------------- | ------ | -------- |
 | 1 | Worker still works in legacy mode (health, observation flow)                                      | N/A — DEFERRED LIVE | Targeted unit/integration tests for worker (`tests/services/worker/`, `tests/worker/http/`, `tests/services/sqlite/`) all pass except 7 pre-existing baseline failures unrelated to server-beta. Live worker round-trip not run (no provider creds in this env). Phase 7 commit explicitly notes worker round-trip integration deferred (needs Redis); covered functionally by Docker E2E phase1. |
 | 2 | Stop worker — no PID file                                                                         | N/A   | No worker started in this verification run; covered by Docker E2E `[e2e] no legacy worker processes detected` assertion in both phase1 and phase2. |
-| 3 | Start server-beta with Valkey                                                                     | PASS  | Docker E2E containers `claude-mem-server-1` and `valkey-1` reach `Healthy`. |
+| 3 | Start server-beta with Valkey                                                                     | PASS  | Docker E2E containers `codex-mem-server-1` and `valkey-1` reach `Healthy`. |
 | 4 | Submit generic REST event                                                                         | PASS  | Docker E2E phase1: `event=2239a1ad-7983-49f3-b361-e712d29f5e7f`. |
 | 5 | Observations appear without worker running                                                        | PASS  | Docker E2E phase1: `job=629abbe8-... passed` while `[e2e] no legacy worker processes detected`. |
-| 6 | Submit Claude Code PostToolUse payload through compat adapter                                     | PASS  | `tests/compat/sessions-observations-adapter.test.ts` + `tests/hooks/server-beta-client.test.ts`: 15 pass, 0 fail (Phase 9 compat surface). |
+| 6 | Submit Codex Code PostToolUse payload through compat adapter                                     | PASS  | `tests/compat/sessions-observations-adapter.test.ts` + `tests/hooks/server-beta-client.test.ts`: 15 pass, 0 fail (Phase 9 compat surface). |
 | 7 | Observations appear without worker for compat path                                                | PASS  | Same suite — adapter-mapped event commits are exercised end-to-end in tests; Docker E2E confirms no worker process during identical event flow. |
 | 8 | Restart server-beta during a provider call — job retries                                          | PASS  | Docker E2E phase2 after restart: `session=854c5a46-... event=21d53585-... phase2 passed`. BullMQ state survived restart. |
 | 9 | Job generates exactly once (idempotency)                                                          | PASS  | Docker E2E phase2 confirms event/observation IDs from phase1 persisted; idempotency tests in `tests/server/jobs/job-id.test.ts` and `tests/server/jobs/payload-schema.test.ts` pass. |
@@ -131,7 +131,7 @@ Phases verified: API key auth, generic event submission and observation generati
 ## 7. Build + Typecheck
 
 - `npm run build` — **clean** (`✅ All build targets compiled successfully!`). All 4 cjs bundles produced: `worker-service.cjs`, `server-beta-service.cjs`, `mcp-server.cjs`, `context-generator.cjs`.
-- `npm run typecheck` — **24 errors**, identical count and locations to `main` baseline. Errors localize to `src/services/worker/http/routes/CorpusRoutes.ts`, `src/services/sqlite/SessionStore.ts`, `src/services/worker/http/BaseRouteHandler.ts`, `src/services/integrations/CursorHooksInstaller.ts`, `src/services/infrastructure/WorktreeAdoption.ts`, `src/shared/find-claude-executable.ts`, `src/npx-cli/commands/install.ts`. **Zero errors in `src/server/`.** No regression introduced by Phases 4–12.
+- `npm run typecheck` — **24 errors**, identical count and locations to `main` baseline. Errors localize to `src/services/worker/http/routes/CorpusRoutes.ts`, `src/services/sqlite/SessionStore.ts`, `src/services/worker/http/BaseRouteHandler.ts`, `src/services/integrations/CursorHooksInstaller.ts`, `src/services/infrastructure/WorktreeAdoption.ts`, `src/shared/find-codex-executable.ts`, `src/npx-cli/commands/install.ts`. **Zero errors in `src/server/`.** No regression introduced by Phases 4–12.
 
 ---
 

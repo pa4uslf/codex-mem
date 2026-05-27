@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Worker Service is an Express HTTP server that handles all claude-mem operations. It runs on port 37777 (configurable via `CLAUDE_MEM_WORKER_PORT`) and is managed by PM2.
+The Worker Service is an Express HTTP server that handles all codex-mem operations. It runs on port 37777 (configurable via `CODEX_MEM_WORKER_PORT`) and is managed by PM2.
 
 ## Request Flow
 
@@ -31,7 +31,7 @@ src/services/worker/
 └── services/                     # Business logic services (existing, NO CHANGES in Phase 1)
     ├── DatabaseManager.ts        # SQLite connection management
     ├── SessionManager.ts         # Session state tracking
-    ├── SDKAgent.ts               # Claude Agent SDK for observations/summaries
+    ├── SDKAgent.ts               # Codex CLI for observations/summaries
     ├── SSEBroadcaster.ts         # Server-Sent Events for real-time updates
     ├── PaginationHelper.ts       # Query pagination utilities
     ├── SettingsManager.ts        # User settings CRUD
@@ -53,9 +53,9 @@ Session lifecycle operations (use service layer directly):
 - `GET /sessions/:sessionId/status` - Get session status
 - `DELETE /sessions/:sessionId` - Delete session
 - `POST /sessions/:sessionId/complete` - Mark session complete
-- `POST /sessions/claude-id/:claudeId/observations` - Add observations by claude_id
-- `POST /sessions/claude-id/:claudeId/summarize` - Summarize by claude_id
-- `POST /sessions/claude-id/:claudeId/complete` - Complete by claude_id
+- `POST /sessions/codex-id/:codexId/observations` - Add observations by codex_id
+- `POST /sessions/codex-id/:codexId/summarize` - Summarize by codex_id
+- `POST /sessions/codex-id/:codexId/complete` - Complete by codex_id
 
 ### DataRoutes.ts
 Data retrieval operations (use service layer directly):

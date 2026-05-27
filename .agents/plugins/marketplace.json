@@ -1,11 +1,11 @@
 {
-  "name": "claude-mem-local",
+  "name": "codex-mem-local",
   "interface": {
-    "displayName": "claude-mem (local)"
+    "displayName": "codex-mem (local)"
   },
   "plugins": [
     {
-      "name": "claude-mem",
+      "name": "codex-mem",
       "source": {
         "source": "local",
         "path": "./plugin"

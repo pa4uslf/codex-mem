@@ -1,16 +1,16 @@
 # IP Boundary
 
-Claude-Mem uses an open-core structure.
+Codex-Mem uses an open-core structure.
 
 ## Apache-2.0 components
 
 - Core memory engine
-- Claude-Mem Server
+- Codex-Mem Server
 - CLI
 - SDKs
 - REST API schemas
 - MCP tools/resources/prompts
-- Claude Code adapter
+- Codex Code adapter
 - Generic agent adapters
 - Storage adapters
 - Reference knowledge agents
@@ -20,7 +20,7 @@ Claude-Mem uses an open-core structure.
 
 ## Reserved commercial/private areas
 
-These areas are not shipped by Claude-Mem Server v0.1 and should remain outside
+These areas are not shipped by Codex-Mem Server v0.1 and should remain outside
 the Apache-2.0 public implementation unless maintainers explicitly open-source
 them later.
 

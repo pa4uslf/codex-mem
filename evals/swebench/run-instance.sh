@@ -12,13 +12,13 @@ BASE_COMMIT="$3"
 PROBLEM_STATEMENT_FILE="$4"
 OUT_PREDICTIONS_PATH="$5"
 
-if [[ -z "${ANTHROPIC_API_KEY:-}" && -z "${CLAUDE_MEM_CREDENTIALS_FILE:-}" ]]; then
-  echo "ERROR: one of ANTHROPIC_API_KEY or CLAUDE_MEM_CREDENTIALS_FILE is required" >&2
+if [[ -z "${CODEX_API_KEY:-}" && -z "${CODEX_MEM_CREDENTIALS_FILE:-}" ]]; then
+  echo "ERROR: one of CODEX_API_KEY or CODEX_MEM_CREDENTIALS_FILE is required" >&2
   exit 1
 fi
 
-if [[ -n "${CLAUDE_MEM_CREDENTIALS_FILE:-}" && ! -f "$CLAUDE_MEM_CREDENTIALS_FILE" ]]; then
-  echo "ERROR: CLAUDE_MEM_CREDENTIALS_FILE set but file missing: $CLAUDE_MEM_CREDENTIALS_FILE" >&2
+if [[ -n "${CODEX_MEM_CREDENTIALS_FILE:-}" && ! -f "$CODEX_MEM_CREDENTIALS_FILE" ]]; then
+  echo "ERROR: CODEX_MEM_CREDENTIALS_FILE set but file missing: $CODEX_MEM_CREDENTIALS_FILE" >&2
   exit 1
 fi
 
@@ -27,20 +27,20 @@ if [[ ! -f "$PROBLEM_STATEMENT_FILE" ]]; then
   exit 1
 fi
 
-MODEL_NAME="claude-opus-4-7+claude-mem"
+MODEL_NAME="codex-opus-4-7+codex-mem"
 
 SCRATCH=$(mktemp -d)
 REPO_DIR="$SCRATCH/repo"
-MEM_DIR="$SCRATCH/.claude-mem"
-CLAUDE_DIR="$SCRATCH/.claude"
-mkdir -p "$MEM_DIR" "$CLAUDE_DIR"
+MEM_DIR="$SCRATCH/.codex-mem"
+CODEX_DIR="$SCRATCH/.codex"
+mkdir -p "$MEM_DIR" "$CODEX_DIR"
 
-if [[ -n "${CLAUDE_MEM_CREDENTIALS_FILE:-}" ]]; then
-  cp "$CLAUDE_MEM_CREDENTIALS_FILE" "$CLAUDE_DIR/.credentials.json"
-  chmod 600 "$CLAUDE_DIR/.credentials.json"
+if [[ -n "${CODEX_MEM_CREDENTIALS_FILE:-}" ]]; then
+  cp "$CODEX_MEM_CREDENTIALS_FILE" "$CODEX_DIR/.credentials.json"
+  chmod 600 "$CODEX_DIR/.credentials.json"
 fi
 
-OUTPUT_DIR="${CLAUDE_MEM_OUTPUT_DIR:-$SCRATCH}"
+OUTPUT_DIR="${CODEX_MEM_OUTPUT_DIR:-$SCRATCH}"
 mkdir -p "$OUTPUT_DIR"
 
 DIFF_OUT="$OUTPUT_DIR/model_patch.diff"
@@ -78,10 +78,10 @@ SESSION_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
 
 set +e
 (
-  cd "$REPO_DIR" && HOME="$SCRATCH" claude \
+  cd "$REPO_DIR" && HOME="$SCRATCH" codex \
     --print \
     --session-id "$SESSION_ID" \
-    --plugin-dir /opt/claude-mem \
+    --plugin-dir /opt/codex-mem \
     --permission-mode bypassPermissions \
     --allowedTools "Read,Glob,Grep,Bash(ls *),Bash(wc *)" \
     --max-budget-usd 5.00 \
@@ -98,7 +98,7 @@ fi
 PROBLEM=$(cat "$PROBLEM_STATEMENT_FILE")
 QUERY=$(printf '%s' "$PROBLEM" | tr -s '[:space:]' ' ' | cut -c1-200)
 
-FIX_PROMPT="/claude-mem:mem-search ${QUERY}
+FIX_PROMPT="/codex-mem:mem-search ${QUERY}
 
 Problem statement:
 ${PROBLEM}
@@ -107,10 +107,10 @@ Using what you've learned from the codebase (see memory above), produce a minima
 
 set +e
 (
-  cd "$REPO_DIR" && HOME="$SCRATCH" claude \
+  cd "$REPO_DIR" && HOME="$SCRATCH" codex \
     --print \
     --resume "$SESSION_ID" \
-    --plugin-dir /opt/claude-mem \
+    --plugin-dir /opt/codex-mem \
     --permission-mode bypassPermissions \
     --allowedTools "Read,Glob,Grep,Edit,Write,Bash(git *),Bash(ls *)" \
     --max-budget-usd 5.00 \

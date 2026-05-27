@@ -42,9 +42,9 @@ export function detectInstalledIDEs(): IDEInfo[] {
 
   return [
     {
-      id: 'claude-code',
-      label: 'Claude Code',
-      detected: isCommandInPath('claude'),
+      id: 'codex-code',
+      label: 'Codex Code',
+      detected: isCommandInPath('codex'),
       supported: true,
       hint: 'recommended',
     },

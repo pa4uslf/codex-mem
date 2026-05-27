@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 const IS_WINDOWS = process.platform === 'win32';
 
 const __bun_runner_dirname = dirname(fileURLToPath(import.meta.url));
-const RESOLVED_PLUGIN_ROOT = process.env.CLAUDE_PLUGIN_ROOT || resolve(__bun_runner_dirname, '..');
+const RESOLVED_PLUGIN_ROOT = process.env.CODEX_PLUGIN_ROOT || resolve(__bun_runner_dirname, '..');
 
 function fixBrokenScriptPath(argPath) {
   if (argPath.startsWith('/scripts/') && !existsSync(argPath)) {
@@ -60,19 +60,19 @@ function findBun() {
   return null;
 }
 
-function isPluginDisabledInClaudeSettings() {
+function isPluginDisabledInCodexSettings() {
   try {
-    const configDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+    const configDir = process.env.CODEX_CONFIG_DIR || join(homedir(), '.codex');
     const settingsPath = join(configDir, 'settings.json');
     if (!existsSync(settingsPath)) return false;
     const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
-    return settings?.enabledPlugins?.['claude-mem@thedotmack'] === false;
+    return settings?.enabledPlugins?.['codex-mem@thedotmack'] === false;
   } catch {
     return false;
   }
 }
 
-if (isPluginDisabledInClaudeSettings()) {
+if (isPluginDisabledInCodexSettings()) {
   process.exit(0);
 }
 
@@ -145,7 +145,7 @@ if (child.stdin) {
     // Issue #2188: empty/missing stdin previously masked by `|| '{}'` fallback,
     // which silently hid WSL bash failures (e.g. hooks invoked under a broken
     // shell that never piped a payload). Surface the failure mode instead.
-    const dataDir = process.env.CLAUDE_MEM_DATA_DIR || join(homedir(), '.claude-mem');
+    const dataDir = process.env.CODEX_MEM_DATA_DIR || join(homedir(), '.codex-mem');
     const payloadType = stdinData === null
       ? 'null (no data event or stream error)'
       : stdinData === undefined
@@ -165,10 +165,10 @@ if (child.stdin) {
       `  shell: ${process.env.SHELL || 'n/a'}`,
       `  stdin TTY: ${process.stdin.isTTY === true ? 'true' : process.stdin.isTTY === false ? 'false' : 'undefined'}`,
       `  timestamp: ${new Date().toISOString()}`,
-      `  CLAUDE_PLUGIN_ROOT: ${RESOLVED_PLUGIN_ROOT}`,
+      `  CODEX_PLUGIN_ROOT: ${RESOLVED_PLUGIN_ROOT}`,
     ].join('\n');
 
-    // Write to stderr so Claude Code surfaces the diagnostic.
+    // Write to stderr so Codex Code surfaces the diagnostic.
     console.error(diagnostic);
 
     // Persist diagnostic to the runner-errors log and drop a CAPTURE_BROKEN marker

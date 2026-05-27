@@ -3,11 +3,11 @@
 ---
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -47,7 +47,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center">Sistema ng kompresyon ng persistent memory na ginawa para sa <a href="https://claude.com/claude-code" target="_blank">Claude Code</a>.</h4>
+<h4 align="center">Sistema ng kompresyon ng persistent memory na ginawa para sa <a href="https://codex.com/codex-code" target="_blank">Codex Code</a>.</h4>
 
 <p align="center">
   <a href="LICENSE">
@@ -59,17 +59,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -77,9 +77,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -95,22 +95,22 @@
 </p>
 
 <p align="center">
-  Pinapanatili ng Claude-Mem ang konteksto sa pagitan ng mga session sa pamamagitan ng awtomatikong pagkuha ng mga obserbasyon sa paggamit ng mga tool, pagbuo ng mga semantikong buod, at paggawa nitong available sa mga susunod na session. Dahil dito, napapanatili ni Claude ang tuloy-tuloy na kaalaman tungkol sa mga proyekto kahit matapos o muling kumonekta ang mga session.
+  Pinapanatili ng Codex-Mem ang konteksto sa pagitan ng mga session sa pamamagitan ng awtomatikong pagkuha ng mga obserbasyon sa paggamit ng mga tool, pagbuo ng mga semantikong buod, at paggawa nitong available sa mga susunod na session. Dahil dito, napapanatili ni Codex ang tuloy-tuloy na kaalaman tungkol sa mga proyekto kahit matapos o muling kumonekta ang mga session.
 </p>
 
 ---
 
 ## Mabilis na Pagsisimula
 
-Magsimula ng bagong Claude Code session sa terminal at ilagay ang mga sumusunod na command:
+Magsimula ng bagong Codex Code session sa terminal at ilagay ang mga sumusunod na command:
 
 ```
-/plugin marketplace add thedotmack/claude-mem
+/plugin marketplace add thedotmack/codex-mem
 
-/plugin install claude-mem
+/plugin install codex-mem
 ```
 
-I-restart ang Claude Code. Awtomatikong lalabas sa mga bagong session ang konteksto mula sa mga nakaraang session.
+I-restart ang Codex Code. Awtomatikong lalabas sa mga bagong session ang konteksto mula sa mga nakaraang session.
 
 **Mga Pangunahing Tampok:**
 
@@ -118,7 +118,7 @@ I-restart ang Claude Code. Awtomatikong lalabas sa mga bagong session ang kontek
 - 📊 **Progressive Disclosure** - Layered na pagkuha ng memory na may visibility ng token cost
 - 🔍 **Skill-Based Search** - I-query ang history ng proyekto gamit ang mem-search skill
 - 🖥️ **Web Viewer UI** - Real-time memory stream sa http://localhost:37777
-- 💻 **Claude Desktop Skill** - Maghanap sa memory mula sa Claude Desktop conversations
+- 💻 **Codex Desktop Skill** - Maghanap sa memory mula sa Codex Desktop conversations
 - 🔒 **Privacy Control** - Gamitin ang `<private>` tags para hindi ma-store ang sensitibong nilalaman
 - ⚙️ **Context Configuration** - Mas pinong kontrol kung anong konteksto ang ini-inject
 - 🤖 **Automatic Operation** - Walang kailangang manual na intervention
@@ -129,35 +129,35 @@ I-restart ang Claude Code. Awtomatikong lalabas sa mga bagong session ang kontek
 
 ## Dokumentasyon
 
-📚 **[Tingnan ang Buong Dokumentasyon](https://docs.claude-mem.ai/)** - I-browse sa opisyal na website
+📚 **[Tingnan ang Buong Dokumentasyon](https://docs.codex-mem.ai/)** - I-browse sa opisyal na website
 
 ### Pagsisimula
 
-- **[Gabay sa Pag-install](https://docs.claude-mem.ai/installation)** - Mabilis na pagsisimula at advanced installation
-- **[Gabay sa Paggamit](https://docs.claude-mem.ai/usage/getting-started)** - Paano awtomatikong gumagana ang Claude-Mem
-- **[Mga Search Tool](https://docs.claude-mem.ai/usage/search-tools)** - I-query ang history ng proyekto gamit ang natural language
-- **[Mga Beta Feature](https://docs.claude-mem.ai/beta-features)** - Subukan ang mga experimental feature tulad ng Endless Mode
+- **[Gabay sa Pag-install](https://docs.codex-mem.ai/installation)** - Mabilis na pagsisimula at advanced installation
+- **[Gabay sa Paggamit](https://docs.codex-mem.ai/usage/getting-started)** - Paano awtomatikong gumagana ang Codex-Mem
+- **[Mga Search Tool](https://docs.codex-mem.ai/usage/search-tools)** - I-query ang history ng proyekto gamit ang natural language
+- **[Mga Beta Feature](https://docs.codex-mem.ai/beta-features)** - Subukan ang mga experimental feature tulad ng Endless Mode
 
 ### Best Practices
 
-- **[Context Engineering](https://docs.claude-mem.ai/context-engineering)** - Mga prinsipyo ng context optimization para sa AI agents
-- **[Progressive Disclosure](https://docs.claude-mem.ai/progressive-disclosure)** - Pilosopiya sa likod ng context priming strategy ng Claude-Mem
+- **[Context Engineering](https://docs.codex-mem.ai/context-engineering)** - Mga prinsipyo ng context optimization para sa AI agents
+- **[Progressive Disclosure](https://docs.codex-mem.ai/progressive-disclosure)** - Pilosopiya sa likod ng context priming strategy ng Codex-Mem
 
 ### Arkitektura
 
-- **[Overview](https://docs.claude-mem.ai/architecture/overview)** - Mga bahagi ng sistema at daloy ng data
-- **[Architecture Evolution](https://docs.claude-mem.ai/architecture-evolution)** - Ang paglalakbay mula v3 hanggang v5
-- **[Hooks Architecture](https://docs.claude-mem.ai/hooks-architecture)** - Paano gumagamit ang Claude-Mem ng lifecycle hooks
-- **[Hooks Reference](https://docs.claude-mem.ai/architecture/hooks)** - 7 hook scripts, ipinaliwanag
-- **[Worker Service](https://docs.claude-mem.ai/architecture/worker-service)** - HTTP API at Bun management
-- **[Database](https://docs.claude-mem.ai/architecture/database)** - SQLite schema at FTS5 search
-- **[Search Architecture](https://docs.claude-mem.ai/architecture/search-architecture)** - Hybrid search gamit ang Chroma vector database
+- **[Overview](https://docs.codex-mem.ai/architecture/overview)** - Mga bahagi ng sistema at daloy ng data
+- **[Architecture Evolution](https://docs.codex-mem.ai/architecture-evolution)** - Ang paglalakbay mula v3 hanggang v5
+- **[Hooks Architecture](https://docs.codex-mem.ai/hooks-architecture)** - Paano gumagamit ang Codex-Mem ng lifecycle hooks
+- **[Hooks Reference](https://docs.codex-mem.ai/architecture/hooks)** - 7 hook scripts, ipinaliwanag
+- **[Worker Service](https://docs.codex-mem.ai/architecture/worker-service)** - HTTP API at Bun management
+- **[Database](https://docs.codex-mem.ai/architecture/database)** - SQLite schema at FTS5 search
+- **[Search Architecture](https://docs.codex-mem.ai/architecture/search-architecture)** - Hybrid search gamit ang Chroma vector database
 
 ### Konpigurasyon at Pagbuo
 
-- **[Konpigurasyon](https://docs.claude-mem.ai/configuration)** - Environment variables at settings
-- **[Pagbuo](https://docs.claude-mem.ai/development)** - Build, test, at contribution workflow
-- **[Pag-troubleshoot](https://docs.claude-mem.ai/troubleshooting)** - Karaniwang isyu at solusyon
+- **[Konpigurasyon](https://docs.codex-mem.ai/configuration)** - Environment variables at settings
+- **[Pagbuo](https://docs.codex-mem.ai/development)** - Build, test, at contribution workflow
+- **[Pag-troubleshoot](https://docs.codex-mem.ai/troubleshooting)** - Karaniwang isyu at solusyon
 
 ---
 
@@ -172,13 +172,13 @@ I-restart ang Claude Code. Awtomatikong lalabas sa mga bagong session ang kontek
 5. **mem-search Skill** - Natural language queries na may progressive disclosure
 6. **Chroma Vector Database** - Hybrid semantic + keyword search para sa matalinong pagkuha ng konteksto
 
-Tingnan ang [Architecture Overview](https://docs.claude-mem.ai/architecture/overview) para sa detalye.
+Tingnan ang [Architecture Overview](https://docs.codex-mem.ai/architecture/overview) para sa detalye.
 
 ---
 
 ## Mga Search Tool ng MCP
 
-Nagbibigay ang Claude-Mem ng intelligent memory search sa pamamagitan ng **5 MCP tools** na sumusunod sa token-efficient na **3-layer workflow pattern**:
+Nagbibigay ang Codex-Mem ng intelligent memory search sa pamamagitan ng **5 MCP tools** na sumusunod sa token-efficient na **3-layer workflow pattern**:
 
 **Ang 3-Layer Workflow:**
 
@@ -188,7 +188,7 @@ Nagbibigay ang Claude-Mem ng intelligent memory search sa pamamagitan ng **5 MCP
 
 **Paano Ito Gumagana:**
 
-- Gumagamit si Claude ng MCP tools para maghanap sa iyong memory
+- Gumagamit si Codex ng MCP tools para maghanap sa iyong memory
 - Magsimula sa `search` para makakuha ng index ng results
 - Gamitin ang `timeline` para makita ang nangyari sa paligid ng mga partikular na observation
 - Gamitin ang `get_observations` para kunin ang full details ng mga relevant na IDs
@@ -201,7 +201,7 @@ Nagbibigay ang Claude-Mem ng intelligent memory search sa pamamagitan ng **5 MCP
 2. **`timeline`** - Kumuha ng chronological context sa paligid ng isang observation o query
 3. **`get_observations`** - Kumuha ng full observation details gamit ang IDs (laging i-batch ang maraming IDs)
 4. **`save_memory`** - Manual na mag-save ng memory/observation para sa semantic search
-5. **`__IMPORTANT`** - Workflow documentation (laging visible kay Claude)
+5. **`__IMPORTANT`** - Workflow documentation (laging visible kay Codex)
 
 **Halimbawa ng Paggamit:**
 
@@ -218,22 +218,22 @@ get_observations(ids=[123, 456])
 save_memory(text="API requires auth header X-API-Key", title="API Auth")
 ```
 
-Tingnan ang [Search Tools Guide](https://docs.claude-mem.ai/usage/search-tools) para sa mas detalyadong mga halimbawa.
+Tingnan ang [Search Tools Guide](https://docs.codex-mem.ai/usage/search-tools) para sa mas detalyadong mga halimbawa.
 
 ---
 
 ## Mga Beta Feature
 
-May **beta channel** ang Claude-Mem na may mga experimental feature gaya ng **Endless Mode** (biomimetic memory architecture para sa mas mahahabang session). Magpalit sa pagitan ng stable at beta versions sa web viewer UI sa http://localhost:37777 → Settings.
+May **beta channel** ang Codex-Mem na may mga experimental feature gaya ng **Endless Mode** (biomimetic memory architecture para sa mas mahahabang session). Magpalit sa pagitan ng stable at beta versions sa web viewer UI sa http://localhost:37777 → Settings.
 
-Tingnan ang **[Dokumentasyon ng Mga Beta Feature](https://docs.claude-mem.ai/beta-features)** para sa detalye ng Endless Mode at kung paano ito subukan.
+Tingnan ang **[Dokumentasyon ng Mga Beta Feature](https://docs.codex-mem.ai/beta-features)** para sa detalye ng Endless Mode at kung paano ito subukan.
 
 ---
 
 ## Mga Pangangailangan ng Sistema
 
 - **Node.js**: 18.0.0 o mas mataas
-- **Claude Code**: Pinakabagong bersyon na may plugin support
+- **Codex Code**: Pinakabagong bersyon na may plugin support
 - **Bun**: JavaScript runtime at process manager (auto-installed kung wala)
 - **uv**: Python package manager para sa vector search (auto-installed kung wala)
 - **SQLite 3**: Para sa persistent storage (kasama)
@@ -254,23 +254,23 @@ Siguraduhing naka-install ang Node.js at npm at nakadagdag sa PATH. I-download a
 
 ## Konpigurasyon
 
-Pinamamahalaan ang settings sa `~/.claude-mem/settings.json` (auto-created na may defaults sa unang run). I-configure ang AI model, worker port, data directory, log level, at context injection settings.
+Pinamamahalaan ang settings sa `~/.codex-mem/settings.json` (auto-created na may defaults sa unang run). I-configure ang AI model, worker port, data directory, log level, at context injection settings.
 
-Tingnan ang **[Gabay sa Konpigurasyon](https://docs.claude-mem.ai/configuration)** para sa lahat ng available na settings at mga halimbawa.
+Tingnan ang **[Gabay sa Konpigurasyon](https://docs.codex-mem.ai/configuration)** para sa lahat ng available na settings at mga halimbawa.
 
 ---
 
 ## Pagbuo
 
-Tingnan ang **[Gabay nang pagbuo](https://docs.claude-mem.ai/development)** para sa pag build instructions, testing, at contribution workflow.
+Tingnan ang **[Gabay nang pagbuo](https://docs.codex-mem.ai/development)** para sa pag build instructions, testing, at contribution workflow.
 
 ---
 
 ## Pag-troubleshoot
 
-Kung may issue, ilarawan ang problema kay Claude at awtomatikong magdi-diagnose at magbibigay ng mga ayos ang troubleshoot skill.
+Kung may issue, ilarawan ang problema kay Codex at awtomatikong magdi-diagnose at magbibigay ng mga ayos ang troubleshoot skill.
 
-Tingnan ang **[Troubleshooting Guide](https://docs.claude-mem.ai/troubleshooting)** para sa mga karaniwang isyu at solusyon.
+Tingnan ang **[Troubleshooting Guide](https://docs.codex-mem.ai/troubleshooting)** para sa mga karaniwang isyu at solusyon.
 
 ---
 
@@ -279,7 +279,7 @@ Tingnan ang **[Troubleshooting Guide](https://docs.claude-mem.ai/troubleshooting
 Gumawa ng kumpletong bug reports gamit ang automated generator:
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 
@@ -293,7 +293,7 @@ Malugod na tinatanggap ang mga kontribusyon! Pakisunod:
 4. I-update ang dokumentasyon
 5. Mag-submit ng Pull Request
 
-Tingnan ang [Gabay nang pagbuo](https://docs.claude-mem.ai/development) para sa contribution workflow.
+Tingnan ang [Gabay nang pagbuo](https://docs.codex-mem.ai/development) para sa contribution workflow.
 
 ---
 
@@ -315,10 +315,10 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## Suporta
 
 - **Dokumentasyon**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **Repository**: [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
+- **Issues**: [GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **Repository**: [github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
 - **Author**: Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**Built with Claude Agent SDK** | **Works with Claude Code** | **Made with TypeScript**
+**Built with Codex Agent SDK** | **Works with Codex Code** | **Made with TypeScript**

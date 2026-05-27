@@ -15,7 +15,7 @@ import {
 import { logger } from '../../src/utils/logger.js';
 
 const loggerSpies: ReturnType<typeof spyOn>[] = [];
-const TEST_DATABASE_URL = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const TEST_DATABASE_URL = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 describe('ServerBetaService', () => {
   let service: ServerBetaService | null = null;
@@ -258,7 +258,7 @@ describe('ServerBetaService', () => {
       }
     });
   } else {
-    it.skip('postgres integration tests skipped (set CLAUDE_MEM_TEST_POSTGRES_URL to enable)', () => {});
+    it.skip('postgres integration tests skipped (set CODEX_MEM_TEST_POSTGRES_URL to enable)', () => {});
   }
 });
 

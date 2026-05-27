@@ -9,7 +9,7 @@ import {
   type PostgresStorageRepositories
 } from '../../../src/storage/postgres/index.js';
 
-const testDatabaseUrl = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const testDatabaseUrl = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 describe('server beta postgres schema bootstrap', () => {
   it('acquires and releases a client when bootstrapping from a pool', async () => {
@@ -64,7 +64,7 @@ describe('server beta postgres schema bootstrap', () => {
 
 describe('server beta postgres observation storage', () => {
   if (!testDatabaseUrl) {
-    it.skip('requires explicit CLAUDE_MEM_TEST_POSTGRES_URL for Postgres integration tests', () => {});
+    it.skip('requires explicit CODEX_MEM_TEST_POSTGRES_URL for Postgres integration tests', () => {});
     return;
   }
 
@@ -128,7 +128,7 @@ describe('server beta postgres observation storage', () => {
       projectId: project.id,
       teamId: project.teamId,
       serverSessionId: session.id,
-      sourceAdapter: 'claude-code',
+      sourceAdapter: 'codex-code',
       eventType: 'user_prompt',
       payload,
       occurredAt
@@ -137,7 +137,7 @@ describe('server beta postgres observation storage', () => {
       projectId: project.id,
       teamId: project.teamId,
       serverSessionId: session.id,
-      sourceAdapter: 'claude-code',
+      sourceAdapter: 'codex-code',
       eventType: 'user_prompt',
       payload: { nested: { a: 1, b: 2 }, message: 'same payload' },
       occurredAt
@@ -340,7 +340,7 @@ describe('server beta postgres observation storage', () => {
       teamId: project.teamId,
       contentSessionId: 'content-session-1',
       agentId: 'agent-1',
-      platformSource: 'claude-code',
+      platformSource: 'codex-code',
       metadata: { first: true }
     });
     const second = await storage.sessions.create({
@@ -348,7 +348,7 @@ describe('server beta postgres observation storage', () => {
       teamId: project.teamId,
       contentSessionId: 'content-session-1',
       agentId: 'agent-1',
-      platformSource: 'claude-code',
+      platformSource: 'codex-code',
       metadata: { second: true }
     });
 
@@ -573,7 +573,7 @@ describe('server beta postgres observation storage', () => {
     const secondEvent = await storage.agentEvents.create({
       projectId: project.id,
       teamId: project.teamId,
-      sourceAdapter: 'claude-code',
+      sourceAdapter: 'codex-code',
       sourceEventId: crypto.randomUUID(),
       eventType: 'assistant_response',
       payload: { content: 'second response' },
@@ -809,12 +809,12 @@ describe('server beta postgres observation storage', () => {
 
 async function createFixtureScope(storage: PostgresStorageRepositories) {
   const team = await storage.teams.create({ name: 'Core' });
-  const project = await storage.projects.create({ teamId: team.id, name: 'Claude Mem' });
+  const project = await storage.projects.create({ teamId: team.id, name: 'Codex Mem' });
   const session = await storage.sessions.create({
     projectId: project.id,
     teamId: team.id,
     externalSessionId: crypto.randomUUID(),
-    platformSource: 'claude-code'
+    platformSource: 'codex-code'
   });
 
   return { team, project, session };
@@ -826,7 +826,7 @@ async function createFixtureScopeWithEventJob(storage: PostgresStorageRepositori
     projectId: scope.project.id,
     teamId: scope.team.id,
     serverSessionId: scope.session.id,
-    sourceAdapter: 'claude-code',
+    sourceAdapter: 'codex-code',
     sourceEventId: crypto.randomUUID(),
     eventType: 'assistant_response',
     payload: { content: 'response' },

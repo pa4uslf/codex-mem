@@ -8,7 +8,7 @@ function createSession(): ActiveSession {
     contentSessionId: 'content-42',
     memorySessionId: 'memory-42',
     project: 'test-project',
-    platformSource: 'claude-code',
+    platformSource: 'codex-code',
     userPrompt: 'test',
     pendingMessages: [],
     abortController: new AbortController(),
@@ -19,7 +19,7 @@ function createSession(): ActiveSession {
     cumulativeOutputTokens: 0,
     earliestPendingTimestamp: null,
     conversationHistory: [],
-    currentProvider: 'claude',
+    currentProvider: 'codex',
     consecutiveRestarts: 0,
     lastGeneratorActivity: Date.now(),
   };

@@ -28,7 +28,7 @@ import { renderHumanEmptyState } from './formatters/HumanFormatter.js';
 
 const VERSION_MARKER_PATH = path.join(
   homedir(),
-  '.claude',
+  '.codex',
   'plugins',
   'marketplaces',
   'thedotmack',
@@ -50,7 +50,7 @@ function initializeDatabase(): SessionStore | null {
           logger.debug('WORKER', 'Marker file cleanup failed (may not exist)', { error: String(unlinkError) });
         }
       }
-      logger.error('WORKER', 'Native module rebuild needed - restart Claude Code to auto-fix');
+      logger.error('WORKER', 'Native module rebuild needed - restart Codex Code to auto-fix');
       return null;
     }
     throw error;

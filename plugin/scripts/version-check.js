@@ -4,8 +4,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 function resolveRoot() {
-  if (process.env.CLAUDE_PLUGIN_ROOT) {
-    const root = process.env.CLAUDE_PLUGIN_ROOT;
+  if (process.env.CODEX_PLUGIN_ROOT) {
+    const root = process.env.CODEX_PLUGIN_ROOT;
     if (existsSync(join(root, 'package.json'))) return root;
   }
   try {
@@ -20,7 +20,7 @@ const ROOT = resolveRoot();
 if (!ROOT) process.exit(0);
 
 function emitUpgradeHint(message) {
-  if (process.env.CLAUDE_MEM_CODEX_HOOK === '1') {
+  if (process.env.CODEX_MEM_CODEX_HOOK === '1') {
     console.log(JSON.stringify({
       hookSpecificOutput: {
         hookEventName: 'SessionStart',
@@ -54,16 +54,16 @@ try {
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
   const markerPath = join(ROOT, '.install-version');
   if (!existsSync(markerPath)) {
-    emitUpgradeHint('claude-mem: runtime not yet set up - run: npx claude-mem@latest install');
+    emitUpgradeHint('codex-mem: runtime not yet set up - run: npx codex-mem@latest install');
     process.exit(0);
   }
   const markerVersion = readInstallMarkerVersion(markerPath);
   if (!markerVersion) {
-    emitUpgradeHint('claude-mem: install marker unreadable - run: npx claude-mem@latest install');
+    emitUpgradeHint('codex-mem: install marker unreadable - run: npx codex-mem@latest install');
   } else if (markerVersion !== pkg.version) {
-    emitUpgradeHint(`claude-mem: upgraded to v${pkg.version} - run: npx claude-mem@latest install`);
+    emitUpgradeHint(`codex-mem: upgraded to v${pkg.version} - run: npx codex-mem@latest install`);
   }
 } catch {
-  emitUpgradeHint('claude-mem: install marker unreadable - run: npx claude-mem@latest install');
+  emitUpgradeHint('codex-mem: install marker unreadable - run: npx codex-mem@latest install');
 }
 process.exit(0);

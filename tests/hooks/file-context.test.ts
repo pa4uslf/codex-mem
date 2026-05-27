@@ -7,11 +7,11 @@ import { join } from 'path';
 mock.module('../../src/shared/SettingsDefaultsManager.js', () => ({
   SettingsDefaultsManager: {
     get: (key: string) => {
-      if (key === 'CLAUDE_MEM_DATA_DIR') return join(homedir(), '.claude-mem');
+      if (key === 'CODEX_MEM_DATA_DIR') return join(homedir(), '.codex-mem');
       return '';
     },
     getInt: () => 0,
-    loadFromFile: () => ({ CLAUDE_MEM_EXCLUDED_PROJECTS: [] }),
+    loadFromFile: () => ({ CODEX_MEM_EXCLUDED_PROJECTS: [] }),
   },
 }));
 

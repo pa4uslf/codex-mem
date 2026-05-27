@@ -57,7 +57,7 @@ export class ServerSessionsRepository {
       session.projectId,
       session.contentSessionId ?? null,
       session.memorySessionId ?? null,
-      session.platformSource ?? 'claude',
+      session.platformSource ?? 'codex',
       session.title ?? null,
       'active',
       stringifyJson(session.metadata),

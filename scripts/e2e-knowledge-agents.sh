@@ -5,7 +5,7 @@ WORKER_URL="http://localhost:37777"
 CORPUS_NAME="e2e-test-knowledge-agent"
 PASS_COUNT=0
 FAIL_COUNT=0
-LOG_FILE="${HOME}/.claude-mem/logs/e2e-knowledge-agents-$(date +%Y%m%d-%H%M%S).log"
+LOG_FILE="${HOME}/.codex-mem/logs/e2e-knowledge-agents-$(date +%Y%m%d-%H%M%S).log"
 
 log() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG_FILE"; }
 pass() { PASS_COUNT=$((PASS_COUNT + 1)); log "PASS: $1"; }
@@ -148,7 +148,7 @@ test_get_corpus_404() {
 
 test_prime_corpus() {
   log "=== Test: Prime Corpus ==="
-  log "  (This may take 30-120 seconds — Agent SDK session is being created...)"
+  log "  (This may take 30-120 seconds — Codex CLI session is being created...)"
   local response
   response=$(curl_post "/api/corpus/$CORPUS_NAME/prime" '{}' 300)
   extract_body_and_status "$response"

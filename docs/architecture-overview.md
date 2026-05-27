@@ -1,10 +1,10 @@
-# claude-mem Architecture Overview
+# codex-mem Architecture Overview
 
 ## System Layers
 
 ```text
 +-----------------------------------------------------------+
-|  Claude Code (host)                                       |
+|  Codex Code (host)                                       |
 |  +-- Hook System (5 events)                               |
 |  +-- MCP Client (search tools)                            |
 +-----------------------------------------------------------+
@@ -16,15 +16,15 @@
 +-----------------------------------------------------------+
 |  Worker Daemon (Express, per-user port 37700+(uid%100))   |
 |  +-- SessionManager (session lifecycle)                   |
-|  +-- SDKAgent (Claude Agent SDK)                          |
+|  +-- SDKAgent (Codex Agent SDK)                          |
 |  +-- SearchManager (search orchestration)                 |
 |  +-- ProcessRegistry (subprocess management)              |
 |  +-- ChromaSync (embedding synchronization)               |
 +-----------------------------------------------------------+
 |  Storage Layer                                            |
-|  +-- SQLite (claude-mem.db) -- structured data            |
+|  +-- SQLite (codex-mem.db) -- structured data            |
 |  +-- ChromaDB (chroma.sqlite3) -- vector embeddings       |
-|  +-- MCP Server (interface for Claude Code)               |
+|  +-- MCP Server (interface for Codex Code)               |
 +-----------------------------------------------------------+
 ```
 
@@ -32,14 +32,14 @@
 
 | Event | Handler | What it does | Timeout |
 |-------|---------|-------------|---------|
-| Setup | version-check.js | Sub-100ms version-marker check; prompts `npx claude-mem repair` on mismatch | 60s |
+| Setup | version-check.js | Sub-100ms version-marker check; prompts `npx codex-mem repair` on mismatch | 60s |
 | SessionStart | worker start + context | Start worker service and inject context | 60s |
 | UserPromptSubmit | session-init | Register session + start SDK agent + semantic injection | 60s |
 | PostToolUse | observation | Capture tool usage -> enqueue in worker | 120s |
 | Summary | summarize | Request session summary from SDK agent | 120s |
 | SessionEnd | session-complete | End session + drain pending messages | 30s |
 
-On first install, `npx claude-mem install` sets up Bun and uv globally, runs `bun install` in the plugin cache, and writes an `.install-version` marker — all behind a visible clack spinner. The Setup hook then runs `version-check.js` on every Claude Code startup; if the plugin was upgraded externally (e.g. `claude plugin update`), it writes a hint to stderr asking the user to run `npx claude-mem repair`. The hook always exits 0 (non-blocking).
+On first install, `npx codex-mem install` sets up Bun and uv globally, runs `bun install` in the plugin cache, and writes an `.install-version` marker — all behind a visible clack spinner. The Setup hook then runs `version-check.js` on every Codex Code startup; if the plugin was upgraded externally (e.g. `codex plugin update`), it writes a hint to stderr asking the user to run `npx codex-mem repair`. The hook always exits 0 (non-blocking).
 
 ## Data Flow
 
@@ -52,7 +52,7 @@ Tool use -> observation -> /api/sessions/observations
   |                              |
   |                    SDKAgent.startSession()
   |                              |
-  |                    Claude Agent SDK -> ResponseProcessor
+  |                    Codex Agent SDK -> ResponseProcessor
   |                              |
   |                    +-- storeObservations() -> SQLite
   |                    +-- chromaSync.sync() -> ChromaDB
@@ -91,11 +91,11 @@ parser path on the next valid response.
 ### Graceful Degradation (hook-command.ts)
 
 ```text
-Transport errors (ECONNREFUSED, timeout, 5xx) -> exit 0 (never block Claude Code)
+Transport errors (ECONNREFUSED, timeout, 5xx) -> exit 0 (never block Codex Code)
 Client bugs (4xx, TypeError, ReferenceError)  -> exit 2 (blocking, needs fix)
 ```
 
-The worker being unavailable NEVER blocks the user's Claude Code session.
+The worker being unavailable NEVER blocks the user's Codex Code session.
 
 ### Deduplication (observations)
 
@@ -106,14 +106,14 @@ If hash exists within 30s window -> return existing ID (no insert)
 
 ### Two Types of Session ID
 
-- `contentSessionId` — from Claude Code, invariant during the session
+- `contentSessionId` — from Codex Code, invariant during the session
 - `memorySessionId` — from SDK Agent, changes on each worker restart
 
 The conversion between them is handled by SessionStore and is critical for FK constraints.
 
 ## Storage
 
-### SQLite (claude-mem.db)
+### SQLite (codex-mem.db)
 
 | Table | Key fields | Purpose |
 |-------|-----------|---------|
@@ -139,6 +139,6 @@ Accessed via chroma-mcp (MCP process), communication over stdio.
 
 ## Process Management
 
-- **ProcessRegistry:** Tracks all Claude SDK subprocesses, manages PID lifecycle
+- **ProcessRegistry:** Tracks all Codex SDK subprocesses, manages PID lifecycle
 - **Orphan Reaper (5min):** Kills processes with no active session
 - **GracefulShutdown:** 7-step shutdown (PID file, children, HTTP server, sessions, MCP, DB, force-kill)

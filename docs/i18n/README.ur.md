@@ -4,11 +4,11 @@
 ---
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -46,7 +46,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center"><a href="https://claude.com/claude-code" target="_blank">Claude Code</a> کے لیے بنایا گیا مستقل میموری کمپریشن سسٹم۔</h4>
+<h4 align="center"><a href="https://codex.com/codex-code" target="_blank">Codex Code</a> کے لیے بنایا گیا مستقل میموری کمپریشن سسٹم۔</h4>
 
 <p align="center">
   <a href="LICENSE">
@@ -58,17 +58,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -76,9 +76,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -94,22 +94,22 @@
 </p>
 
 <p align="center">
-  Claude-Mem خودکار طور پر ٹول کے استعمال کے بعد کے مشاہدات کو ریکارڈ کرتا ہے، سیمانٹک خلاصے تیار کرتا ہے اور انہیں مستقبل کے سیشنز میں دستیاب کرتا ہے تاکہ آپ سیشن میں براہ راست تناسب محفوظ رہے۔ یہ Claude کو سیشن ختم ہونے یا دوبارہ جڑنے کے بعد بھی منصوبے کے بارے میں معلومات کی مسلسلیت برقرار رکھنے کے قابل بناتا ہے۔
+  Codex-Mem خودکار طور پر ٹول کے استعمال کے بعد کے مشاہدات کو ریکارڈ کرتا ہے، سیمانٹک خلاصے تیار کرتا ہے اور انہیں مستقبل کے سیشنز میں دستیاب کرتا ہے تاکہ آپ سیشن میں براہ راست تناسب محفوظ رہے۔ یہ Codex کو سیشن ختم ہونے یا دوبارہ جڑنے کے بعد بھی منصوبے کے بارے میں معلومات کی مسلسلیت برقرار رکھنے کے قابل بناتا ہے۔
 </p>
 
 ---
 
 ## تیز رفتار شروعات
 
-ٹرمنل میں نیا Claude Code سیشن شروع کریں اور ہیں کمانڈز درج کریں:
+ٹرمنل میں نیا Codex Code سیشن شروع کریں اور ہیں کمانڈز درج کریں:
 
 ```
-> /plugin marketplace add thedotmack/claude-mem
+> /plugin marketplace add thedotmack/codex-mem
 
-> /plugin install claude-mem
+> /plugin install codex-mem
 ```
 
-Claude Code کو دوبارہ شروع کریں۔ سابقہ سیشن کا تناسب خودکار طور پر نئے سیشن میں موجود ہوگا۔
+Codex Code کو دوبارہ شروع کریں۔ سابقہ سیشن کا تناسب خودکار طور پر نئے سیشن میں موجود ہوگا۔
 
 **اہم خصوصیات:**
 
@@ -117,7 +117,7 @@ Claude Code کو دوبارہ شروع کریں۔ سابقہ سیشن کا تن�
 - 📊 **بتدریج ظہور** - لیئرڈ میموری کی بازیافت ٹوکن کی لاگت کی نمائندگی کے ساتھ
 - 🔍 **کمکردہ تلاش** - mem-search مہارت کے ساتھ اپنے منصوبے کی تاریخ میں تلاش کریں
 - 🖥️ **ویب ویور یو آئی** - http://localhost:37777 پر حقیقی وقت میموری اسٹریم
-- 💻 **Claude Desktop مہارت** - Claude Desktop بات چیت سے میموری تلاش کریں
+- 💻 **Codex Desktop مہارت** - Codex Desktop بات چیت سے میموری تلاش کریں
 - 🔒 **رازداری کے کنٹرولز** - حساس مواد کو ذخیرہ سے خارج کرنے کے لیے `<private>` ٹیگ استعمال کریں
 - ⚙️ **تناسب کی ترتیبات** - کون سا تناسب انجیکٹ کیا جائے اس پر باریک کنٹرول
 - 🤖 **خودکار آپریشن** - کسی دستی مداخلت کی ضرورت نہیں
@@ -132,31 +132,31 @@ Claude Code کو دوبارہ شروع کریں۔ سابقہ سیشن کا تن�
 
 ### شروعات کرنا
 
-- **[انسٹالیشن گائیڈ](https://docs.claude-mem.ai/installation)** - تیز رفتار شروعات اور اعلیٰ درجے کی انسٹالیشن
-- **[استعمال گائیڈ](https://docs.claude-mem.ai/usage/getting-started)** - Claude-Mem خودکار طور پر کیسے کام کرتا ہے
-- **[تلاش کے اوزار](https://docs.claude-mem.ai/usage/search-tools)** - قدرتی زبان کے ساتھ اپنے منصوبے کی تاریخ میں تلاش کریں
-- **[بیٹا خصوصیات](https://docs.claude-mem.ai/beta-features)** - Endless Mode جیسی تجرباتی خصوصیات آزمائیں
+- **[انسٹالیشن گائیڈ](https://docs.codex-mem.ai/installation)** - تیز رفتار شروعات اور اعلیٰ درجے کی انسٹالیشن
+- **[استعمال گائیڈ](https://docs.codex-mem.ai/usage/getting-started)** - Codex-Mem خودکار طور پر کیسے کام کرتا ہے
+- **[تلاش کے اوزار](https://docs.codex-mem.ai/usage/search-tools)** - قدرتی زبان کے ساتھ اپنے منصوبے کی تاریخ میں تلاش کریں
+- **[بیٹا خصوصیات](https://docs.codex-mem.ai/beta-features)** - Endless Mode جیسی تجرباتی خصوصیات آزمائیں
 
 ### بہترین طریقہ کار
 
-- **[تناسب انجینیئرنگ](https://docs.claude-mem.ai/context-engineering)** - AI ایجنٹ کے تناسب کی اہمیت کے اصول
-- **[بتدریج ظہور](https://docs.claude-mem.ai/progressive-disclosure)** - Claude-Mem کے تناسب کی تیاری کی حکمت عملی کے پیچھے فلسفہ
+- **[تناسب انجینیئرنگ](https://docs.codex-mem.ai/context-engineering)** - AI ایجنٹ کے تناسب کی اہمیت کے اصول
+- **[بتدریج ظہور](https://docs.codex-mem.ai/progressive-disclosure)** - Codex-Mem کے تناسب کی تیاری کی حکمت عملی کے پیچھے فلسفہ
 
 ### تعمیر
 
-- **[جائزہ](https://docs.claude-mem.ai/architecture/overview)** - نظام کے اجزاء اور ڈیٹا کے بہاؤ
-- **[تعمیر کا ارتقاء](https://docs.claude-mem.ai/architecture-evolution)** - v3 سے v5 تک کا سفر
-- **[ہکس تعمیر](https://docs.claude-mem.ai/hooks-architecture)** - Claude-Mem لائف سائیکل ہکس کا استعمال کیسے کرتا ہے
-- **[ہکس حوالہ](https://docs.claude-mem.ai/architecture/hooks)** - 7 ہک اسکرپٹس کی تشریح
-- **[ورکر سروس](https://docs.claude-mem.ai/architecture/worker-service)** - HTTP API اور Bun انتظام
-- **[ڈیٹا بیس](https://docs.claude-mem.ai/architecture/database)** - SQLite اسکیما اور FTS5 تلاش
-- **[تلاش تعمیر](https://docs.claude-mem.ai/architecture/search-architecture)** - Chroma ویکٹر ڈیٹا بیس کے ساتھ ہائبرڈ تلاش
+- **[جائزہ](https://docs.codex-mem.ai/architecture/overview)** - نظام کے اجزاء اور ڈیٹا کے بہاؤ
+- **[تعمیر کا ارتقاء](https://docs.codex-mem.ai/architecture-evolution)** - v3 سے v5 تک کا سفر
+- **[ہکس تعمیر](https://docs.codex-mem.ai/hooks-architecture)** - Codex-Mem لائف سائیکل ہکس کا استعمال کیسے کرتا ہے
+- **[ہکس حوالہ](https://docs.codex-mem.ai/architecture/hooks)** - 7 ہک اسکرپٹس کی تشریح
+- **[ورکر سروس](https://docs.codex-mem.ai/architecture/worker-service)** - HTTP API اور Bun انتظام
+- **[ڈیٹا بیس](https://docs.codex-mem.ai/architecture/database)** - SQLite اسکیما اور FTS5 تلاش
+- **[تلاش تعمیر](https://docs.codex-mem.ai/architecture/search-architecture)** - Chroma ویکٹر ڈیٹا بیس کے ساتھ ہائبرڈ تلاش
 
 ### ترتیبات اور ترقی
 
-- **[ترتیبات](https://docs.claude-mem.ai/configuration)** - ماحول کے متغیرات اور سیٹنگز
-- **[ترقی](https://docs.claude-mem.ai/development)** - تعمیر، جانچ، حصہ داری
-- **[مسائل کی تشخیص](https://docs.claude-mem.ai/troubleshooting)** - عام مسائل اور حل
+- **[ترتیبات](https://docs.codex-mem.ai/configuration)** - ماحول کے متغیرات اور سیٹنگز
+- **[ترقی](https://docs.codex-mem.ai/development)** - تعمیر، جانچ، حصہ داری
+- **[مسائل کی تشخیص](https://docs.codex-mem.ai/troubleshooting)** - عام مسائل اور حل
 
 ---
 
@@ -171,13 +171,13 @@ Claude Code کو دوبارہ شروع کریں۔ سابقہ سیشن کا تن�
 5. **mem-search مہارت** - بتدریج ظہور کے ساتھ قدرتی زبان کے سوالات
 6. **Chroma ویکٹر ڈیٹا بیس** - ہائبرڈ سیمانٹک + کلیدی لفظ تلاش ذہین تناسب کی بازیافت کے لیے
 
-تفصیلات کے لیے [تعمیر کا جائزہ](https://docs.claude-mem.ai/architecture/overview) دیکھیں۔
+تفصیلات کے لیے [تعمیر کا جائزہ](https://docs.codex-mem.ai/architecture/overview) دیکھیں۔
 
 ---
 
 ## MCP تلاش کے اوزار
 
-Claude-Mem ٹوکن-موثر **3-لیئر ورک فلو پیٹرن** کی پیروی کرتے ہوئے **4 MCP اوزار** کے ذریعے ذہین میموری تلاش فراہم کرتا ہے:
+Codex-Mem ٹوکن-موثر **3-لیئر ورک فلو پیٹرن** کی پیروی کرتے ہوئے **4 MCP اوزار** کے ذریعے ذہین میموری تلاش فراہم کرتا ہے:
 
 **3-لیئر ورک فلو:**
 
@@ -186,7 +186,7 @@ Claude-Mem ٹوکن-موثر **3-لیئر ورک فلو پیٹرن** کی پیر
 3. **`get_observations`** - فلٹر شدہ IDs کے لیے صرف مکمل تفصیلات حاصل کریں (~500-1,000 ٹوکن/نتیجہ)
 
 **یہ کیسے کام کرتا ہے:**
-- Claude آپ کی میموری میں تلاش کے لیے MCP اوزار استعمال کرتا ہے
+- Codex آپ کی میموری میں تلاش کے لیے MCP اوزار استعمال کرتا ہے
 - نتائج کا انڈیکس حاصل کرنے کے لیے `search` سے شروع کریں
 - مخصوص مشاہدات کے ارد گرد کیا ہو رہا تھا دیکھنے کے لیے `timeline` استعمال کریں
 - متعلقہ IDs کے لیے مکمل تفصیلات حاصل کرنے کے لیے `get_observations` استعمال کریں
@@ -197,7 +197,7 @@ Claude-Mem ٹوکن-موثر **3-لیئر ورک فلو پیٹرن** کی پیر
 1. **`search`** - مکمل متن کی تلاش کے سوالات کے ساتھ میموری انڈیکس تلاش کریں، قسم/تاریخ/منصوبے کے لحاظ سے فلٹر کریں
 2. **`timeline`** - مخصوص مشاہدہ یا سوال کے ارد گرد زمانی تناسب حاصل کریں
 3. **`get_observations`** - IDs کے ذریعے مکمل مشاہدہ تفصیلات حاصل کریں (ہمیشہ متعدد IDs کو بیچ کریں)
-4. **`__IMPORTANT`** - ورک فلو دستاویزات (ہمیشہ Claude کو نظر آتی ہے)
+4. **`__IMPORTANT`** - ورک فلو دستاویزات (ہمیشہ Codex کو نظر آتی ہے)
 
 **استعمال کی مثال:**
 
@@ -211,22 +211,22 @@ search(query="authentication bug", type="bugfix", limit=10)
 get_observations(ids=[123, 456])
 ```
 
-تفصیلی مثالوں کے لیے [تلاش کے اوزار گائیڈ](https://docs.claude-mem.ai/usage/search-tools) دیکھیں۔
+تفصیلی مثالوں کے لیے [تلاش کے اوزار گائیڈ](https://docs.codex-mem.ai/usage/search-tools) دیکھیں۔
 
 ---
 
 ## بیٹا خصوصیات
 
-Claude-Mem ایک **بیٹا چینل** فراہم کرتا ہے جس میں **Endless Mode** جیسی تجرباتی خصوصیات ہیں (بڑھی ہوئی سیشنز کے لیے حیاتی نقل میموری کی تعمیر)۔ http://localhost:37777 → Settings میں ویب ویور UI سے مستحکم اور بیٹا ورژن کے درمیان سوئچ کریں۔
+Codex-Mem ایک **بیٹا چینل** فراہم کرتا ہے جس میں **Endless Mode** جیسی تجرباتی خصوصیات ہیں (بڑھی ہوئی سیشنز کے لیے حیاتی نقل میموری کی تعمیر)۔ http://localhost:37777 → Settings میں ویب ویور UI سے مستحکم اور بیٹا ورژن کے درمیان سوئچ کریں۔
 
-Endless Mode اور اسے کیسے آزمائیں اس کے بارے میں تفصیلات کے لیے **[بیٹا خصوصیات دستاویزات](https://docs.claude-mem.ai/beta-features)** دیکھیں۔
+Endless Mode اور اسے کیسے آزمائیں اس کے بارے میں تفصیلات کے لیے **[بیٹا خصوصیات دستاویزات](https://docs.codex-mem.ai/beta-features)** دیکھیں۔
 
 ---
 
 ## نظام کی ضروریات
 
 - **Node.js**: 18.0.0 یا اس سے اوپر
-- **Claude Code**: پلگ ان سپورٹ کے ساتھ جدید ترین ورژن
+- **Codex Code**: پلگ ان سپورٹ کے ساتھ جدید ترین ورژن
 - **Bun**: JavaScript رن ٹائم اور پروسیس مینیجر (غیر موجود ہو تو خودکار طور پر انسٹال ہوگا)
 - **uv**: ویکٹر تلاش کے لیے Python پیکج مینیجر (غیر موجود ہو تو خودکار طور پر انسٹال ہوگا)
 - **SQLite 3**: مستقل اسٹوریج کے لیے (بنڈل شدہ)
@@ -235,23 +235,23 @@ Endless Mode اور اسے کیسے آزمائیں اس کے بارے میں ت�
 
 ## ترتیبات
 
-سیٹنگز `~/.claude-mem/settings.json` میں منظم ہیں (پہلی رن میں ڈیفالٹ کے ساتھ خودکار طور پر بنائی جاتی ہے)۔ AI ماڈل، ورکر پورٹ، ڈیٹا ڈائریکٹری، لاگ لیول اور تناسب انجیکشن سیٹنگز کو ترتیب دیں۔
+سیٹنگز `~/.codex-mem/settings.json` میں منظم ہیں (پہلی رن میں ڈیفالٹ کے ساتھ خودکار طور پر بنائی جاتی ہے)۔ AI ماڈل، ورکر پورٹ، ڈیٹا ڈائریکٹری، لاگ لیول اور تناسب انجیکشن سیٹنگز کو ترتیب دیں۔
 
-تمام دستیاب سیٹنگز اور مثالوں کے لیے **[ترتیبات گائیڈ](https://docs.claude-mem.ai/configuration)** دیکھیں۔
+تمام دستیاب سیٹنگز اور مثالوں کے لیے **[ترتیبات گائیڈ](https://docs.codex-mem.ai/configuration)** دیکھیں۔
 
 ---
 
 ## ترقی
 
-تعمیر کی ہدایات، جانچ اور حصہ داری کے کام کے بہاؤ کے لیے **[ترقی گائیڈ](https://docs.claude-mem.ai/development)** دیکھیں۔
+تعمیر کی ہدایات، جانچ اور حصہ داری کے کام کے بہاؤ کے لیے **[ترقی گائیڈ](https://docs.codex-mem.ai/development)** دیکھیں۔
 
 ---
 
 ## مسائل کی تشخیص
 
-اگر مسائل کا سامنا ہو تو Claude کو مسئلہ بتائیں اور troubleshoot مہارت خودکار طور پر تشخیص دے گی اور حل فراہم کرے گی۔
+اگر مسائل کا سامنا ہو تو Codex کو مسئلہ بتائیں اور troubleshoot مہارت خودکار طور پر تشخیص دے گی اور حل فراہم کرے گی۔
 
-عام مسائل اور حل کے لیے **[مسائل کی تشخیص گائیڈ](https://docs.claude-mem.ai/troubleshooting)** دیکھیں۔
+عام مسائل اور حل کے لیے **[مسائل کی تشخیص گائیڈ](https://docs.codex-mem.ai/troubleshooting)** دیکھیں۔
 
 ---
 
@@ -260,7 +260,7 @@ Endless Mode اور اسے کیسے آزمائیں اس کے بارے میں ت�
 خودکار جنریٹر کے ساتھ تفصیلی خرابی کی رپورٹ تیار کریں:
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 
@@ -274,7 +274,7 @@ npm run bug-report
 4. دستاویزات کو اپڈیٹ کریں
 5. ایک Pull Request جمع کریں
 
-حصہ داری کے کام کے بہاؤ کے لیے [ترقی گائیڈ](https://docs.claude-mem.ai/development) دیکھیں۔
+حصہ داری کے کام کے بہاؤ کے لیے [ترقی گائیڈ](https://docs.codex-mem.ai/development) دیکھیں۔
 
 ---
 
@@ -296,12 +296,12 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## معاونت
 
 - **دستاویزات**: [docs/](docs/)
-- **مسائل**: [GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **رپوزیٹری**: [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
+- **مسائل**: [GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **رپوزیٹری**: [github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
 - **مصنف**: Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**Claude Agent SDK کے ساتھ بنایا گیا** | **Claude Code کے ذریعے طاقت ور** | **TypeScript کے ساتھ بنایا گیا**
+**Codex Agent SDK کے ساتھ بنایا گیا** | **Codex Code کے ذریعے طاقت ور** | **TypeScript کے ساتھ بنایا گیا**
 
 </section>

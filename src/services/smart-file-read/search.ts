@@ -34,7 +34,7 @@ const IGNORE_DIRS = new Set([
   "node_modules", ".git", "dist", "build", ".next", "__pycache__",
   ".venv", "venv", "env", ".env", "target", "vendor",
   ".cache", ".turbo", "coverage", ".nyc_output",
-  ".claude", ".smart-file-read",
+  ".codex", ".smart-file-read",
 ]);
 
 const MAX_FILE_SIZE = 512 * 1024; 

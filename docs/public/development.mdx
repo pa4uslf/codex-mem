@@ -1,6 +1,6 @@
 ---
 title: "Development"
-description: "Build from source, run tests, and contribute to Claude-Mem"
+description: "Build from source, run tests, and contribute to Codex-Mem"
 ---
 
 # Development Guide
@@ -17,8 +17,8 @@ description: "Build from source, run tests, and contribute to Claude-Mem"
 
 ```bash
 # Clone repository
-git clone https://github.com/thedotmack/claude-mem.git
-cd claude-mem
+git clone https://github.com/thedotmack/codex-mem.git
+cd codex-mem
 
 # Install dependencies
 npm install
@@ -67,7 +67,7 @@ src/
 ├── hooks/           # Hook implementations (entry points + logic)
 ├── services/        # Worker service and database
 ├── servers/         # MCP search server
-├── sdk/             # Claude Agent SDK integration
+├── sdk/             # Codex CLI integration
 ├── shared/          # Shared utilities
 ├── ui/
 │   └── viewer/      # React web viewer UI components
@@ -254,7 +254,7 @@ main().catch(console.error);
   "YourHook": [{
     "hooks": [{
       "type": "command",
-      "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/your-hook.js",
+      "command": "node ${CODEX_PLUGIN_ROOT}/scripts/your-hook.js",
       "timeout": 120
     }]
   }]
@@ -306,7 +306,7 @@ createObservation(obs: Observation) {
 
 ```bash
 # Backup database first!
-cp ~/.claude-mem/claude-mem.db ~/.claude-mem/claude-mem.db.backup
+cp ~/.codex-mem/codex-mem.db ~/.codex-mem/codex-mem.db.backup
 
 # Run tests
 npm test
@@ -373,16 +373,16 @@ npm test
 
 ### Testing Philosophy
 
-Claude-mem relies on **real-world usage and manual testing** rather than traditional unit tests. The project philosophy prioritizes:
+Codex-mem relies on **real-world usage and manual testing** rather than traditional unit tests. The project philosophy prioritizes:
 
-1. **Manual verification** - Testing features in actual Claude Code sessions
+1. **Manual verification** - Testing features in actual Codex Code sessions
 2. **Integration testing** - Running the full system end-to-end
 3. **Database inspection** - Verifying data correctness via SQLite queries
 4. **CLI tools** - Interactive tools for checking system state
 5. **Observability** - Comprehensive logging and worker health checks
 
 This approach was chosen because:
-- Hook behavior depends heavily on Claude Code's runtime environment
+- Hook behavior depends heavily on Codex Code's runtime environment
 - SDK interactions require real API calls and responses
 - SQLite and Bun runtime provide stability guarantees
 - Manual testing catches integration issues that unit tests miss
@@ -399,13 +399,13 @@ When developing new features:
    ```
 
 2. **Test in real session**:
-   - Start Claude Code
+   - Start Codex Code
    - Trigger the feature you're testing
    - Verify expected behavior
 
 3. **Check database state**:
    ```bash
-   sqlite3 ~/.claude-mem/claude-mem.db "SELECT * FROM your_table;"
+   sqlite3 ~/.codex-mem/codex-mem.db "SELECT * FROM your_table;"
    ```
 
 4. **Monitor worker logs**:
@@ -429,7 +429,7 @@ npm run worker:status
 curl http://localhost:37777/api/pending-queue
 
 # Database integrity
-sqlite3 ~/.claude-mem/claude-mem.db "PRAGMA integrity_check;"
+sqlite3 ~/.codex-mem/codex-mem.db "PRAGMA integrity_check;"
 ```
 
 **Hook Testing**:
@@ -444,7 +444,7 @@ echo '{"session_id":"test-123","cwd":"'$(pwd)'","prompt":"test"}' | node plugin/
 **Data Verification**:
 ```bash
 # Check recent observations
-sqlite3 ~/.claude-mem/claude-mem.db "
+sqlite3 ~/.codex-mem/codex-mem.db "
   SELECT id, tool_name, created_at
   FROM observations
   ORDER BY created_at_epoch DESC
@@ -452,7 +452,7 @@ sqlite3 ~/.claude-mem/claude-mem.db "
 "
 
 # Check summaries
-sqlite3 ~/.claude-mem/claude-mem.db "
+sqlite3 ~/.codex-mem/codex-mem.db "
   SELECT id, request, completed
   FROM session_summaries
   ORDER BY created_at_epoch DESC
@@ -467,7 +467,7 @@ For manual recovery features specifically:
 1. **Simulate stuck messages**:
    ```bash
    # Manually create stuck message (for testing only)
-   sqlite3 ~/.claude-mem/claude-mem.db "
+   sqlite3 ~/.codex-mem/codex-mem.db "
      UPDATE pending_messages
      SET status = 'processing',
          started_processing_at_epoch = strftime('%s', 'now', '-10 minutes') * 1000
@@ -490,11 +490,11 @@ For manual recovery features specifically:
 Before releasing:
 
 1. **Test all hook triggers**:
-   - SessionStart: Start new Claude Code session
+   - SessionStart: Start new Codex Code session
    - UserPromptSubmit: Submit a prompt
    - PostToolUse: Use a tool like Read
    - Summary: Let session complete
-   - SessionEnd: Close Claude Code
+   - SessionEnd: Close Codex Code
 
 2. **Test core features**:
    - Context injection (recent sessions appear)
@@ -559,7 +559,7 @@ export async function createObservation(
 ### Enable Debug Logging
 
 ```bash
-export DEBUG=claude-mem:*
+export DEBUG=codex-mem:*
 npm run worker:restart
 npm run worker:logs
 ```
@@ -567,7 +567,7 @@ npm run worker:logs
 ### Inspect Database
 
 ```bash
-sqlite3 ~/.claude-mem/claude-mem.db
+sqlite3 ~/.codex-mem/codex-mem.db
 
 # View schema
 .schema observations
@@ -581,7 +581,7 @@ SELECT * FROM observations LIMIT 10;
 Use correlation IDs to trace observations through the pipeline:
 
 ```bash
-sqlite3 ~/.claude-mem/claude-mem.db
+sqlite3 ~/.codex-mem/codex-mem.db
 SELECT correlation_id, tool_name, created_at
 FROM observations
 WHERE session_id = 'YOUR_SESSION_ID'
@@ -632,8 +632,8 @@ The `release` script:
 ```bash
 # Manual version bump:
 # 1. Update version in package.json
-# 2. Update version in plugin/.claude-plugin/plugin.json
-# 3. Update version at top of CLAUDE.md
+# 2. Update version in plugin/.codex-legacy-plugin/plugin.json
+# 3. Update version at top of CODEX.md
 # 4. Update version badge in README.md
 # 5. Run: npm run build && npm run sync-marketplace
 
@@ -736,7 +736,7 @@ rm -rf plugin/scripts/*.js plugin/scripts/*.cjs
 
 1. Check database:
    ```bash
-   rm ~/.claude-mem/claude-mem.db
+   rm ~/.codex-mem/codex-mem.db
    npm test
    ```
 
@@ -764,12 +764,12 @@ rm -rf plugin/scripts/*.js plugin/scripts/*.cjs
 
 3. Try custom port:
    ```bash
-   export CLAUDE_MEM_WORKER_PORT=38000
+   export CODEX_MEM_WORKER_PORT=38000
    npm run worker:start
    ```
 
 ## Next Steps
 
 - [Architecture Overview](architecture/overview) - Understand the system
-- [Configuration](configuration) - Customize Claude-Mem
+- [Configuration](configuration) - Customize Codex-Mem
 - [Troubleshooting](troubleshooting) - Common issues

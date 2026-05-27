@@ -17,7 +17,7 @@ import {
 } from '../../../src/server/runtime/SessionGenerationPolicy.js';
 import { processSessionSummaryResponse } from '../../../src/server/generation/processGeneratedResponse.js';
 
-const testDatabaseUrl = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const testDatabaseUrl = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 function quoteIdentifier(name: string): string {
   return `"${name.replaceAll('"', '""')}"`;
@@ -25,13 +25,13 @@ function quoteIdentifier(name: string): string {
 
 describe('SessionGenerationPolicy (pure)', () => {
   it('defaults to per-event when env is unset', () => {
-    const oldEnv = process.env.CLAUDE_MEM_SERVER_SESSION_POLICY;
-    delete process.env.CLAUDE_MEM_SERVER_SESSION_POLICY;
+    const oldEnv = process.env.CODEX_MEM_SERVER_SESSION_POLICY;
+    delete process.env.CODEX_MEM_SERVER_SESSION_POLICY;
     try {
       const resolved = resolveSessionGenerationPolicy();
       expect(resolved.policy).toBe('per-event');
     } finally {
-      if (oldEnv !== undefined) process.env.CLAUDE_MEM_SERVER_SESSION_POLICY = oldEnv;
+      if (oldEnv !== undefined) process.env.CODEX_MEM_SERVER_SESSION_POLICY = oldEnv;
     }
   });
 
@@ -82,7 +82,7 @@ describe('SessionGenerationPolicy (pure)', () => {
 
 describe('ServerSessionRuntimeRepository + Postgres', () => {
   if (!testDatabaseUrl) {
-    it.skip('requires CLAUDE_MEM_TEST_POSTGRES_URL', () => {});
+    it.skip('requires CODEX_MEM_TEST_POSTGRES_URL', () => {});
     return;
   }
 
@@ -284,7 +284,7 @@ describe('ServerSessionRuntimeRepository + Postgres', () => {
       pool,
       job,
       rawText: summaryXml,
-      providerLabel: 'claude',
+      providerLabel: 'codex',
     });
     expect(outcome1.kind).toBe('completed');
     if (outcome1.kind === 'completed') {
@@ -298,7 +298,7 @@ describe('ServerSessionRuntimeRepository + Postgres', () => {
       pool,
       job,
       rawText: summaryXml,
-      providerLabel: 'claude',
+      providerLabel: 'codex',
     });
     expect(outcome2.kind).toBe('completed');
     if (outcome2.kind === 'completed') {

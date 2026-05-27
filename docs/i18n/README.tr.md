@@ -2,11 +2,11 @@
 
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -45,7 +45,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center"><a href="https://claude.com/claude-code" target="_blank">Claude Code</a> için geliştirilmiş kalıcı bellek sıkıştırma sistemi.</h4>
+<h4 align="center"><a href="https://codex.com/codex-code" target="_blank">Codex Code</a> için geliştirilmiş kalıcı bellek sıkıştırma sistemi.</h4>
 
 <p align="center">
   <a href="LICENSE">
@@ -57,17 +57,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -75,9 +75,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -93,22 +93,22 @@
 </p>
 
 <p align="center">
-  Claude-Mem, araç kullanım gözlemlerini otomatik olarak yakalayarak, anlamsal özetler oluşturarak ve bunları gelecekteki oturumlarda kullanılabilir hale getirerek bağlamı oturumlar arası sorunsuzca korur. Bu, Claude'un oturumlar sona erse veya yeniden bağlansa bile projeler hakkındaki bilgi sürekliliğini korumasını sağlar.
+  Codex-Mem, araç kullanım gözlemlerini otomatik olarak yakalayarak, anlamsal özetler oluşturarak ve bunları gelecekteki oturumlarda kullanılabilir hale getirerek bağlamı oturumlar arası sorunsuzca korur. Bu, Codex'un oturumlar sona erse veya yeniden bağlansa bile projeler hakkındaki bilgi sürekliliğini korumasını sağlar.
 </p>
 
 ---
 
 ## Hızlı Başlangıç
 
-Terminal üzerinden yeni bir Claude Code oturumu başlatın ve aşağıdaki komutları girin:
+Terminal üzerinden yeni bir Codex Code oturumu başlatın ve aşağıdaki komutları girin:
 
 ```
-> /plugin marketplace add thedotmack/claude-mem
+> /plugin marketplace add thedotmack/codex-mem
 
-> /plugin install claude-mem
+> /plugin install codex-mem
 ```
 
-Claude Code'u yeniden başlatın. Önceki oturumlardaki bağlam otomatik olarak yeni oturumlarda görünecektir.
+Codex Code'u yeniden başlatın. Önceki oturumlardaki bağlam otomatik olarak yeni oturumlarda görünecektir.
 
 **Temel Özellikler:**
 
@@ -116,7 +116,7 @@ Claude Code'u yeniden başlatın. Önceki oturumlardaki bağlam otomatik olarak 
 - 📊 **Aşamalı Açıklama** - Token maliyeti görünürlüğü ile katmanlı bellek erişimi
 - 🔍 **Beceri Tabanlı Arama** - mem-search becerisi ile proje geçmişinizi sorgulayın
 - 🖥️ **Web Görüntüleyici Arayüzü** - http://localhost:37777 adresinde gerçek zamanlı bellek akışı
-- 💻 **Claude Desktop Becerisi** - Claude Desktop konuşmalarından bellek araması yapın
+- 💻 **Codex Desktop Becerisi** - Codex Desktop konuşmalarından bellek araması yapın
 - 🔒 **Gizlilik Kontrolü** - Hassas içeriği depolamadan hariç tutmak için `<private>` etiketlerini kullanın
 - ⚙️ **Bağlam Yapılandırması** - Hangi bağlamın enjekte edileceği üzerinde detaylı kontrol
 - 🤖 **Otomatik Çalışma** - Manuel müdahale gerektirmez
@@ -127,35 +127,35 @@ Claude Code'u yeniden başlatın. Önceki oturumlardaki bağlam otomatik olarak 
 
 ## Dokümantasyon
 
-📚 **[Tam Dokümantasyonu Görüntüle](https://docs.claude-mem.ai/)** - Resmi web sitesinde göz atın
+📚 **[Tam Dokümantasyonu Görüntüle](https://docs.codex-mem.ai/)** - Resmi web sitesinde göz atın
 
 ### Başlarken
 
-- **[Kurulum Kılavuzu](https://docs.claude-mem.ai/installation)** - Hızlı başlangıç ve gelişmiş kurulum
-- **[Kullanım Kılavuzu](https://docs.claude-mem.ai/usage/getting-started)** - Claude-Mem otomatik olarak nasıl çalışır
-- **[Arama Araçları](https://docs.claude-mem.ai/usage/search-tools)** - Doğal dil ile proje geçmişinizi sorgulayın
-- **[Beta Özellikleri](https://docs.claude-mem.ai/beta-features)** - Endless Mode gibi deneysel özellikleri deneyin
+- **[Kurulum Kılavuzu](https://docs.codex-mem.ai/installation)** - Hızlı başlangıç ve gelişmiş kurulum
+- **[Kullanım Kılavuzu](https://docs.codex-mem.ai/usage/getting-started)** - Codex-Mem otomatik olarak nasıl çalışır
+- **[Arama Araçları](https://docs.codex-mem.ai/usage/search-tools)** - Doğal dil ile proje geçmişinizi sorgulayın
+- **[Beta Özellikleri](https://docs.codex-mem.ai/beta-features)** - Endless Mode gibi deneysel özellikleri deneyin
 
 ### En İyi Uygulamalar
 
-- **[Bağlam Mühendisliği](https://docs.claude-mem.ai/context-engineering)** - AI ajan bağlam optimizasyon ilkeleri
-- **[Aşamalı Açıklama](https://docs.claude-mem.ai/progressive-disclosure)** - Claude-Mem'in bağlam hazırlama stratejisinin ardındaki felsefe
+- **[Bağlam Mühendisliği](https://docs.codex-mem.ai/context-engineering)** - AI ajan bağlam optimizasyon ilkeleri
+- **[Aşamalı Açıklama](https://docs.codex-mem.ai/progressive-disclosure)** - Codex-Mem'in bağlam hazırlama stratejisinin ardındaki felsefe
 
 ### Mimari
 
-- **[Genel Bakış](https://docs.claude-mem.ai/architecture/overview)** - Sistem bileşenleri ve veri akışı
-- **[Mimari Evrimi](https://docs.claude-mem.ai/architecture-evolution)** - v3'ten v5'e yolculuk
-- **[Hooks Mimarisi](https://docs.claude-mem.ai/hooks-architecture)** - Claude-Mem yaşam döngüsü hook'larını nasıl kullanır
-- **[Hooks Referansı](https://docs.claude-mem.ai/architecture/hooks)** - 7 hook betiği açıklandı
-- **[Worker Servisi](https://docs.claude-mem.ai/architecture/worker-service)** - HTTP API ve Bun yönetimi
-- **[Veritabanı](https://docs.claude-mem.ai/architecture/database)** - SQLite şeması ve FTS5 arama
-- **[Arama Mimarisi](https://docs.claude-mem.ai/architecture/search-architecture)** - Chroma vektör veritabanı ile hibrit arama
+- **[Genel Bakış](https://docs.codex-mem.ai/architecture/overview)** - Sistem bileşenleri ve veri akışı
+- **[Mimari Evrimi](https://docs.codex-mem.ai/architecture-evolution)** - v3'ten v5'e yolculuk
+- **[Hooks Mimarisi](https://docs.codex-mem.ai/hooks-architecture)** - Codex-Mem yaşam döngüsü hook'larını nasıl kullanır
+- **[Hooks Referansı](https://docs.codex-mem.ai/architecture/hooks)** - 7 hook betiği açıklandı
+- **[Worker Servisi](https://docs.codex-mem.ai/architecture/worker-service)** - HTTP API ve Bun yönetimi
+- **[Veritabanı](https://docs.codex-mem.ai/architecture/database)** - SQLite şeması ve FTS5 arama
+- **[Arama Mimarisi](https://docs.codex-mem.ai/architecture/search-architecture)** - Chroma vektör veritabanı ile hibrit arama
 
 ### Yapılandırma ve Geliştirme
 
-- **[Yapılandırma](https://docs.claude-mem.ai/configuration)** - Ortam değişkenleri ve ayarlar
-- **[Geliştirme](https://docs.claude-mem.ai/development)** - Derleme, test etme, katkıda bulunma
-- **[Sorun Giderme](https://docs.claude-mem.ai/troubleshooting)** - Yaygın sorunlar ve çözümler
+- **[Yapılandırma](https://docs.codex-mem.ai/configuration)** - Ortam değişkenleri ve ayarlar
+- **[Geliştirme](https://docs.codex-mem.ai/development)** - Derleme, test etme, katkıda bulunma
+- **[Sorun Giderme](https://docs.codex-mem.ai/troubleshooting)** - Yaygın sorunlar ve çözümler
 
 ---
 
@@ -170,17 +170,17 @@ Claude Code'u yeniden başlatın. Önceki oturumlardaki bağlam otomatik olarak 
 5. **mem-search Becerisi** - Aşamalı açıklama ile doğal dil sorguları
 6. **Chroma Vektör Veritabanı** - Akıllı bağlam erişimi için hibrit anlamsal + anahtar kelime arama
 
-Detaylar için [Mimari Genel Bakış](https://docs.claude-mem.ai/architecture/overview) bölümüne bakın.
+Detaylar için [Mimari Genel Bakış](https://docs.codex-mem.ai/architecture/overview) bölümüne bakın.
 
 ---
 
 ## mem-search Becerisi
 
-Claude-Mem, geçmiş çalışmalarınız hakkında sorduğunuzda otomatik olarak devreye giren mem-search becerisi aracılığıyla akıllı arama sağlar:
+Codex-Mem, geçmiş çalışmalarınız hakkında sorduğunuzda otomatik olarak devreye giren mem-search becerisi aracılığıyla akıllı arama sağlar:
 
 **Nasıl Çalışır:**
 - Sadece doğal bir şekilde sorun: *"Geçen oturumda ne yaptık?"* veya *"Bu hatayı daha önce düzelttik mi?"*
-- Claude, ilgili bağlamı bulmak için otomatik olarak mem-search becerisini çağırır
+- Codex, ilgili bağlamı bulmak için otomatik olarak mem-search becerisini çağırır
 
 **Mevcut Arama İşlemleri:**
 
@@ -205,22 +205,22 @@ Claude-Mem, geçmiş çalışmalarınız hakkında sorduğunuzda otomatik olarak
 "Görüntüleyici arayüzünü eklediğimizde ne oluyordu?"
 ```
 
-Detaylı örnekler için [Arama Araçları Kılavuzu](https://docs.claude-mem.ai/usage/search-tools) bölümüne bakın.
+Detaylı örnekler için [Arama Araçları Kılavuzu](https://docs.codex-mem.ai/usage/search-tools) bölümüne bakın.
 
 ---
 
 ## Beta Özellikleri
 
-Claude-Mem, **Endless Mode** (genişletilmiş oturumlar için biyomimetik bellek mimarisi) gibi deneysel özellikler içeren bir **beta kanalı** sunar. http://localhost:37777 → Settings adresindeki web görüntüleyici arayüzünden kararlı ve beta sürümleri arasında geçiş yapın.
+Codex-Mem, **Endless Mode** (genişletilmiş oturumlar için biyomimetik bellek mimarisi) gibi deneysel özellikler içeren bir **beta kanalı** sunar. http://localhost:37777 → Settings adresindeki web görüntüleyici arayüzünden kararlı ve beta sürümleri arasında geçiş yapın.
 
-Endless Mode hakkında detaylar ve nasıl deneyeceğiniz için **[Beta Özellikleri Dokümantasyonu](https://docs.claude-mem.ai/beta-features)** bölümüne bakın.
+Endless Mode hakkında detaylar ve nasıl deneyeceğiniz için **[Beta Özellikleri Dokümantasyonu](https://docs.codex-mem.ai/beta-features)** bölümüne bakın.
 
 ---
 
 ## Sistem Gereksinimleri
 
 - **Node.js**: 18.0.0 veya üzeri
-- **Claude Code**: Plugin desteği olan en son sürüm
+- **Codex Code**: Plugin desteği olan en son sürüm
 - **Bun**: JavaScript çalışma zamanı ve işlem yöneticisi (eksikse otomatik kurulur)
 - **uv**: Vektör arama için Python paket yöneticisi (eksikse otomatik kurulur)
 - **SQLite 3**: Kalıcı depolama için (dahildir)
@@ -229,23 +229,23 @@ Endless Mode hakkında detaylar ve nasıl deneyeceğiniz için **[Beta Özellikl
 
 ## Yapılandırma
 
-Ayarlar `~/.claude-mem/settings.json` dosyasında yönetilir (ilk çalıştırmada varsayılanlarla otomatik oluşturulur). AI modelini, worker portunu, veri dizinini, log seviyesini ve bağlam enjeksiyon ayarlarını yapılandırın.
+Ayarlar `~/.codex-mem/settings.json` dosyasında yönetilir (ilk çalıştırmada varsayılanlarla otomatik oluşturulur). AI modelini, worker portunu, veri dizinini, log seviyesini ve bağlam enjeksiyon ayarlarını yapılandırın.
 
-Tüm mevcut ayarlar ve örnekler için **[Yapılandırma Kılavuzu](https://docs.claude-mem.ai/configuration)** bölümüne bakın.
+Tüm mevcut ayarlar ve örnekler için **[Yapılandırma Kılavuzu](https://docs.codex-mem.ai/configuration)** bölümüne bakın.
 
 ---
 
 ## Geliştirme
 
-Derleme talimatları, test etme ve katkı iş akışı için **[Geliştirme Kılavuzu](https://docs.claude-mem.ai/development)** bölümüne bakın.
+Derleme talimatları, test etme ve katkı iş akışı için **[Geliştirme Kılavuzu](https://docs.codex-mem.ai/development)** bölümüne bakın.
 
 ---
 
 ## Sorun Giderme
 
-Sorunlarla karşılaşırsanız, sorunu Claude'a açıklayın ve troubleshoot becerisi otomatik olarak teşhis edip düzeltmeleri sağlayacaktır.
+Sorunlarla karşılaşırsanız, sorunu Codex'a açıklayın ve troubleshoot becerisi otomatik olarak teşhis edip düzeltmeleri sağlayacaktır.
 
-Yaygın sorunlar ve çözümler için **[Sorun Giderme Kılavuzu](https://docs.claude-mem.ai/troubleshooting)** bölümüne bakın.
+Yaygın sorunlar ve çözümler için **[Sorun Giderme Kılavuzu](https://docs.codex-mem.ai/troubleshooting)** bölümüne bakın.
 
 ---
 
@@ -254,7 +254,7 @@ Yaygın sorunlar ve çözümler için **[Sorun Giderme Kılavuzu](https://docs.c
 Otomatik oluşturucu ile kapsamlı hata raporları oluşturun:
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 
@@ -268,7 +268,7 @@ Katkılar memnuniyetle karşılanır! Lütfen:
 4. Dokümantasyonu güncelleyin
 5. Pull Request gönderin
 
-Katkı iş akışı için [Geliştirme Kılavuzu](https://docs.claude-mem.ai/development) bölümüne bakın.
+Katkı iş akışı için [Geliştirme Kılavuzu](https://docs.codex-mem.ai/development) bölümüne bakın.
 
 ---
 
@@ -290,10 +290,10 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## Destek
 
 - **Dokümantasyon**: [docs/](docs/)
-- **Sorunlar**: [GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **Depo**: [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
+- **Sorunlar**: [GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **Depo**: [github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
 - **Yazar**: Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**Claude Agent SDK ile geliştirilmiştir** | **Claude Code ile desteklenmektedir** | **TypeScript ile yapılmıştır**
+**Codex Agent SDK ile geliştirilmiştir** | **Codex Code ile desteklenmektedir** | **TypeScript ile yapılmıştır**

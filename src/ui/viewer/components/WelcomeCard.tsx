@@ -4,9 +4,9 @@ interface WelcomeCardProps {
   onDismiss: () => void;
 }
 
-const STORAGE_KEY = 'claude-mem-welcome-dismissed-v3';
+const STORAGE_KEY = 'codex-mem-welcome-dismissed-v3';
 const EXPLAINER_URL = '/api/onboarding/explainer';
-const DOCS_URL = 'https://docs.claude-mem.ai';
+const DOCS_URL = 'https://docs.codex-mem.ai';
 
 export function getStoredWelcomeDismissed(): boolean {
   try {
@@ -155,7 +155,7 @@ const FEATURES: Feature[] = [
     kind: 'recall',
     illustration: <RecallIllustration />,
     title: 'Recall it',
-    description: 'Ask Claude or run /mem-search to find past work.',
+    description: 'Ask Codex or run /mem-search to find past work.',
   },
 ];
 
@@ -186,9 +186,9 @@ export function WelcomeCard({ onDismiss }: WelcomeCardProps) {
         <DismissButton onClick={handleDismiss} />
 
         <header className="welcome-modal-header">
-          <img className="welcome-modal-logo" src="claude-mem-logo-stylized.png" alt="" width="96" height="96" />
-          <h2 id="welcome-modal-title">Welcome to claude-mem</h2>
-          <p>Persistent memory for Claude Code.</p>
+          <img className="welcome-modal-logo" src="codex-mem-logo-stylized.png" alt="" width="96" height="96" />
+          <h2 id="welcome-modal-title">Welcome to codex-mem</h2>
+          <p>Persistent memory for Codex Code.</p>
         </header>
 
         <div className="welcome-modal-grid">

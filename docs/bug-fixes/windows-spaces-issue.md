@@ -4,7 +4,7 @@ Title: Bug: SDK Agent fails on Windows when username contains spaces
 
 ## Bug Report
 
-**Summary:** Claude SDK Agent fails to start on Windows when the user's path contains spaces (e.g., `C:\Users\Anderson Wang\`), causing PostToolUse hooks to hang indefinitely.
+**Summary:** Codex SDK Agent fails to start on Windows when the user's path contains spaces (e.g., `C:\Users\Anderson Wang\`), causing PostToolUse hooks to hang indefinitely.
 
 **Severity:** High - Core functionality broken
 
@@ -17,7 +17,7 @@ Title: Bug: SDK Agent fails on Windows when username contains spaces
 PostToolUse hook displays `(1/2 done)` indefinitely. Worker logs show:
 
 ```
-ERROR [SESSION] Generator failed {provider=claude, error=Claude Code process exited with code 1}
+ERROR [SESSION] Generator failed {provider=codex, error=Codex Code process exited with code 1}
 ERROR [SESSION] Generator exited unexpectedly
 ```
 
@@ -29,7 +29,7 @@ Two issues in the Windows code path:
 
 1. **`SDKAgent.ts`** - Returns full auto-detected path with spaces:
    ```
-   C:\Users\Anderson Wang\AppData\Roaming\npm\claude.cmd
+   C:\Users\Anderson Wang\AppData\Roaming\npm\codex.cmd
    ```
 
 2. **`ProcessRegistry.ts`** - Node.js `spawn()` cannot directly execute `.cmd` files when the path contains spaces
@@ -40,14 +40,14 @@ Two issues in the Windows code path:
 
 ### File 1: `src/services/worker/SDKAgent.ts`
 
-On Windows, prefer `claude.cmd` via PATH instead of full auto-detected path:
+On Windows, prefer `codex.cmd` via PATH instead of full auto-detected path:
 
 ```typescript
-// On Windows, prefer "claude.cmd" (via PATH) to avoid spawn issues with spaces in paths
+// On Windows, prefer "codex.cmd" (via PATH) to avoid spawn issues with spaces in paths
 if (process.platform === 'win32') {
   try {
-    execSync('where claude.cmd', { encoding: 'utf8', windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
-    return 'claude.cmd'; // Let Windows resolve via PATHEXT
+    execSync('where codex.cmd', { encoding: 'utf8', windowsHide: true, stdio: ['ignore', 'pipe', 'ignore'] });
+    return 'codex.cmd'; // Let Windows resolve via PATHEXT
   } catch {
     // Fall through to generic error
   }
@@ -93,6 +93,6 @@ Verified on Windows 11 with username containing spaces:
 
 ## Additional Notes
 
-- Maintains backward compatibility with `CLAUDE_CODE_PATH` setting
+- Maintains backward compatibility with `CODEX_CODE_PATH` setting
 - No impact on non-Windows platforms
 - Related to Issue #733 (credential isolation) - separate fix

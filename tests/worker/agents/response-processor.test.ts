@@ -123,7 +123,7 @@ describe('ResponseProcessor', () => {
       earliestPendingTimestamp: Date.now() - 10000,
       claimedMessageIds: [],
       conversationHistory: [],
-      currentProvider: 'claude',
+      currentProvider: 'codex',
       ...overrides,
     } as ActiveSession;
   }

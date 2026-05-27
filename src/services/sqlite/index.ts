@@ -1,5 +1,5 @@
 export {
-  ClaudeMemDatabase,
+  CodexMemDatabase,
   DatabaseManager,
   getDatabase,
   initializeDatabase,

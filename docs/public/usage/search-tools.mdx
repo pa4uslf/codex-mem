@@ -5,11 +5,11 @@ description: "Search your project history with MCP tools"
 
 # Memory Search with MCP Tools
 
-Claude-mem provides persistent memory across sessions through **4 MCP tools** that follow a token-efficient **3-layer workflow pattern**.
+Codex-mem provides persistent memory across sessions through **4 MCP tools** that follow a token-efficient **3-layer workflow pattern**.
 
 ## Overview
 
-Instead of fetching all historical data upfront (expensive), claude-mem uses a progressive disclosure approach:
+Instead of fetching all historical data upfront (expensive), codex-mem uses a progressive disclosure approach:
 
 1. **Search** → Get a compact index with IDs (~50-100 tokens/result)
 2. **Timeline** → Get context around interesting results
@@ -78,7 +78,7 @@ get_observations(ids=[123, 456, 789])
 
 ### `__IMPORTANT` - Workflow Documentation
 
-Always visible reminder of the 3-layer workflow pattern. Helps Claude understand how to use the search tools efficiently.
+Always visible reminder of the 3-layer workflow pattern. Helps Codex understand how to use the search tools efficiently.
 
 **Usage:** Automatically shown, no need to invoke
 
@@ -438,11 +438,11 @@ If searches seem slow:
 
 **Architecture:** MCP tools are a thin wrapper over the Worker HTTP API (localhost:37777). The MCP server translates tool calls into HTTP requests to the worker service, which handles all business logic, database queries, and Chroma vector search.
 
-**MCP Server:** Located at `~/.claude/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs`
+**MCP Server:** Located at `~/.codex/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs`
 
 **Worker Service:** Express API on port 37777, managed by Bun
 
-**Database:** SQLite FTS5 full-text search on `~/.claude-mem/claude-mem.db`
+**Database:** SQLite FTS5 full-text search on `~/.codex-mem/codex-mem.db`
 
 **Vector Search:** Chroma embeddings for semantic search (underlying implementation)
 
@@ -451,4 +451,4 @@ If searches seem slow:
 - [Progressive Disclosure](/progressive-disclosure) - Philosophy behind 3-layer workflow
 - [Architecture Overview](/architecture/overview) - System components
 - [Database Schema](/architecture/database) - Understanding the data structure
-- [Claude Desktop Setup](/usage/claude-desktop) - Installation and configuration
+- [Codex Desktop Setup](/usage/codex-desktop) - Installation and configuration

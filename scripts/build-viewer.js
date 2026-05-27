@@ -3,11 +3,24 @@
 import * as esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as path from 'path';
+import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
 const rootDir = path.join(__dirname, '..');
+const localNodeModulesDir = path.join(rootDir, 'node_modules');
+const forceLocalNodeModulesPlugin = {
+  name: 'force-local-node-modules',
+  setup(build) {
+    build.onResolve({ filter: /^(react|react-dom|react-dom\/client|scheduler|ansi-to-html|entities|dompurify)$/ }, args => {
+      return {
+        path: require.resolve(args.path, { paths: [localNodeModulesDir] }),
+      };
+    });
+  },
+};
 
 async function buildViewer() {
   console.log('Building React viewer...');
@@ -26,6 +39,7 @@ async function buildViewer() {
         '.tsx': 'tsx',
         '.ts': 'ts'
       },
+      plugins: [forceLocalNodeModulesPlugin],
       define: {
         'process.env.NODE_ENV': '"production"'
       }

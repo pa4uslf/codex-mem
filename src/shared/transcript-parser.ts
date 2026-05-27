@@ -64,7 +64,7 @@ function extractLastMessageFromGeminiTranscript(
  * Extract last message from a JSONL transcript.
  *
  * Supports two field conventions for the per-line role marker:
- * - Claude Code:  `{"type":"assistant",...}`
+ * - Codex Code:  `{"type":"assistant",...}`
  * - Cursor:       `{"role":"assistant",...}`
  *
  * The most recent assistant turn is often a pure tool_use block with no text

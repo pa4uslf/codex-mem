@@ -49,7 +49,7 @@ describe('ClassifiedProviderError', () => {
   });
 
   it('classifies an SDK-level OverloadedError as transient', () => {
-    // Stand-in for an SDK error class instance (e.g. Anthropic OverloadedError).
+    // Stand-in for an SDK error class instance (e.g. Codex OverloadedError).
     class OverloadedError extends Error {
       constructor() {
         super('Overloaded');

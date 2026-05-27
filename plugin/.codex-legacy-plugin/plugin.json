@@ -1,0 +1,28 @@
+{
+  "name": "codex-mem",
+  "version": "13.3.0",
+  "description": "Memory compression system for Codex Code - persist context across sessions",
+  "author": {
+    "name": "Alex Newman"
+  },
+  "repository": "https://github.com/thedotmack/codex-mem",
+  "license": "Apache-2.0",
+  "keywords": [
+    "codex",
+    "codex-code",
+    "codex-cli",
+    "mcp",
+    "plugin",
+    "memory",
+    "compression",
+    "knowledge-graph",
+    "transcript",
+    "typescript",
+    "nodejs"
+  ],
+  "homepage": "https://github.com/thedotmack/codex-mem#readme",
+  "interface": {
+    "developerName": "Alex Newman",
+    "websiteURL": "https://github.com/thedotmack/codex-mem"
+  }
+}

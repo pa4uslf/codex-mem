@@ -1,16 +1,16 @@
 ---
 title: "Architecture Overview"
-description: "System components and data flow in Claude-Mem"
+description: "System components and data flow in Codex-Mem"
 ---
 
 # Architecture Overview
 
 ## System Components
 
-Claude-Mem operates as a Claude Code plugin with the following core components:
+Codex-Mem operates as a Codex Code plugin with the following core components:
 
 1. **Plugin Hooks** - Lifecycle events (Setup version-check + 5 lifecycle hooks: SessionStart, UserPromptSubmit, PreToolUse for `Read`, PostToolUse, Stop)
-2. **Worker Service** - Express HTTP API on a per-user port; processes observations via the Claude Agent SDK (or Gemini / OpenRouter)
+2. **Worker Service** - Express HTTP API on a per-user port; processes observations via the Codex CLI (or Gemini / OpenRouter)
 3. **Database Layer** - SQLite + FTS5 (and optional Chroma for semantic search)
 4. **Search Tools** - HTTP API + the `mem-search` skill / MCP server for progressive disclosure search
 5. **Viewer UI** - React-based real-time memory stream served by the worker
@@ -26,7 +26,7 @@ Claude-Mem operates as a Claude Code plugin with the following core components:
 | **HTTP Server**        | Express.js 5                              |
 | **Real-time**          | Server-Sent Events (SSE)                  |
 | **UI Framework**       | React + TypeScript                        |
-| **AI SDK**             | @anthropic-ai/claude-agent-sdk (or Gemini / OpenRouter) |
+| **AI SDK**             | Codex CLI (or Gemini / OpenRouter) |
 | **Build Tool**         | esbuild (bundles TypeScript)              |
 | **Process Manager**    | Bun                                       |
 | **Testing**            | `bun test`                                 |
@@ -38,7 +38,7 @@ Claude-Mem operates as a Claude Code plugin with the following core components:
 Hook (stdin) → Database → Worker Service → SDK Processor → Database → Next Session Hook
 ```
 
-1. **Input**: Claude Code sends tool execution data via stdin to hooks
+1. **Input**: Codex Code sends tool execution data via stdin to hooks
 2. **Storage**: Hooks write observations to SQLite database
 3. **Processing**: Worker service reads observations, processes via SDK
 4. **Output**: Processed summaries written back to database
@@ -46,15 +46,15 @@ Hook (stdin) → Database → Worker Service → SDK Processor → Database → 
 
 ### Search Pipeline
 ```
-User Query → MCP Tools Invoked → HTTP API → SessionSearch Service → FTS5 Database → Search Results → Claude
+User Query → MCP Tools Invoked → HTTP API → SessionSearch Service → FTS5 Database → Search Results → Codex
 ```
 
 1. **User Query**: User asks naturally: "What bugs did we fix?"
-2. **MCP Tools Invoked**: Claude recognizes intent and invokes MCP search tools
+2. **MCP Tools Invoked**: Codex recognizes intent and invokes MCP search tools
 3. **HTTP API**: MCP tools call HTTP endpoint (e.g., `/api/search/observations`)
 4. **SessionSearch**: Worker service queries FTS5 virtual tables
 5. **Format**: Results formatted and returned via MCP
-6. **Return**: Claude presents formatted results to user
+6. **Return**: Codex presents formatted results to user
 
 Uses 3-layer progressive disclosure: search → timeline → get_observations
 
@@ -64,7 +64,7 @@ Uses 3-layer progressive disclosure: search → timeline → get_observations
 ┌─────────────────────────────────────────────────────────────────┐
 │ 0. Setup Hook Fires (version-check.js)                          │
 │    Sub-100ms read of .install-version; on mismatch prints       │
-│    "run: npx claude-mem repair" to stderr. Always exits 0.      │
+│    "run: npx codex-mem repair" to stderr. Always exits 0.      │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -79,17 +79,17 @@ Uses 3-layer progressive disclosure: search → timeline → get_observations
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 3. Claude Uses Tools → PostToolUse Hook Fires (100+ times)      │
+│ 3. Codex Uses Tools → PostToolUse Hook Fires (100+ times)      │
 │    Captures tool executions, sends to worker for AI compression │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 4. Worker Processes → Claude Agent SDK Analyzes                 │
+│ 4. Worker Processes → Codex CLI Analyzes                 │
 │    Extracts structured learnings via iterative AI processing    │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 5. Claude Stops → Summary Hook Fires                            │
+│ 5. Codex Stops → Summary Hook Fires                            │
 │    Generates final summary with request, completions, learnings │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
@@ -103,10 +103,10 @@ Uses 3-layer progressive disclosure: search → timeline → get_observations
 ## Directory Structure
 
 ```
-claude-mem/
+codex-mem/
 ├── src/
 │   ├── hooks/                  # TypeScript hook implementations (built via esbuild)
-│   ├── sdk/                    # Claude Agent SDK integration
+│   ├── sdk/                    # Codex CLI integration
 │   ├── services/
 │   │   ├── worker-service.ts   # Express HTTP + SSE service (worker entry point)
 │   │   ├── sync/ChromaSync.ts  # Optional Chroma vector index
@@ -118,7 +118,7 @@ claude-mem/
 ├── scripts/                    # Build + utility scripts
 │
 ├── plugin/                     # Plugin distribution (synced to marketplace)
-│   ├── .claude-plugin/plugin.json
+│   ├── .codex-legacy-plugin/plugin.json
 │   ├── hooks/hooks.json        # Hook registration (Setup + 5 lifecycle hooks)
 │   ├── scripts/                # Built executables
 │   │   ├── version-check.js    # Setup-phase marker check (sub-100ms)
@@ -141,24 +141,24 @@ claude-mem/
 
 ### 1. Plugin Hooks
 
-The plugin registers a Setup-phase `version-check.js` plus five lifecycle hooks. Each lifecycle event invokes `bun-runner.js` to spawn `worker-service.cjs` with a `hook claude-code <event>` argument; the worker process is the single dispatcher for all hook logic. Events:
+The plugin registers a Setup-phase `version-check.js` plus five lifecycle hooks. Each lifecycle event invokes `bun-runner.js` to spawn `worker-service.cjs` with a `hook codex-code <event>` argument; the worker process is the single dispatcher for all hook logic. Events:
 
 - **Setup** → `version-check.js` (sub-100ms marker check; never installs anything)
-- **SessionStart** → start worker, then `hook claude-code context` (context injection)
-- **UserPromptSubmit** → `hook claude-code session-init`
-- **PreToolUse** (matcher `Read`) → `hook claude-code file-context`
-- **PostToolUse** (matcher `*`) → `hook claude-code observation`
-- **Stop** → `hook claude-code summarize` (summary generation)
+- **SessionStart** → start worker, then `hook codex-code context` (context injection)
+- **UserPromptSubmit** → `hook codex-code session-init`
+- **PreToolUse** (matcher `Read`) → `hook codex-code file-context`
+- **PostToolUse** (matcher `*`) → `hook codex-code observation`
+- **Stop** → `hook codex-code summarize` (summary generation)
 
-The actual runtime install (Bun, uv, `bun install`) is performed by `npx claude-mem install` / `npx claude-mem repair` with a visible installer spinner; the Setup hook itself only reads the `.install-version` marker.
+The actual runtime install (Bun, uv, `bun install`) is performed by `npx codex-mem install` / `npx codex-mem repair` with a visible installer spinner; the Setup hook itself only reads the `.install-version` marker.
 
 See [Plugin Hooks](/architecture/hooks) for detailed hook documentation.
 
 ### 2. Worker Service
-Express.js HTTP server on a per-user port (default `37700 + (uid % 100)`, override via `CLAUDE_MEM_WORKER_PORT`) with:
+Express.js HTTP server on a per-user port (default `37700 + (uid % 100)`, override via `CODEX_MEM_WORKER_PORT`) with:
 - Search HTTP API endpoints
 - Viewer UI HTTP/SSE endpoints
-- Async observation processing via the Claude Agent SDK (or Gemini / OpenRouter)
+- Async observation processing via the Codex CLI (or Gemini / OpenRouter)
 - Real-time updates via Server-Sent Events
 - Auto-managed by Bun
 
@@ -169,7 +169,7 @@ SQLite3 with bun:sqlite driver featuring:
 - FTS5 virtual tables for full-text search
 - SessionStore for CRUD operations
 - SessionSearch for FTS5 queries
-- Location: `~/.claude-mem/claude-mem.db`
+- Location: `~/.codex-mem/codex-mem.db`
 
 See [Database Architecture](/architecture/database) for schema and FTS5 search.
 

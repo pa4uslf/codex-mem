@@ -14,7 +14,7 @@ interface AntiPattern {
 }
 
 const CRITICAL_PATHS = [
-  'ClaudeProvider.ts',
+  'CodexProvider.ts',
   'GeminiProvider.ts',
   'OpenRouterProvider.ts',
   'SessionStore.ts',

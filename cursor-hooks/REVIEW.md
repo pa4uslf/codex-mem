@@ -10,7 +10,7 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 
 1. **Modular Design**: Common utilities extracted to `common.sh` for reusability
 2. **Error Handling**: Graceful degradation - hooks never block Cursor even on failures
-3. **Parity with Claude Code**: Matches claude-mem's hook behavior where possible
+3. **Parity with Codex Code**: Matches codex-mem's hook behavior where possible
 4. **Fire-and-Forget**: Observations sent asynchronously, don't block agent execution
 
 ### ⚠️ Limitations (Platform-Specific)
@@ -51,7 +51,7 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 
 ### 2. `session-init.sh` - Session Initialization
 
-**Purpose**: Initialize claude-mem session when prompt is submitted
+**Purpose**: Initialize codex-mem session when prompt is submitted
 
 **Flow**:
 1. Read and validate JSON input
@@ -74,7 +74,7 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 - ✅ **Fixed**: All jq operations have error handling
 - ✅ **Fixed**: Worker health check with proper retries
 
-**Parity with Claude Code**:
+**Parity with Codex Code**:
 - ✅ Session initialization
 - ✅ Privacy check handling
 - ✅ Slash stripping
@@ -104,11 +104,11 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 - ✅ **Fixed**: Proper handling of empty/null values
 - ✅ **Fixed**: Error handling for all jq operations
 
-**Parity with Claude Code**:
+**Parity with Codex Code**:
 - ✅ Tool observation capture
 - ✅ Privacy tag stripping (handled by worker)
 - ✅ Fire-and-forget pattern
-- ✅ Enhanced: Shell command capture (not in Claude Code)
+- ✅ Enhanced: Shell command capture (not in Codex Code)
 
 ### 4. `save-file-edit.sh` - File Edit Capture
 
@@ -134,9 +134,9 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 - ✅ **Fixed**: Array validation before processing
 - ✅ **Fixed**: Safe string slicing in summary generation
 
-**Parity with Claude Code**:
+**Parity with Codex Code**:
 - ✅ File edit capture (new feature for Cursor)
-- ✅ Observation format matches claude-mem structure
+- ✅ Observation format matches codex-mem structure
 
 ### 5. `session-summary.sh` - Summary Generation
 
@@ -158,7 +158,7 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 - ✅ **Fixed**: Proper JSON output for Cursor stop hook
 - ✅ **Fixed**: Worker handles empty messages (verified in codebase)
 
-**Parity with Claude Code**:
+**Parity with Codex Code**:
 - ⚠️ Partial: No transcript access, so no last_user_message/last_assistant_message
 - ✅ Summary generation still works (based on observations)
 
@@ -167,8 +167,8 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 **Purpose**: Fetch context and write to `.cursor/rules/` for auto-injection
 
 **How It Works**:
-1. Fetches context from claude-mem worker
-2. Writes to `.cursor/rules/claude-mem-context.mdc` with `alwaysApply: true`
+1. Fetches context from codex-mem worker
+2. Writes to `.cursor/rules/codex-mem-context.mdc` with `alwaysApply: true`
 3. Cursor auto-includes this rule in all chat sessions
 4. Context refreshes on every prompt submission
 
@@ -178,7 +178,7 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 3. Get project name
 4. Ensure worker is running
 5. Fetch context from `/api/context/inject`
-6. Write context to `.cursor/rules/claude-mem-context.mdc`
+6. Write context to `.cursor/rules/codex-mem-context.mdc`
 7. Output `{"continue": true}`
 
 **Edge Cases Handled**:
@@ -188,9 +188,9 @@ This document provides a thorough review of the Cursor hooks integration, coveri
 - ✅ Special characters in project name → URL encoded
 - ✅ Missing `.cursor/rules/` directory → created automatically
 
-**Parity with Claude Code**:
+**Parity with Codex Code**:
 - ✅ Context injection achieved via rules file workaround
-- ✅ Worker readiness check matches Claude Code
+- ✅ Worker readiness check matches Codex Code
 - ✅ Context available immediately in next prompt
 
 ## Error Handling Review
@@ -293,7 +293,7 @@ This document provides a thorough review of the Cursor hooks integration, coveri
    - ⚠️ Requires jq and curl
 
 3. **Context Injection**:
-   - ✅ Solved via auto-updated `.cursor/rules/claude-mem-context.mdc`
+   - ✅ Solved via auto-updated `.cursor/rules/codex-mem-context.mdc`
    - ✅ Context also available via MCP tools
    - ✅ Context also available via web viewer
 
@@ -320,7 +320,7 @@ The Cursor hooks integration is **production-ready** with:
 - ✅ Comprehensive error handling
 - ✅ Input validation and sanitization
 - ✅ Graceful degradation
-- ✅ Feature parity with Claude Code hooks (where applicable)
+- ✅ Feature parity with Codex Code hooks (where applicable)
 - ✅ Enhanced features (shell/file edit capture)
 
 The implementation handles edge cases well and follows best practices for reliability and maintainability.

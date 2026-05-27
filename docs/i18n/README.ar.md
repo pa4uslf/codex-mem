@@ -1,11 +1,11 @@
 <section dir="rtl">
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -44,7 +44,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center">أداة إضافية لـ <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> تعمل على أتمتة تسجيل معلومات الجلسات السابقه، وضغطها, ثم حقن السياق ذي الصلة في الجلسات المستقبلية.
+<h4 align="center">أداة إضافية لـ <a href="https://codex.com/codex-code" target="_blank">Codex Code</a> تعمل على أتمتة تسجيل معلومات الجلسات السابقه، وضغطها, ثم حقن السياق ذي الصلة في الجلسات المستقبلية.
 </h4>
 
 <p align="center">
@@ -57,17 +57,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -75,9 +75,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -93,25 +93,25 @@
 </p>
 
 <p align="center"  dir="rtl">
-Claude-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة لسياق عمل Claude Code. وظيفته الأساسية هي جعل "كلود" يتذكر ما فعله في جلسات العمل السابقة بسلاسة، عبر تسجيل تحركاته، وإنشاء ملخصات ذكية، واستدعائها في الجلسات المستقبلية. هذا يضمن عدم ضياع سياق المشروع حتى لو أغلقت البرنامج وفتحته لاحقاً.
+Codex-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة لسياق عمل Codex Code. وظيفته الأساسية هي جعل "كلود" يتذكر ما فعله في جلسات العمل السابقة بسلاسة، عبر تسجيل تحركاته، وإنشاء ملخصات ذكية، واستدعائها في الجلسات المستقبلية. هذا يضمن عدم ضياع سياق المشروع حتى لو أغلقت البرنامج وفتحته لاحقاً.
 </p>
 
 ---
 
 ## بداية سريعة 
 
-للبدء، افتح "Claude Code" في مبنى الأوامر (Terminal) واكتب الأوامر التالية:
+للبدء، افتح "Codex Code" في مبنى الأوامر (Terminal) واكتب الأوامر التالية:
 <div dir="ltr"  align="left">
 
 ```
-> /plugin marketplace add thedotmack/claude-mem
+> /plugin marketplace add thedotmack/codex-mem
 
-> /plugin install claude-mem
+> /plugin install codex-mem
 ```
 
 </div>
 
-بمجرد إعادة تشغيل Claude Code، سيتم استدعاء السياق من الجلسات السابقة تلقائيا عند الحاجة.
+بمجرد إعادة تشغيل Codex Code، سيتم استدعاء السياق من الجلسات السابقة تلقائيا عند الحاجة.
 
 **الميزات الرئيسية:**
 
@@ -119,7 +119,7 @@ Claude-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة ل
 - 📊 **الكشف التدريجي** (Progressive Disclosure): نظام ذكي يستدعي المعلومات على طبقات، مما يمنحك رؤية واضحة لاستهلاك الـ "Tokens" (التكلفة).
 - 🔍 **بحث سريع** - استعلم عن سجل مشروعك باستخدام خاصية `mem-search`.
 - 🖥️ **واجهة مستخدم ويب** - رؤية معلومات الذاكرة مع  تحديث فوري عبر المتصفح من خلال الرابط: http://localhost:37777
-- 💻 **تكامل مع Claude Desktop** - إمكانية البحث في الذاكرة مباشرة من واجهة Claude المكتبية
+- 💻 **تكامل مع Codex Desktop** - إمكانية البحث في الذاكرة مباشرة من واجهة Codex المكتبية
 - 🔒 **التحكم في الخصوصية** - دعم وسم `<private>` لمنع النظام من تخزين أي معلومات حساسة.
 - ⚙️ **إعدادات السياق** - تحكم دقيق في السياق (context) التي سيتم حقنها في سياق المحادثة.
 - 🤖 **أتمتة كاملة:** - النظام يعمل في الخلفية دون الحاجة لتدخل يدوي منك.
@@ -130,35 +130,35 @@ Claude-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة ل
 
 ## المستندات 
 
-📚 **[عرض التوثيق الكامل](https://docs.claude-mem.ai/)** - تصفح على الموقع الرسمي
+📚 **[عرض التوثيق الكامل](https://docs.codex-mem.ai/)** - تصفح على الموقع الرسمي
 
 ### البدء
 
-- **[دليل التثبيت](https://docs.claude-mem.ai/installation)** - البدء السريع والتثبيت المتقدم
-- **[دليل الاستخدام](https://docs.claude-mem.ai/usage/getting-started)** - كيف يعمل Claude-Mem تلقائيًا
-- **[أدوات البحث](https://docs.claude-mem.ai/usage/search-tools)** - استعلم عن سجل مشروعك بلغتك
-- **[الميزات التجريبية](https://docs.claude-mem.ai/beta-features)** - جرّب الميزات التجريبية مثل Endless Mode
+- **[دليل التثبيت](https://docs.codex-mem.ai/installation)** - البدء السريع والتثبيت المتقدم
+- **[دليل الاستخدام](https://docs.codex-mem.ai/usage/getting-started)** - كيف يعمل Codex-Mem تلقائيًا
+- **[أدوات البحث](https://docs.codex-mem.ai/usage/search-tools)** - استعلم عن سجل مشروعك بلغتك
+- **[الميزات التجريبية](https://docs.codex-mem.ai/beta-features)** - جرّب الميزات التجريبية مثل Endless Mode
 
 ### أفضل الممارسات
 
-- **[هندسة السياق](https://docs.claude-mem.ai/context-engineering)** - مبادئ تحسين سياق وكيل الذكاء الاصطناعي
-- **[الكشف التدريجي](https://docs.claude-mem.ai/progressive-disclosure)** - الفلسفة وراء استراتيجية تهيئة السياق في Claude-Mem
+- **[هندسة السياق](https://docs.codex-mem.ai/context-engineering)** - مبادئ تحسين سياق وكيل الذكاء الاصطناعي
+- **[الكشف التدريجي](https://docs.codex-mem.ai/progressive-disclosure)** - الفلسفة وراء استراتيجية تهيئة السياق في Codex-Mem
 
 ### البنية المعمارية
 
-- **[نظرة عامة](https://docs.claude-mem.ai/architecture/overview)** - مكونات النظام وتدفق البيانات
-- **[تطور البنية المعمارية](https://docs.claude-mem.ai/architecture-evolution)** - تطور المعمارية من v3 إلى v5
-- **[بنية برامج الربط (Hooks)](https://docs.claude-mem.ai/hooks-architecture)** - كيف يستخدم Claude-Mem خطافات دورة الحياة
-- **[مرجع برامج الربط (Hooks)](https://docs.claude-mem.ai/architecture/hooks)** - شرح 7 سكريبتات خطافات
-- **[خدمة العامل](https://docs.claude-mem.ai/architecture/worker-service)** - HTTP API وإدارة Bun
-- **[قاعدة البيانات](https://docs.claude-mem.ai/architecture/database)** - مخطط SQLite وبحث FTS5
-- **[بنية البحث](https://docs.claude-mem.ai/architecture/search-architecture)** - البحث المختلط مع قاعدة بيانات المتجهات Chroma
+- **[نظرة عامة](https://docs.codex-mem.ai/architecture/overview)** - مكونات النظام وتدفق البيانات
+- **[تطور البنية المعمارية](https://docs.codex-mem.ai/architecture-evolution)** - تطور المعمارية من v3 إلى v5
+- **[بنية برامج الربط (Hooks)](https://docs.codex-mem.ai/hooks-architecture)** - كيف يستخدم Codex-Mem خطافات دورة الحياة
+- **[مرجع برامج الربط (Hooks)](https://docs.codex-mem.ai/architecture/hooks)** - شرح 7 سكريبتات خطافات
+- **[خدمة العامل](https://docs.codex-mem.ai/architecture/worker-service)** - HTTP API وإدارة Bun
+- **[قاعدة البيانات](https://docs.codex-mem.ai/architecture/database)** - مخطط SQLite وبحث FTS5
+- **[بنية البحث](https://docs.codex-mem.ai/architecture/search-architecture)** - البحث المختلط مع قاعدة بيانات المتجهات Chroma
 
 ### الإعدادات والتطوير
 
-- **[الإعدادات](https://docs.claude-mem.ai/configuration)** - متغيرات البيئة والإعدادات
-- **[التطوير](https://docs.claude-mem.ai/development)** - البناء، الاختبار، سير العمل للمساهمة
-- **[استكشاف الأخطاء وإصلاحها](https://docs.claude-mem.ai/troubleshooting)** - المشكلات الشائعة والحلول
+- **[الإعدادات](https://docs.codex-mem.ai/configuration)** - متغيرات البيئة والإعدادات
+- **[التطوير](https://docs.codex-mem.ai/development)** - البناء، الاختبار، سير العمل للمساهمة
+- **[استكشاف الأخطاء وإصلاحها](https://docs.codex-mem.ai/troubleshooting)** - المشكلات الشائعة والحلول
 
 ---
 
@@ -173,16 +173,16 @@ Claude-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة ل
 5. **مهارة mem-search** - استعلامات اللغة الطبيعية مع الكشف التدريجي
 6. **قاعدة بيانات المتجهات Chroma** - البحث الدلالي الهجين + الكلمات المفتاحية لاسترجاع السياق الذكي
 
-انظر [نظرة عامة على البنية المعمارية](https://docs.claude-mem.ai/architecture/overview) للتفاصيل.
+انظر [نظرة عامة على البنية المعمارية](https://docs.codex-mem.ai/architecture/overview) للتفاصيل.
 
 ---
 
 ## أدوات البحث (MCP Search Tools)
-يوفر Claude-Mem بحثًا ذكيًا من خلال مهارة mem-search التي تُستدعى تلقائيًا عندما تسأل عن العمل السابق:
+يوفر Codex-Mem بحثًا ذكيًا من خلال مهارة mem-search التي تُستدعى تلقائيًا عندما تسأل عن العمل السابق:
 
 **كيف يعمل:**
 - فقط اسأل بشكل طبيعي: *"ماذا فعلنا في الجلسة الأخيرة؟"* أو *"هل أصلحنا هذا الخطأ من قبل؟"*
-- يستدعي Claude تلقائيًا خاصية mem-search للعثور على السياق ذي الصلة
+- يستدعي Codex تلقائيًا خاصية mem-search للعثور على السياق ذي الصلة
 
 **عمليات البحث المتاحة:**
 
@@ -207,22 +207,22 @@ Claude-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة ل
 "What was happening when we added the viewer UI?"
 ```
 
-انظر [دليل أدوات البحث](https://docs.claude-mem.ai/usage/search-tools) لأمثلة مفصلة.
+انظر [دليل أدوات البحث](https://docs.codex-mem.ai/usage/search-tools) لأمثلة مفصلة.
 
 ---
 
 ## الميزات التجريبية
 
-يقدم Claude-Mem **قناة تجريبية** بميزات تجريبية مثل **Endless Mode** (بنية ذاكرة بيوميمتية للجلسات الممتدة). بدّل بين الإصدارات المستقرة والتجريبية من واجهة مستخدم عارض الويب على http://localhost:37777 ← الإعدادات.
+يقدم Codex-Mem **قناة تجريبية** بميزات تجريبية مثل **Endless Mode** (بنية ذاكرة بيوميمتية للجلسات الممتدة). بدّل بين الإصدارات المستقرة والتجريبية من واجهة مستخدم عارض الويب على http://localhost:37777 ← الإعدادات.
 
-انظر **[توثيق الميزات التجريبية](https://docs.claude-mem.ai/beta-features)** لتفاصيل حول Endless Mode وكيفية تجربته.
+انظر **[توثيق الميزات التجريبية](https://docs.codex-mem.ai/beta-features)** لتفاصيل حول Endless Mode وكيفية تجربته.
 
 ---
 
 ## متطلبات النظام
 
 - **Node.js**: 18.0.0 أو أعلى
-- **Claude Code**: أحدث إصدار مع دعم الإضافات
+- **Codex Code**: أحدث إصدار مع دعم الإضافات
 - **Bun & uv**: (يتم تثبيتهما تلقائياً) لإدارة العمليات والبحث المتجه.
 - **SQLite 3**: للتخزين المستمر (مدمج)
 
@@ -230,23 +230,23 @@ Claude-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة ل
 
 ## الإعدادات
 
-تتم إدارة الإعدادات في `~/.claude-mem/settings.json` (يتم إنشاؤه تلقائيًا بالقيم الافتراضية عند التشغيل الأول). قم بتكوين نموذج الذكاء الاصطناعي، منفذ العامل، دليل البيانات، مستوى السجل، وإعدادات حقن السياق.
+تتم إدارة الإعدادات في `~/.codex-mem/settings.json` (يتم إنشاؤه تلقائيًا بالقيم الافتراضية عند التشغيل الأول). قم بتكوين نموذج الذكاء الاصطناعي، منفذ العامل، دليل البيانات، مستوى السجل، وإعدادات حقن السياق.
 
-انظر **[دليل الإعدادات](https://docs.claude-mem.ai/configuration)** لجميع الإعدادات المتاحة والأمثلة.
+انظر **[دليل الإعدادات](https://docs.codex-mem.ai/configuration)** لجميع الإعدادات المتاحة والأمثلة.
 
 ---
 
 ## التطوير
 
-انظر **[دليل التطوير](https://docs.claude-mem.ai/development)** لتعليمات البناء، الاختبار، وسير عمل المساهمة.
+انظر **[دليل التطوير](https://docs.codex-mem.ai/development)** لتعليمات البناء، الاختبار، وسير عمل المساهمة.
 
 ---
 
 ## استكشاف الأخطاء وإصلاحها
 
-إذا واجهت مشكلة، اشرحها لـ Claude وسيقوم بتشغيل خاصية troubleshoot لإصلاحها ذاتياً.
+إذا واجهت مشكلة، اشرحها لـ Codex وسيقوم بتشغيل خاصية troubleshoot لإصلاحها ذاتياً.
 
-انظر **[دليل استكشاف الأخطاء وإصلاحها](https://docs.claude-mem.ai/troubleshooting)** للمشكلات الشائعة والحلول.
+انظر **[دليل استكشاف الأخطاء وإصلاحها](https://docs.codex-mem.ai/troubleshooting)** للمشكلات الشائعة والحلول.
 
 ---
 
@@ -256,7 +256,7 @@ Claude-Mem هو نظام متطور مصمم لضغط وحفظ الذاكرة ل
 <div align=left>
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 </div>
@@ -271,7 +271,7 @@ npm run bug-report
 4. تحديث المستندات عند الحاجه
 5. تقديم Pull Request
 
-انظر [دليل التطوير](https://docs.claude-mem.ai/development) لسير عمل المساهمة.
+انظر [دليل التطوير](https://docs.codex-mem.ai/development) لسير عمل المساهمة.
 
 ---
 
@@ -293,12 +293,12 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## الدعم
 
 - **التوثيق**: [docs/](docs/)
-- **المشكلات**: [GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **المستودع**: [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
+- **المشكلات**: [GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **المستودع**: [github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
 - **المؤلف**: Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**مبني باستخدام Claude Agent SDK** | **مدعوم بواسطة Claude Code** | **صُنع باستخدام TypeScript**
+**مبني باستخدام Codex Agent SDK** | **مدعوم بواسطة Codex Code** | **صُنع باستخدام TypeScript**
 
 </section>

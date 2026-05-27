@@ -59,7 +59,7 @@ export class PaginationHelper {
         o.memory_session_id,
         o.project,
         o.merged_into_project,
-        COALESCE(s.platform_source, 'claude') as platform_source,
+        COALESCE(s.platform_source, 'codex') as platform_source,
         o.type,
         o.title,
         o.subtitle,
@@ -86,7 +86,7 @@ export class PaginationHelper {
       params.push(OBSERVER_SESSIONS_PROJECT);
     }
     if (platformSource) {
-      conditions.push(`COALESCE(s.platform_source, 'claude') = ?`);
+      conditions.push(`COALESCE(s.platform_source, 'codex') = ?`);
       params.push(platformSource);
     }
     if (conditions.length > 0) {
@@ -117,7 +117,7 @@ export class PaginationHelper {
       SELECT
         ss.id,
         s.content_session_id as session_id,
-        COALESCE(s.platform_source, 'claude') as platform_source,
+        COALESCE(s.platform_source, 'codex') as platform_source,
         ss.request,
         ss.investigated,
         ss.learned,
@@ -142,7 +142,7 @@ export class PaginationHelper {
     }
 
     if (platformSource) {
-      conditions.push(`COALESCE(s.platform_source, 'claude') = ?`);
+      conditions.push(`COALESCE(s.platform_source, 'codex') = ?`);
       params.push(platformSource);
     }
 
@@ -172,7 +172,7 @@ export class PaginationHelper {
         up.id,
         up.content_session_id,
         s.project,
-        COALESCE(s.platform_source, 'claude') as platform_source,
+        COALESCE(s.platform_source, 'codex') as platform_source,
         up.prompt_number,
         up.prompt_text,
         up.created_at,
@@ -193,7 +193,7 @@ export class PaginationHelper {
     }
 
     if (platformSource) {
-      conditions.push(`COALESCE(s.platform_source, 'claude') = ?`);
+      conditions.push(`COALESCE(s.platform_source, 'codex') = ?`);
       params.push(platformSource);
     }
 

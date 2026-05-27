@@ -191,7 +191,7 @@ export class GeminiProvider {
     const { apiKey, model, rateLimitingEnabled } = this.getGeminiConfig();
 
     if (!apiKey) {
-      throw new Error('Gemini API key not configured. Set CLAUDE_MEM_GEMINI_API_KEY in settings or GEMINI_API_KEY environment variable.');
+      throw new Error('Gemini API key not configured. Set CODEX_MEM_GEMINI_API_KEY in settings or GEMINI_API_KEY environment variable.');
     }
 
     if (!session.memorySessionId) {
@@ -378,8 +378,8 @@ export class GeminiProvider {
   private truncateHistory(history: ConversationMessage[]): ConversationMessage[] {
     const settings = SettingsDefaultsManager.loadFromFile(USER_SETTINGS_PATH);
 
-    const MAX_CONTEXT_MESSAGES = parseInt(settings.CLAUDE_MEM_GEMINI_MAX_CONTEXT_MESSAGES) || DEFAULT_MAX_CONTEXT_MESSAGES;
-    const MAX_ESTIMATED_TOKENS = parseInt(settings.CLAUDE_MEM_GEMINI_MAX_TOKENS) || DEFAULT_MAX_ESTIMATED_TOKENS;
+    const MAX_CONTEXT_MESSAGES = parseInt(settings.CODEX_MEM_GEMINI_MAX_CONTEXT_MESSAGES) || DEFAULT_MAX_CONTEXT_MESSAGES;
+    const MAX_ESTIMATED_TOKENS = parseInt(settings.CODEX_MEM_GEMINI_MAX_TOKENS) || DEFAULT_MAX_ESTIMATED_TOKENS;
 
     if (history.length <= MAX_CONTEXT_MESSAGES) {
       const totalTokens = history.reduce((sum, m) => sum + estimateTokens(m.content), 0);
@@ -420,7 +420,7 @@ export class GeminiProvider {
     }));
   }
 
-  private async queryGeminiMultiTurn(
+  async queryGeminiMultiTurn(
     history: ConversationMessage[],
     apiKey: string,
     model: GeminiModel,
@@ -450,7 +450,7 @@ export class GeminiProvider {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(priorRequestId ? { 'x-claude-mem-prior-request-id': priorRequestId } : {}),
+            ...(priorRequestId ? { 'x-codex-mem-prior-request-id': priorRequestId } : {}),
           },
           body: JSON.stringify({
             contents,
@@ -504,10 +504,10 @@ export class GeminiProvider {
     const settingsPath = paths.settings();
     const settings = SettingsDefaultsManager.loadFromFile(settingsPath);
 
-    const apiKey = settings.CLAUDE_MEM_GEMINI_API_KEY || getCredential('GEMINI_API_KEY') || '';
+    const apiKey = settings.CODEX_MEM_GEMINI_API_KEY || getCredential('GEMINI_API_KEY') || '';
 
     const defaultModel: GeminiModel = 'gemini-2.5-flash';
-    const configuredModel = settings.CLAUDE_MEM_GEMINI_MODEL || defaultModel;
+    const configuredModel = settings.CODEX_MEM_GEMINI_MODEL || defaultModel;
     const validModels: GeminiModel[] = [
       'gemini-2.5-flash-lite',
       'gemini-2.5-flash',
@@ -529,7 +529,7 @@ export class GeminiProvider {
       model = defaultModel;
     }
 
-    const rateLimitingEnabled = settings.CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED !== 'false';
+    const rateLimitingEnabled = settings.CODEX_MEM_GEMINI_RATE_LIMITING_ENABLED !== 'false';
 
     return { apiKey, model, rateLimitingEnabled };
   }
@@ -538,11 +538,28 @@ export class GeminiProvider {
 export function isGeminiAvailable(): boolean {
   const settingsPath = paths.settings();
   const settings = SettingsDefaultsManager.loadFromFile(settingsPath);
-  return !!(settings.CLAUDE_MEM_GEMINI_API_KEY || getCredential('GEMINI_API_KEY'));
+  return !!(settings.CODEX_MEM_GEMINI_API_KEY || getCredential('GEMINI_API_KEY'));
 }
 
 export function isGeminiSelected(): boolean {
   const settingsPath = paths.settings();
   const settings = SettingsDefaultsManager.loadFromFile(settingsPath);
-  return settings.CLAUDE_MEM_PROVIDER === 'gemini';
+  return settings.CODEX_MEM_PROVIDER === 'gemini';
+}
+
+export async function queryGeminiText(prompt: string, options: {
+  apiKey: string;
+  model: GeminiModel;
+}): Promise<string> {
+  if (!options.apiKey) {
+    throw new Error('Gemini API key not configured.');
+  }
+  const provider = new GeminiProvider({} as DatabaseManager, {} as SessionManager);
+  const result = await provider.queryGeminiMultiTurn(
+    [{ role: 'user', content: prompt }],
+    options.apiKey,
+    options.model,
+    false,
+  );
+  return result.content;
 }

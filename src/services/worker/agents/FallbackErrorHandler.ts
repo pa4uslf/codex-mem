@@ -2,7 +2,7 @@
 import { FALLBACK_ERROR_PATTERNS } from './types.js';
 import { logger } from '../../../utils/logger.js';
 
-export function shouldFallbackToClaude(error: unknown): boolean {
+export function shouldFallbackToCodex(error: unknown): boolean {
   const message = getErrorMessage(error);
 
   return FALLBACK_ERROR_PATTERNS.some(pattern => message.includes(pattern));

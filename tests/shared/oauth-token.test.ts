@@ -3,7 +3,7 @@ import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import { join } from 'path';
 import {
-  readClaudeOAuthToken,
+  readCodexOAuthToken,
   decodeJwtExpMs,
   writeStaleMarker,
   clearStaleMarker,
@@ -21,8 +21,8 @@ import { buildIsolatedEnvWithFreshOAuth } from '../../src/shared/EnvManager.js';
 
 const ORIGINAL_EXEC_FILE = childProcess.execFile;
 const ORIGINAL_PLATFORM = process.platform;
-const ORIGINAL_ENV_TOKEN = process.env.CLAUDE_CODE_OAUTH_TOKEN;
-const ORIGINAL_DATA_DIR = process.env.CLAUDE_MEM_DATA_DIR;
+const ORIGINAL_ENV_TOKEN = process.env.CODEX_CODE_OAUTH_TOKEN;
+const ORIGINAL_DATA_DIR = process.env.CODEX_MEM_DATA_DIR;
 
 let dataDirSpy: ReturnType<typeof spyOn> | undefined;
 let tempDir: string;
@@ -45,7 +45,7 @@ function restorePlatform(): void {
  * callback. Because promisify wraps execFile by reference at import time,
  * we can't intercept post-hoc. Instead we exercise the parsing logic
  * directly via parseKeychainPayload-equivalent paths: we inject results by
- * calling readClaudeOAuthToken() with platform spoofed AND the expected
+ * calling readCodexOAuthToken() with platform spoofed AND the expected
  * `security`/`secret-tool` binary spy via mocking the `execFile` hostpath.
  *
  * Bun's spyOn lets us replace properties on the `child_process` module
@@ -56,7 +56,7 @@ function restorePlatform(): void {
 
 beforeEach(() => {
   // Redirect DATA_DIR to a temp directory for marker file tests.
-  tempDir = fs.mkdtempSync(join(fs.realpathSync(require('os').tmpdir()), 'claude-mem-oauth-test-'));
+  tempDir = fs.mkdtempSync(join(fs.realpathSync(require('os').tmpdir()), 'codex-mem-oauth-test-'));
   dataDirSpy = spyOn(paths, 'dataDir').mockImplementation(() => tempDir);
 });
 
@@ -64,14 +64,14 @@ afterEach(() => {
   dataDirSpy?.mockRestore();
   restorePlatform();
   if (ORIGINAL_ENV_TOKEN === undefined) {
-    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    delete process.env.CODEX_CODE_OAUTH_TOKEN;
   } else {
-    process.env.CLAUDE_CODE_OAUTH_TOKEN = ORIGINAL_ENV_TOKEN;
+    process.env.CODEX_CODE_OAUTH_TOKEN = ORIGINAL_ENV_TOKEN;
   }
   if (ORIGINAL_DATA_DIR === undefined) {
-    delete process.env.CLAUDE_MEM_DATA_DIR;
+    delete process.env.CODEX_MEM_DATA_DIR;
   } else {
-    process.env.CLAUDE_MEM_DATA_DIR = ORIGINAL_DATA_DIR;
+    process.env.CODEX_MEM_DATA_DIR = ORIGINAL_DATA_DIR;
   }
   // Clean up temp dir
   try {
@@ -138,7 +138,7 @@ describe('marker file scheme', () => {
   });
 });
 
-describe('readClaudeOAuthToken — env-fallback branch', () => {
+describe('readCodexOAuthToken — env-fallback branch', () => {
   // These tests exercise the env-fallback path which is reachable on every
   // platform when the keychain returns absent. We force absent by spoofing
   // the platform to an unsupported value.
@@ -147,8 +147,8 @@ describe('readClaudeOAuthToken — env-fallback branch', () => {
   });
 
   it('returns absent when no env token is set', async () => {
-    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
-    const result = await readClaudeOAuthToken();
+    delete process.env.CODEX_CODE_OAUTH_TOKEN;
+    const result = await readCodexOAuthToken();
     expect(result.kind).toBe('absent');
     if (result.kind === 'absent') {
       expect(result.reason).toContain('Unsupported platform');
@@ -157,8 +157,8 @@ describe('readClaudeOAuthToken — env-fallback branch', () => {
 
   it('returns present (env-fallback) when env token is set and not expired', async () => {
     // Non-JWT bare token, no sidecar -> no expiresAt detectable -> not expired.
-    process.env.CLAUDE_CODE_OAUTH_TOKEN = 'sk-ant-oat01-fallback';
-    const result = await readClaudeOAuthToken();
+    process.env.CODEX_CODE_OAUTH_TOKEN = 'sk-ant-oat01-fallback';
+    const result = await readCodexOAuthToken();
     expect(result.kind).toBe('present');
     if (result.kind === 'present') {
       expect(result.token).toBe('sk-ant-oat01-fallback');
@@ -171,8 +171,8 @@ describe('readClaudeOAuthToken — env-fallback branch', () => {
     const header = Buffer.from(JSON.stringify({ alg: 'none' })).toString('base64url');
     const payload = Buffer.from(JSON.stringify({ exp: 1 })).toString('base64url');
     const expiredJwt = `${header}.${payload}.sig`;
-    process.env.CLAUDE_CODE_OAUTH_TOKEN = expiredJwt;
-    const result = await readClaudeOAuthToken();
+    process.env.CODEX_CODE_OAUTH_TOKEN = expiredJwt;
+    const result = await readCodexOAuthToken();
     expect(result.kind).toBe('expired');
     if (result.kind === 'expired') {
       expect(result.reason).toContain('expired');
@@ -181,12 +181,12 @@ describe('readClaudeOAuthToken — env-fallback branch', () => {
   });
 
   it('returns expired when sidecar metadata indicates env token is stale', async () => {
-    process.env.CLAUDE_CODE_OAUTH_TOKEN = 'sk-ant-oat01-bare';
+    process.env.CODEX_CODE_OAUTH_TOKEN = 'sk-ant-oat01-bare';
     // Write a sidecar with expiresAt in the past (well beyond grace window).
     const sidecarPath = join(tempDir, 'oauth-token-meta.json');
     const stalePastMs = Date.now() - 60 * 60 * 1000; // 1 hour ago
     fs.writeFileSync(sidecarPath, JSON.stringify({ expiresAt: stalePastMs }));
-    const result = await readClaudeOAuthToken();
+    const result = await readCodexOAuthToken();
     expect(result.kind).toBe('expired');
     if (result.kind === 'expired') {
       expect(result.expiresAt).toBe(stalePastMs);
@@ -194,11 +194,11 @@ describe('readClaudeOAuthToken — env-fallback branch', () => {
   });
 
   it('returns present when sidecar expiresAt is in the future', async () => {
-    process.env.CLAUDE_CODE_OAUTH_TOKEN = 'sk-ant-oat01-bare';
+    process.env.CODEX_CODE_OAUTH_TOKEN = 'sk-ant-oat01-bare';
     const sidecarPath = join(tempDir, 'oauth-token-meta.json');
     const futureMs = Date.now() + 60 * 60 * 1000; // 1 hour from now
     fs.writeFileSync(sidecarPath, JSON.stringify({ expiresAt: futureMs }));
-    const result = await readClaudeOAuthToken();
+    const result = await readCodexOAuthToken();
     expect(result.kind).toBe('present');
     if (result.kind === 'present') {
       expect(result.expiresAt).toBe(futureMs);
@@ -207,7 +207,7 @@ describe('readClaudeOAuthToken — env-fallback branch', () => {
   });
 });
 
-describe('readClaudeOAuthToken — macOS keychain branch', () => {
+describe('readCodexOAuthToken — macOS keychain branch', () => {
   // We can't easily intercept the cached promisified execFile from inside
   // oauth-token.ts (it captured a reference at module load). Instead we
   // verify the macOS branch dispatches by checking that on darwin without
@@ -221,9 +221,9 @@ describe('readClaudeOAuthToken — macOS keychain branch', () => {
     // 'present' with source='keychain'. If no keychain entry, we fall back
     // to env-fallback. Either way, kind='present' with a non-empty token
     // (or 'expired' if the real keychain entry happens to be stale).
-    process.env.CLAUDE_CODE_OAUTH_TOKEN = 'sk-ant-oat01-test-fallback';
+    process.env.CODEX_CODE_OAUTH_TOKEN = 'sk-ant-oat01-test-fallback';
     setPlatform('darwin');
-    const result = await readClaudeOAuthToken();
+    const result = await readCodexOAuthToken();
     // Whatever the keychain says, the result should be a valid kind.
     expect(['present', 'expired', 'absent']).toContain(result.kind);
     if (result.kind === 'present') {
@@ -233,24 +233,24 @@ describe('readClaudeOAuthToken — macOS keychain branch', () => {
   });
 });
 
-describe('readClaudeOAuthToken — Linux branch', () => {
+describe('readCodexOAuthToken — Linux branch', () => {
   it('on linux without secret-tool, returns absent gracefully', async () => {
     if (process.platform !== 'linux') return; // skip on non-linux
     setPlatform('linux');
-    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
-    const result = await readClaudeOAuthToken();
+    delete process.env.CODEX_CODE_OAUTH_TOKEN;
+    const result = await readCodexOAuthToken();
     // If secret-tool is not installed or has no entry, returns absent.
     // If somehow present, we accept that too.
     expect(['present', 'expired', 'absent']).toContain(result.kind);
   });
 });
 
-describe('readClaudeOAuthToken — Windows branch', () => {
+describe('readCodexOAuthToken — Windows branch', () => {
   it('on win32 without keychain entry, returns absent or env-fallback', async () => {
     if (process.platform !== 'win32') return; // skip on non-windows
     setPlatform('win32');
-    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
-    const result = await readClaudeOAuthToken();
+    delete process.env.CODEX_CODE_OAUTH_TOKEN;
+    const result = await readCodexOAuthToken();
     expect(['present', 'expired', 'absent']).toContain(result.kind);
   });
 });
@@ -262,7 +262,7 @@ describe('readClaudeOAuthToken — Windows branch', () => {
 describe('buildIsolatedEnvWithFreshOAuth — absent token clears stale marker', () => {
   beforeEach(() => {
     setPlatform('aix' as NodeJS.Platform); // unsupported -> always absent
-    delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
+    delete process.env.CODEX_CODE_OAUTH_TOKEN;
   });
 
   it('clears a pre-existing stale marker when token is absent', async () => {
@@ -270,16 +270,16 @@ describe('buildIsolatedEnvWithFreshOAuth — absent token clears stale marker', 
     writeStaleMarker('left over from previous run');
     expect(readStaleMarker()).toBe('left over from previous run');
 
-    // Force the absent path: ANTHROPIC_API_KEY must NOT be set in either the
+    // Force the absent path: CODEX_API_KEY must NOT be set in either the
     // env file or the process env, otherwise the early-return branch fires
     // before we ever reach the OAuth resolution.
-    const origAnthropicKey = process.env.ANTHROPIC_API_KEY;
-    delete process.env.ANTHROPIC_API_KEY;
+    const origCodexKey = process.env.CODEX_API_KEY;
+    delete process.env.CODEX_API_KEY;
     try {
       await buildIsolatedEnvWithFreshOAuth(true);
     } finally {
-      if (origAnthropicKey !== undefined) {
-        process.env.ANTHROPIC_API_KEY = origAnthropicKey;
+      if (origCodexKey !== undefined) {
+        process.env.CODEX_API_KEY = origCodexKey;
       }
     }
 

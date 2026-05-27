@@ -382,7 +382,7 @@ export class ServerJobQueue<TPayload extends object = object> {
   private toRedisUnavailableError(error: unknown): Error {
     const message = error instanceof Error ? error.message : String(error);
     return new Error(
-      `ServerJobQueue ${this.name} requires Redis/Valkey when CLAUDE_MEM_QUEUE_ENGINE=bullmq: ${message}`
+      `ServerJobQueue ${this.name} requires Redis/Valkey when CODEX_MEM_QUEUE_ENGINE=bullmq: ${message}`
     );
   }
 }

@@ -5,16 +5,16 @@ import { join } from 'path';
 mock.module('../../../src/shared/SettingsDefaultsManager.js', () => ({
   SettingsDefaultsManager: {
     get: (key: string) => {
-      if (key === 'CLAUDE_MEM_DATA_DIR') return join(homedir(), '.claude-mem');
+      if (key === 'CODEX_MEM_DATA_DIR') return join(homedir(), '.codex-mem');
       return '';
     },
     getInt: () => 0,
-    loadFromFile: () => ({ CLAUDE_MEM_EXCLUDED_PROJECTS: '' }),
+    loadFromFile: () => ({ CODEX_MEM_EXCLUDED_PROJECTS: '' }),
   },
 }));
 
 mock.module('../../../src/shared/hook-settings.js', () => ({
-  loadFromFileOnce: () => ({ CLAUDE_MEM_EXCLUDED_PROJECTS: '' }),
+  loadFromFileOnce: () => ({ CODEX_MEM_EXCLUDED_PROJECTS: '' }),
 }));
 
 let mockExtractedMessage: string = '';
@@ -66,7 +66,7 @@ afterEach(() => {
 const baseInput = {
   sessionId: 'sess-tag-strip',
   cwd: '/tmp',
-  platform: 'claude-code' as const,
+  platform: 'codex-code' as const,
   transcriptPath: '/tmp/fake.jsonl',
 };
 
@@ -172,7 +172,7 @@ describe('summarizeHandler — privacy tag stripping', () => {
 
   const taggedPayloads: Array<[string, string]> = [
     ['<private>', '<private>SECRET-PRIVATE</private>'],
-    ['<claude-mem-context>', '<claude-mem-context>SECRET-CTX</claude-mem-context>'],
+    ['<codex-mem-context>', '<codex-mem-context>SECRET-CTX</codex-mem-context>'],
     ['<system-instruction>', '<system-instruction>SECRET-SI-DASH</system-instruction>'],
     ['<system_instruction>', '<system_instruction>SECRET-SI-UNDER</system_instruction>'],
     ['<persisted-output>', '<persisted-output>SECRET-PO</persisted-output>'],

@@ -3,7 +3,7 @@ set -euo pipefail
 
 INSTANCE_ID="${1:-sympy__sympy-24152}"
 DATASET="${DATASET:-princeton-nlp/SWE-bench_Lite}"
-IMAGE="${IMAGE:-claude-mem/swebench-agent:latest}"
+IMAGE="${IMAGE:-codex-mem/swebench-agent:latest}"
 TIMEOUT="${TIMEOUT:-1800}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -12,22 +12,22 @@ RUN_DIR="$REPO_ROOT/evals/swebench/runs/smoke/$INSTANCE_ID"
 PREDICTIONS="$REPO_ROOT/evals/swebench/runs/smoke/predictions.jsonl"
 mkdir -p "$RUN_DIR" "$(dirname "$PREDICTIONS")"
 
-CREDS_FILE="$(mktemp -t claude-mem-creds.XXXXXX.json)"
+CREDS_FILE="$(mktemp -t codex-mem-creds.XXXXXX.json)"
 trap 'rm -f "$CREDS_FILE"' EXIT
 
 creds_obtained=0
 if [[ "$(uname)" == "Darwin" ]]; then
-  if security find-generic-password -s 'Claude Code-credentials' -w > "$CREDS_FILE" 2>/dev/null \
+  if security find-generic-password -s 'Codex Code-credentials' -w > "$CREDS_FILE" 2>/dev/null \
      && [[ -s "$CREDS_FILE" ]]; then
     creds_obtained=1
   fi
 fi
-if [[ "$creds_obtained" -eq 0 && -f "$HOME/.claude/.credentials.json" ]]; then
-  cp "$HOME/.claude/.credentials.json" "$CREDS_FILE"
+if [[ "$creds_obtained" -eq 0 && -f "$HOME/.codex/.credentials.json" ]]; then
+  cp "$HOME/.codex/.credentials.json" "$CREDS_FILE"
   creds_obtained=1
 fi
 if [[ "$creds_obtained" -eq 0 ]]; then
-  echo "ERROR: no Claude OAuth creds found (macOS Keychain or ~/.claude/.credentials.json)" >&2
+  echo "ERROR: no Codex OAuth creds found (macOS Keychain or ~/.codex/.credentials.json)" >&2
   exit 1
 fi
 chmod 600 "$CREDS_FILE"
@@ -54,7 +54,7 @@ else:
     sys.exit(1)
 PY
 
-SCRATCH="$(mktemp -d -t claude-mem-smoke.XXXXXX)"
+SCRATCH="$(mktemp -d -t codex-mem-smoke.XXXXXX)"
 trap 'rm -f "$CREDS_FILE" "$INSTANCE_JSON"; rm -rf "$SCRATCH"' EXIT
 
 read -r REPO BASE_COMMIT < <(
@@ -81,13 +81,13 @@ else
   echo "WARN: no \`timeout\`/\`gtimeout\` on PATH; container runs uncapped" >&2
 fi
 
-CONTAINER_NAME="claude-mem-smoke-$INSTANCE_ID-$$"
+CONTAINER_NAME="codex-mem-smoke-$INSTANCE_ID-$$"
 
 set +e
 "${TIMEOUT_CMD[@]}" docker run --rm \
   --name "$CONTAINER_NAME" \
-  -e CLAUDE_MEM_OUTPUT_DIR=/scratch \
-  -e CLAUDE_MEM_CREDENTIALS_FILE=/auth/.credentials.json \
+  -e CODEX_MEM_OUTPUT_DIR=/scratch \
+  -e CODEX_MEM_CREDENTIALS_FILE=/auth/.credentials.json \
   -v "$SCRATCH:/scratch" \
   -v "$CREDS_FILE:/auth/.credentials.json:ro" \
   "$IMAGE" \
@@ -110,7 +110,7 @@ DIFF=""
 jq -nc \
   --arg id "$INSTANCE_ID" \
   --arg patch "$DIFF" \
-  --arg model "claude-opus-4-7+claude-mem" \
+  --arg model "codex-opus-4-7+codex-mem" \
   '{instance_id:$id, model_patch:$patch, model_name_or_path:$model}' \
   >> "$PREDICTIONS"
 

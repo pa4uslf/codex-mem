@@ -25,7 +25,7 @@ describe('server MCP surface', () => {
   it('keeps resources and prompts available without Bun-only imports', () => {
     const surface = getServerMcpSurface();
 
-    expect(surface.resources[0].uri).toStartWith('claude-mem://server/');
+    expect(surface.resources[0].uri).toStartWith('codex-mem://server/');
     expect(surface.prompts[0].name).toBe('record_decision');
   });
 });

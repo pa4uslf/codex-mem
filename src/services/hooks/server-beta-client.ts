@@ -11,7 +11,7 @@
 // API key, etc.) callers receive a typed `ServerBetaClientError` so the
 // hook handler can decide whether to fall back to the worker path.
 
-import { fetchWithTimeout } from '../../shared/worker-utils.js';
+import { fetchWithTimeout } from '../../shared/worker-http.js';
 import { HOOK_TIMEOUTS, getTimeout } from '../../shared/hook-constants.js';
 
 const DEFAULT_TIMEOUT_MS = getTimeout(HOOK_TIMEOUTS.API_REQUEST);
@@ -330,7 +330,7 @@ export class ServerBetaClient {
     if (!this.apiKey || !this.apiKey.trim()) {
       throw new ServerBetaClientError(
         'missing_api_key',
-        'Server beta API key is not configured (CLAUDE_MEM_SERVER_BETA_API_KEY).',
+        'Server beta API key is not configured (CODEX_MEM_SERVER_BETA_API_KEY).',
       );
     }
 

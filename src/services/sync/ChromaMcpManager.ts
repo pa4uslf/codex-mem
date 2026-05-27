@@ -14,7 +14,7 @@ import { getSupervisor } from '../../supervisor/index.js';
 
 const execFileAsync = promisify(execFile);
 
-const CHROMA_MCP_CLIENT_NAME = 'claude-mem-chroma';
+const CHROMA_MCP_CLIENT_NAME = 'codex-mem-chroma';
 const CHROMA_MCP_CLIENT_VERSION = '1.0.0';
 const MCP_CONNECTION_TIMEOUT_MS = 30_000;
 const RECONNECT_BACKOFF_MS = 10_000;
@@ -37,7 +37,7 @@ const CHROMA_MCP_PINNED_VERSION = '0.2.6';
 // Capping below 7 lands on protobuf 6.x which opentelemetry tolerates.
 //
 // These pins are runtime-only (uvx --with) so we don't have to fork
-// chroma-mcp upstream — they apply only to claude-mem's spawned subprocess.
+// chroma-mcp upstream — they apply only to codex-mem's spawned subprocess.
 const CHROMA_MCP_DEP_OVERRIDES: ReadonlyArray<string> = [
   'onnxruntime>=1.20',
   'protobuf<7',
@@ -187,18 +187,18 @@ export class ChromaMcpManager {
 
   private buildCommandArgs(): string[] {
     const settings = SettingsDefaultsManager.loadFromFile(USER_SETTINGS_PATH);
-    const chromaMode = settings.CLAUDE_MEM_CHROMA_MODE || 'local';
-    const pythonVersion = process.env.CLAUDE_MEM_PYTHON_VERSION || settings.CLAUDE_MEM_PYTHON_VERSION || '3.13';
+    const chromaMode = settings.CODEX_MEM_CHROMA_MODE || 'local';
+    const pythonVersion = process.env.CODEX_MEM_PYTHON_VERSION || settings.CODEX_MEM_PYTHON_VERSION || '3.13';
 
     const depOverrideFlags = CHROMA_MCP_DEP_OVERRIDES.flatMap(spec => ['--with', spec]);
 
     if (chromaMode === 'remote') {
-      const chromaHost = settings.CLAUDE_MEM_CHROMA_HOST || '127.0.0.1';
-      const chromaPort = settings.CLAUDE_MEM_CHROMA_PORT || '8000';
-      const chromaSsl = settings.CLAUDE_MEM_CHROMA_SSL === 'true';
-      const chromaTenant = settings.CLAUDE_MEM_CHROMA_TENANT || 'default_tenant';
-      const chromaDatabase = settings.CLAUDE_MEM_CHROMA_DATABASE || 'default_database';
-      const chromaApiKey = settings.CLAUDE_MEM_CHROMA_API_KEY || '';
+      const chromaHost = settings.CODEX_MEM_CHROMA_HOST || '127.0.0.1';
+      const chromaPort = settings.CODEX_MEM_CHROMA_PORT || '8000';
+      const chromaSsl = settings.CODEX_MEM_CHROMA_SSL === 'true';
+      const chromaTenant = settings.CODEX_MEM_CHROMA_TENANT || 'default_tenant';
+      const chromaDatabase = settings.CODEX_MEM_CHROMA_DATABASE || 'default_database';
+      const chromaApiKey = settings.CODEX_MEM_CHROMA_API_KEY || '';
 
       const args = [
         '--python', pythonVersion,
@@ -338,7 +338,7 @@ export class ChromaMcpManager {
     const queryStartedAt = Date.now();
     try {
       await this.callTool('chroma_query_documents', {
-        collection_name: 'cm__claude-mem',
+        collection_name: 'cm__codex-mem',
         query_texts: ['ping'],
         n_results: 1
       });
@@ -349,7 +349,7 @@ export class ChromaMcpManager {
       const rawMessage = error instanceof Error ? error.message : String(error);
       const isMissingOrEmpty = /not exist|missing|empty|no such/i.test(rawMessage);
       const errorMessage = isMissingOrEmpty
-        ? `collection cm__claude-mem missing or empty (${rawMessage})`
+        ? `collection cm__codex-mem missing or empty (${rawMessage})`
         : rawMessage;
       logger.warn('CHROMA_MCP', 'Deep probe failed at query stage', {
         error: rawMessage,

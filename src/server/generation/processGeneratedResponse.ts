@@ -31,7 +31,7 @@ import { stripTags } from '../../utils/tag-stripping.js';
 //   - observation_generation_jobs.transitionStatus is the lifecycle gate.
 //
 // The function NEVER touches worker SessionStore tables, NEVER assumes a
-// Claude Code transcript shape, and ALWAYS reloads the job before mutating.
+// Codex Code transcript shape, and ALWAYS reloads the job before mutating.
 // BullMQ payload data is advisory; the outbox row is canonical.
 
 export type ProcessGeneratedResponseOutcome =

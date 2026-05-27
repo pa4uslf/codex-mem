@@ -13,7 +13,7 @@ import type {
 } from './shared/types.js';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'anthropic/claude-3.5-sonnet';
+const DEFAULT_MODEL = 'openai/gpt-5';
 
 export interface OpenRouterObservationProviderOptions {
   apiKey: string;
@@ -49,8 +49,8 @@ export class OpenRouterObservationProvider implements ServerGenerationProvider {
     this.apiKey = options.apiKey;
     this.model = options.model ?? DEFAULT_MODEL;
     this.maxOutputTokens = options.maxOutputTokens ?? 4096;
-    this.siteUrl = options.siteUrl ?? 'https://github.com/thedotmack/claude-mem';
-    this.appName = options.appName ?? 'claude-mem';
+    this.siteUrl = options.siteUrl ?? 'https://github.com/thedotmack/codex-mem';
+    this.appName = options.appName ?? 'codex-mem';
     this.fetchImpl = options.fetchImpl ?? fetch;
   }
 

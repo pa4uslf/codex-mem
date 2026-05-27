@@ -19,7 +19,7 @@ import {
 const WINDOWS_SPAWN_COOLDOWN_MS = 2 * 60 * 1000;
 
 function getWorkerSpawnLockPath(): string {
-  return path.join(SettingsDefaultsManager.get('CLAUDE_MEM_DATA_DIR'), '.worker-start-attempted');
+  return path.join(SettingsDefaultsManager.get('CODEX_MEM_DATA_DIR'), '.worker-start-attempted');
 }
 
 function shouldSkipSpawnOnWindows(): boolean {

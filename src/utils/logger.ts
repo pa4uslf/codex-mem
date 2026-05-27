@@ -17,7 +17,7 @@ export type Component =
   | 'CHROMA'
   | 'CHROMA_MCP'
   | 'CHROMA_SYNC'
-  | 'CLAUDE_MD'
+  | 'CODEX_MD'
   | 'CONFIG'
   | 'CONSOLE'
   | 'CURSOR'
@@ -25,6 +25,7 @@ export type Component =
   | 'DEDUP'
   | 'ENV'
   | 'FOLDER_INDEX'
+  | 'GIT'
   | 'HOOK'
   | 'HTTP'
   | 'IMPORT'
@@ -80,7 +81,7 @@ class Logger {
       }
 
       const date = new Date().toISOString().split('T')[0];
-      this.logFilePath = join(logsDir, `claude-mem-${date}.log`);
+      this.logFilePath = join(logsDir, `codex-mem-${date}.log`);
     } catch (error: unknown) {
       console.error('[LOGGER] Failed to initialize log file:', error instanceof Error ? error.message : String(error));
       this.logFilePath = null;
@@ -94,7 +95,7 @@ class Logger {
         if (existsSync(settingsPath)) {
           const settingsData = readFileSync(settingsPath, 'utf-8');
           const settings = JSON.parse(settingsData);
-          const envLevel = (settings.CLAUDE_MEM_LOG_LEVEL || 'INFO').toUpperCase();
+          const envLevel = (settings.CODEX_MEM_LOG_LEVEL || 'INFO').toUpperCase();
           this.level = LogLevel[envLevel as keyof typeof LogLevel] ?? LogLevel.INFO;
         } else {
           this.level = LogLevel.INFO;

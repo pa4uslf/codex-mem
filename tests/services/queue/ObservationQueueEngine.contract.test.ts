@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test';
-import { ClaudeMemDatabase } from '../../../src/services/sqlite/Database.js';
+import { CodexMemDatabase } from '../../../src/services/sqlite/Database.js';
 import { createSDKSession } from '../../../src/services/sqlite/Sessions.js';
 import { SqliteObservationQueueEngine } from '../../../src/server/queue/ObservationQueueEngine.js';
 import type { Database } from 'bun:sqlite';
@@ -11,7 +11,7 @@ describe('ObservationQueueEngine contract', () => {
   const contentSessionId = 'engine-contract-session';
 
   beforeEach(() => {
-    db = new ClaudeMemDatabase(':memory:').db;
+    db = new CodexMemDatabase(':memory:').db;
     engine = new SqliteObservationQueueEngine(db);
     sessionDbId = createSDKSession(db, contentSessionId, 'test-project', 'Test prompt');
   });

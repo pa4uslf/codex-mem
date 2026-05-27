@@ -1,8 +1,8 @@
 /**
  * Rate limit store — captures `rate_limit` system events emitted by
- * `@anthropic-ai/claude-agent-sdk`'s `query()` stream.
+ * provider status streams.
  *
- * The SDK reports the live Claude subscription quota state as `system` events
+ * The SDK reports the live Codex subscription quota state as `system` events
  * with subtype `rate_limit`. The payload includes the (currently undocumented)
  * `rate_limit_info` shape:
  *
@@ -213,7 +213,7 @@ export function shouldAbortForQuota(
 /**
  * Detects API-key auth from a free-form auth-method label. Matches the
  * verbose strings produced by `getAuthMethodDescription()` (e.g.
- * "API key (from ~/.claude-mem/.env)") as well as concise tokens like
+ * "API key (from ~/.codex-mem/.env)") as well as concise tokens like
  * "api_key".
  */
 export function isApiKeyAuth(authMethod: string): boolean {

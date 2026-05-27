@@ -7,12 +7,12 @@ description: "Experimental biomimetic memory architecture for extended sessions"
 
 ## Core Concept
 
-Endless Mode is a **biomimetic memory architecture** that solves Claude's context window exhaustion problem. Instead of keeping full tool outputs in the context window (O(N²) complexity), it:
+Endless Mode is a **biomimetic memory architecture** that solves Codex's context window exhaustion problem. Instead of keeping full tool outputs in the context window (O(N²) complexity), it:
 
 - Captures compressed observations after each tool use
 - Replaces transcripts with low token summaries
 - Achieves O(N) linear complexity
-- Maintains two-tier memory: working memory (compressed) + archive memory (full transcript on disk, maintained by default claude code functionality)
+- Maintains two-tier memory: working memory (compressed) + archive memory (full transcript on disk, maintained by default codex code functionality)
 
 ## Implementation Status
 
@@ -31,15 +31,15 @@ Endless Mode is a **biomimetic memory architecture** that solves Claude's contex
 1. **Pre-Tool-Use Hook** - Tracks tool execution start, sends tool_use_id to worker
 2. **Save Hook (PostToolUse)** - **CRITICAL**: Blocks until observation is generated (110s timeout), injects compressed observation back into context
 3. **SessionManager.waitForNextObservation()** - Event-driven wait mechanism (no polling)
-4. **SDKAgent** - Generates observations via Agent SDK, emits completion events
+4. **CodexExecAgent** - Generates observations via Codex CLI, emits completion events
 5. **Database** - Added `tool_use_id` column for observation correlation
 
 ## Configuration
 
 ```json
 {
-  "CLAUDE_MEM_ENDLESS_MODE": "false",  // Default: disabled
-  "CLAUDE_MEM_ENDLESS_WAIT_TIMEOUT_MS": "90000"  // 90 second timeout
+  "CODEX_MEM_ENDLESS_MODE": "false",  // Default: disabled
+  "CODEX_MEM_ENDLESS_WAIT_TIMEOUT_MS": "90000"  // 90 second timeout
 }
 ```
 
@@ -84,8 +84,8 @@ From the documentation:
 Endless Mode is currently only available on the beta branch. To try it:
 
 ```bash
-# Navigate to your claude-mem installation
-cd ~/.claude/plugins/marketplaces/thedotmack/
+# Navigate to your codex-mem installation
+cd ~/.codex/plugins/marketplaces/thedotmack/
 
 # Checkout the beta branch
 git checkout beta/endless-mode
@@ -100,7 +100,7 @@ npm run worker:restart
 **To return to stable:**
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack/
+cd ~/.codex/plugins/marketplaces/thedotmack/
 git checkout main
 npm install
 npm run worker:restart

@@ -2,11 +2,11 @@
 
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -45,7 +45,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center">ระบบการบีบอัดหน่วยความจำถาวรที่สร้างขึ้นสำหรับ <a href="https://claude.com/claude-code" target="_blank">Claude Code</a></h4>
+<h4 align="center">ระบบการบีบอัดหน่วยความจำถาวรที่สร้างขึ้นสำหรับ <a href="https://codex.com/codex-code" target="_blank">Codex Code</a></h4>
 
 <p align="center">
   <a href="LICENSE">
@@ -57,17 +57,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -75,9 +75,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -93,22 +93,22 @@
 </p>
 
 <p align="center">
-  Claude-Mem รักษาบริบทข้ามเซสชันได้อย่างราบรื่นโดยการบันทึกผลการสังเกตจากการใช้เครื่องมือโดยอัตโนมัติ สร้างสรุปความหมาย และทำให้พร้อมใช้งานสำหรับเซสชันในอนาคต ทำให้ Claude สามารถรักษาความต่อเนื่องของความรู้เกี่ยวกับโปรเจกต์แม้หลังจากเซสชันสิ้นสุดหรือเชื่อมต่อใหม่
+  Codex-Mem รักษาบริบทข้ามเซสชันได้อย่างราบรื่นโดยการบันทึกผลการสังเกตจากการใช้เครื่องมือโดยอัตโนมัติ สร้างสรุปความหมาย และทำให้พร้อมใช้งานสำหรับเซสชันในอนาคต ทำให้ Codex สามารถรักษาความต่อเนื่องของความรู้เกี่ยวกับโปรเจกต์แม้หลังจากเซสชันสิ้นสุดหรือเชื่อมต่อใหม่
 </p>
 
 ---
 
 ## เริ่มต้นอย่างรวดเร็ว
 
-เริ่มเซสชัน Claude Code ใหม่ในเทอร์มินัลและป้อนคำสั่งต่อไปนี้:
+เริ่มเซสชัน Codex Code ใหม่ในเทอร์มินัลและป้อนคำสั่งต่อไปนี้:
 
 ```
-> /plugin marketplace add thedotmack/claude-mem
+> /plugin marketplace add thedotmack/codex-mem
 
-> /plugin install claude-mem
+> /plugin install codex-mem
 ```
 
-รีสตาร์ท Claude Code บริบทจากเซสชันก่อนหน้าจะปรากฏในเซสชันใหม่โดยอัตโนมัติ
+รีสตาร์ท Codex Code บริบทจากเซสชันก่อนหน้าจะปรากฏในเซสชันใหม่โดยอัตโนมัติ
 
 **คุณสมบัติหลัก:**
 
@@ -116,7 +116,7 @@
 - 📊 **การเปิดเผยแบบก้าวหน้า** - การดึงหน่วยความจำแบบชั้นพร้อมการแสดงต้นทุนโทเค็น
 - 🔍 **การค้นหาตามทักษะ** - สืบค้นประวัติโปรเจกต์ของคุณด้วยทักษะ mem-search
 - 🖥️ **Web Viewer UI** - สตรีมหน่วยความจำแบบเรียลไทม์ที่ http://localhost:37777
-- 💻 **Claude Desktop Skill** - ค้นหาหน่วยความจำจากการสนทนา Claude Desktop
+- 💻 **Codex Desktop Skill** - ค้นหาหน่วยความจำจากการสนทนา Codex Desktop
 - 🔒 **การควบคุมความเป็นส่วนตัว** - ใช้แท็ก `<private>` เพื่อยกเว้นเนื้อหาที่ละเอียดอ่อนจากการจัดเก็บ
 - ⚙️ **การกำหนดค่าบริบท** - ควบคุมบริบทที่ถูกฉีดเข้ามาได้อย่างละเอียด
 - 🤖 **การทำงานอัตโนมัติ** - ไม่ต้องแทรกแซงด้วยตนเอง
@@ -127,35 +127,35 @@
 
 ## เอกสาร
 
-📚 **[ดูเอกสารฉบับเต็ม](https://docs.claude-mem.ai/)** - เรียกดูบนเว็บไซต์อย่างเป็นทางการ
+📚 **[ดูเอกสารฉบับเต็ม](https://docs.codex-mem.ai/)** - เรียกดูบนเว็บไซต์อย่างเป็นทางการ
 
 ### เริ่มต้นใช้งาน
 
-- **[คู่มือการติดตั้ง](https://docs.claude-mem.ai/installation)** - เริ่มต้นอย่างรวดเร็วและการติดตั้งขั้นสูง
-- **[คู่มือการใช้งาน](https://docs.claude-mem.ai/usage/getting-started)** - วิธีที่ Claude-Mem ทำงานโดยอัตโนมัติ
-- **[เครื่องมือค้นหา](https://docs.claude-mem.ai/usage/search-tools)** - สืบค้นประวัติโปรเจกต์ของคุณด้วยภาษาธรรมชาติ
-- **[คุณสมบัติ Beta](https://docs.claude-mem.ai/beta-features)** - ลองคุณสมบัติทดลองเช่น Endless Mode
+- **[คู่มือการติดตั้ง](https://docs.codex-mem.ai/installation)** - เริ่มต้นอย่างรวดเร็วและการติดตั้งขั้นสูง
+- **[คู่มือการใช้งาน](https://docs.codex-mem.ai/usage/getting-started)** - วิธีที่ Codex-Mem ทำงานโดยอัตโนมัติ
+- **[เครื่องมือค้นหา](https://docs.codex-mem.ai/usage/search-tools)** - สืบค้นประวัติโปรเจกต์ของคุณด้วยภาษาธรรมชาติ
+- **[คุณสมบัติ Beta](https://docs.codex-mem.ai/beta-features)** - ลองคุณสมบัติทดลองเช่น Endless Mode
 
 ### แนวปฏิบัติที่ดี
 
-- **[Context Engineering](https://docs.claude-mem.ai/context-engineering)** - หลักการปรับบริบทสำหรับเอเจนต์ AI
-- **[Progressive Disclosure](https://docs.claude-mem.ai/progressive-disclosure)** - ปรัชญาเบื้องหลังกลยุทธ์การเตรียมบริบทของ Claude-Mem
+- **[Context Engineering](https://docs.codex-mem.ai/context-engineering)** - หลักการปรับบริบทสำหรับเอเจนต์ AI
+- **[Progressive Disclosure](https://docs.codex-mem.ai/progressive-disclosure)** - ปรัชญาเบื้องหลังกลยุทธ์การเตรียมบริบทของ Codex-Mem
 
 ### สถาปัตยกรรม
 
-- **[ภาพรวม](https://docs.claude-mem.ai/architecture/overview)** - ส่วนประกอบของระบบและการไหลของข้อมูล
-- **[วิวัฒนาการของสถาปัตยกรรม](https://docs.claude-mem.ai/architecture-evolution)** - การเดินทางจาก v3 สู่ v5
-- **[สถาปัตยกรรม Hooks](https://docs.claude-mem.ai/hooks-architecture)** - วิธีที่ Claude-Mem ใช้ lifecycle hooks
-- **[การอ้างอิง Hooks](https://docs.claude-mem.ai/architecture/hooks)** - อธิบาย hook scripts ทั้ง 7 ตัว
-- **[Worker Service](https://docs.claude-mem.ai/architecture/worker-service)** - HTTP API และการจัดการ Bun
-- **[ฐานข้อมูล](https://docs.claude-mem.ai/architecture/database)** - SQLite schema และการค้นหา FTS5
-- **[สถาปัตยกรรมการค้นหา](https://docs.claude-mem.ai/architecture/search-architecture)** - การค้นหาแบบไฮบริดด้วยฐานข้อมูลเวกเตอร์ Chroma
+- **[ภาพรวม](https://docs.codex-mem.ai/architecture/overview)** - ส่วนประกอบของระบบและการไหลของข้อมูล
+- **[วิวัฒนาการของสถาปัตยกรรม](https://docs.codex-mem.ai/architecture-evolution)** - การเดินทางจาก v3 สู่ v5
+- **[สถาปัตยกรรม Hooks](https://docs.codex-mem.ai/hooks-architecture)** - วิธีที่ Codex-Mem ใช้ lifecycle hooks
+- **[การอ้างอิง Hooks](https://docs.codex-mem.ai/architecture/hooks)** - อธิบาย hook scripts ทั้ง 7 ตัว
+- **[Worker Service](https://docs.codex-mem.ai/architecture/worker-service)** - HTTP API และการจัดการ Bun
+- **[ฐานข้อมูล](https://docs.codex-mem.ai/architecture/database)** - SQLite schema และการค้นหา FTS5
+- **[สถาปัตยกรรมการค้นหา](https://docs.codex-mem.ai/architecture/search-architecture)** - การค้นหาแบบไฮบริดด้วยฐานข้อมูลเวกเตอร์ Chroma
 
 ### การกำหนดค่าและการพัฒนา
 
-- **[การกำหนดค่า](https://docs.claude-mem.ai/configuration)** - ตัวแปรสภาพแวดล้อมและการตั้งค่า
-- **[การพัฒนา](https://docs.claude-mem.ai/development)** - การสร้าง การทดสอบ การมีส่วนร่วม
-- **[การแก้ไขปัญหา](https://docs.claude-mem.ai/troubleshooting)** - ปัญหาและการแก้ไขทั่วไป
+- **[การกำหนดค่า](https://docs.codex-mem.ai/configuration)** - ตัวแปรสภาพแวดล้อมและการตั้งค่า
+- **[การพัฒนา](https://docs.codex-mem.ai/development)** - การสร้าง การทดสอบ การมีส่วนร่วม
+- **[การแก้ไขปัญหา](https://docs.codex-mem.ai/troubleshooting)** - ปัญหาและการแก้ไขทั่วไป
 
 ---
 
@@ -170,17 +170,17 @@
 5. **mem-search Skill** - คิวรีภาษาธรรมชาติพร้อมการเปิดเผยแบบก้าวหน้า
 6. **Chroma Vector Database** - การค้นหาแบบไฮบริดทางความหมาย + คีย์เวิร์ดสำหรับการดึงบริบทอัจฉริยะ
 
-ดู [ภาพรวมสถาปัตยกรรม](https://docs.claude-mem.ai/architecture/overview) สำหรับรายละเอียด
+ดู [ภาพรวมสถาปัตยกรรม](https://docs.codex-mem.ai/architecture/overview) สำหรับรายละเอียด
 
 ---
 
 ## ทักษะ mem-search
 
-Claude-Mem ให้บริการการค้นหาอัจฉริยะผ่านทักษะ mem-search ที่เรียกใช้อัตโนมัติเมื่อคุณถามเกี่ยวกับงานที่ผ่านมา:
+Codex-Mem ให้บริการการค้นหาอัจฉริยะผ่านทักษะ mem-search ที่เรียกใช้อัตโนมัติเมื่อคุณถามเกี่ยวกับงานที่ผ่านมา:
 
 **วิธีการทำงาน:**
 - เพียงถามตามธรรมชาติ: *"เราทำอะไรในเซสชันที่แล้ว?"* หรือ *"เราแก้บั๊กนี้ไปแล้วหรือยัง?"*
-- Claude เรียกใช้ทักษะ mem-search โดยอัตโนมัติเพื่อค้นหาบริบทที่เกี่ยวข้อง
+- Codex เรียกใช้ทักษะ mem-search โดยอัตโนมัติเพื่อค้นหาบริบทที่เกี่ยวข้อง
 
 **การดำเนินการค้นหาที่มี:**
 
@@ -205,22 +205,22 @@ Claude-Mem ให้บริการการค้นหาอัจฉริ
 "What was happening when we added the viewer UI?"
 ```
 
-ดู [คู่มือเครื่องมือค้นหา](https://docs.claude-mem.ai/usage/search-tools) สำหรับตัวอย่างโดยละเอียด
+ดู [คู่มือเครื่องมือค้นหา](https://docs.codex-mem.ai/usage/search-tools) สำหรับตัวอย่างโดยละเอียด
 
 ---
 
 ## คุณสมบัติ Beta
 
-Claude-Mem นำเสนอ **beta channel** พร้อมคุณสมบัติทดลองเช่น **Endless Mode** (สถาปัตยกรรมหน่วยความจำแบบชีวมิติสำหรับเซสชันที่ขยายออกไป) สลับระหว่างเวอร์ชันเสถียรและเบต้าจาก web viewer UI ที่ http://localhost:37777 → Settings
+Codex-Mem นำเสนอ **beta channel** พร้อมคุณสมบัติทดลองเช่น **Endless Mode** (สถาปัตยกรรมหน่วยความจำแบบชีวมิติสำหรับเซสชันที่ขยายออกไป) สลับระหว่างเวอร์ชันเสถียรและเบต้าจาก web viewer UI ที่ http://localhost:37777 → Settings
 
-ดู **[เอกสารคุณสมบัติ Beta](https://docs.claude-mem.ai/beta-features)** สำหรับรายละเอียดเกี่ยวกับ Endless Mode และวิธีการลอง
+ดู **[เอกสารคุณสมบัติ Beta](https://docs.codex-mem.ai/beta-features)** สำหรับรายละเอียดเกี่ยวกับ Endless Mode และวิธีการลอง
 
 ---
 
 ## ความต้องการของระบบ
 
 - **Node.js**: 18.0.0 หรือสูงกว่า
-- **Claude Code**: เวอร์ชันล่าสุดพร้อมการสนับสนุนปลั๊กอิน
+- **Codex Code**: เวอร์ชันล่าสุดพร้อมการสนับสนุนปลั๊กอิน
 - **Bun**: JavaScript runtime และตัวจัดการกระบวนการ (ติดตั้งอัตโนมัติหากไม่มี)
 - **uv**: ตัวจัดการแพ็คเกจ Python สำหรับการค้นหาเวกเตอร์ (ติดตั้งอัตโนมัติหากไม่มี)
 - **SQLite 3**: สำหรับการจัดเก็บถาวร (รวมอยู่)
@@ -229,23 +229,23 @@ Claude-Mem นำเสนอ **beta channel** พร้อมคุณสมบ
 
 ## การกำหนดค่า
 
-การตั้งค่าจะถูกจัดการใน `~/.claude-mem/settings.json` (สร้างอัตโนมัติพร้อมค่าเริ่มต้นในการรันครั้งแรก) กำหนดค่าโมเดล AI พอร์ต worker ไดเรกทอรีข้อมูล ระดับ log และการตั้งค่าการฉีดบริบท
+การตั้งค่าจะถูกจัดการใน `~/.codex-mem/settings.json` (สร้างอัตโนมัติพร้อมค่าเริ่มต้นในการรันครั้งแรก) กำหนดค่าโมเดล AI พอร์ต worker ไดเรกทอรีข้อมูล ระดับ log และการตั้งค่าการฉีดบริบท
 
-ดู **[คู่มือการกำหนดค่า](https://docs.claude-mem.ai/configuration)** สำหรับการตั้งค่าทั้งหมดที่มีและตัวอย่าง
+ดู **[คู่มือการกำหนดค่า](https://docs.codex-mem.ai/configuration)** สำหรับการตั้งค่าทั้งหมดที่มีและตัวอย่าง
 
 ---
 
 ## การพัฒนา
 
-ดู **[คู่มือการพัฒนา](https://docs.claude-mem.ai/development)** สำหรับคำแนะนำการสร้าง การทดสอบ และขั้นตอนการมีส่วนร่วม
+ดู **[คู่มือการพัฒนา](https://docs.codex-mem.ai/development)** สำหรับคำแนะนำการสร้าง การทดสอบ และขั้นตอนการมีส่วนร่วม
 
 ---
 
 ## การแก้ไขปัญหา
 
-หากพบปัญหา อธิบายปัญหาให้ Claude ฟังและทักษะ troubleshoot จะวินิจฉัยและให้การแก้ไขโดยอัตโนมัติ
+หากพบปัญหา อธิบายปัญหาให้ Codex ฟังและทักษะ troubleshoot จะวินิจฉัยและให้การแก้ไขโดยอัตโนมัติ
 
-ดู **[คู่มือการแก้ไขปัญหา](https://docs.claude-mem.ai/troubleshooting)** สำหรับปัญหาและการแก้ไขทั่วไป
+ดู **[คู่มือการแก้ไขปัญหา](https://docs.codex-mem.ai/troubleshooting)** สำหรับปัญหาและการแก้ไขทั่วไป
 
 ---
 
@@ -254,7 +254,7 @@ Claude-Mem นำเสนอ **beta channel** พร้อมคุณสมบ
 สร้างรายงานบั๊กที่ครอบคลุมด้วยตัวสร้างอัตโนมัติ:
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 
@@ -268,7 +268,7 @@ npm run bug-report
 4. อัปเดตเอกสาร
 5. ส่ง Pull Request
 
-ดู [คู่มือการพัฒนา](https://docs.claude-mem.ai/development) สำหรับขั้นตอนการมีส่วนร่วม
+ดู [คู่มือการพัฒนา](https://docs.codex-mem.ai/development) สำหรับขั้นตอนการมีส่วนร่วม
 
 ---
 
@@ -290,10 +290,10 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## การสนับสนุน
 
 - **เอกสาร**: [docs/](docs/)
-- **ปัญหา**: [GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **Repository**: [github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
+- **ปัญหา**: [GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **Repository**: [github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
 - **ผู้เขียน**: Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**สร้างด้วย Claude Agent SDK** | **ขับเคลื่อนโดย Claude Code** | **สร้างด้วย TypeScript**
+**สร้างด้วย Codex Agent SDK** | **ขับเคลื่อนโดย Codex Code** | **สร้างด้วย TypeScript**

@@ -4,16 +4,16 @@ Three surfaces, one product voice, one first-success moment. Each phase is self-
 
 ## North Star
 
-Pull the user toward this single moment: **open the viewer in a browser, do anything in Claude Code, watch an observation appear within seconds.** All three surfaces aim at it from different angles.
+Pull the user toward this single moment: **open the viewer in a browser, do anything in Codex Code, watch an observation appear within seconds.** All three surfaces aim at it from different angles.
 
 ## Cross-Cutting Facts (read this first, every phase)
 
 - **Test runner:** `bun test`. Test command: `npm run test`. Tests live in `tests/`. Pattern templates: `tests/sqlite/observations.test.ts:1-60` (in-memory SQLite + bun:test), `tests/install-non-tty.test.ts:1-95` (regex assertions over install.ts source).
 - **Build:** `npm run build-and-sync` runs full build (banner frames + plugin manifests + `scripts/build-hooks.js`) → marketplace sync → worker restart. Viewer compiles via esbuild to `plugin/ui/viewer-bundle.js`; HTML template (which holds ALL CSS) at `src/ui/viewer-template.html`.
 - **Settings defaults:** `src/shared/SettingsDefaultsManager.ts:70-131`. Merge logic at `loadFromFile()` lines 161-205 — missing keys auto-pick up new defaults, explicit values are respected. Forward-compatible.
-- **`CLAUDE_MEM_WELCOME_HINT_ENABLED` already defaults to `'true'`** (`SettingsDefaultsManager.ts:104`). Single reader at `SearchRoutes.ts:294`. Goal 5 from the brief is already done — we replace "flip the default" with "pin it with a regression test."
+- **`CODEX_MEM_WELCOME_HINT_ENABLED` already defaults to `'true'`** (`SettingsDefaultsManager.ts:104`). Single reader at `SearchRoutes.ts:294`. Goal 5 from the brief is already done — we replace "flip the default" with "pin it with a regression test."
 - **Timing line, identical wording everywhere:** `Memory injection starts on your second session in a project.`
-- **Privacy line, identical wording everywhere:** `Everything stays in ~/.claude-mem on this machine.`
+- **Privacy line, identical wording everywhere:** `Everything stays in ~/.codex-mem on this machine.`
 
 ---
 
@@ -25,12 +25,12 @@ Discovery already completed. Allowed APIs and signatures established:
 - `log` helper at lines 41-46 — methods `info | success | warn | error`, conditionally routes to `p.log.*` (interactive) vs `console.log/warn/error` (non-interactive, 2-space indent).
 - `p` is `* as p from '@clack/prompts'`. Used: `p.note(body, title)`, `p.outro(msg)`, `p.intro`, `p.log.*`, `p.tasks`, `p.spinner`, `p.select/multiselect/confirm/password`, `p.isCancel`, `p.cancel`.
 - `pc` is `picocolors` default import. Available: `pc.cyan/green/yellow/red/bold/underline/dim/bgCyan/black`. **`pc.dim` exists** (already in use at line 663).
-- `getSetting('CLAUDE_MEM_WORKER_PORT')` returns string; convert with `Number()` when needed.
+- `getSetting('CODEX_MEM_WORKER_PORT')` returns string; convert with `Number()` when needed.
 - Health probe pattern at lines 843-864: `fetch('http://127.0.0.1:${port}/api/health', { signal: AbortSignal.timeout(3000) })`, non-throwing.
 - Existing `summaryLines` block (826-841) and `nextSteps` block (866-896) — both have parallel interactive (`p.note`) and non-interactive (`console.log`) branches.
 
 ### Settings (`src/shared/SettingsDefaultsManager.ts`)
-- `CLAUDE_MEM_WELCOME_HINT_ENABLED: 'true'` at line 104.
+- `CODEX_MEM_WELCOME_HINT_ENABLED: 'true'` at line 104.
 - Merge: defaults first, then file overrides, then env overrides (lines 194-201).
 - Install does NOT pre-seed this key — only seeds prompted settings (provider, model). Existing users without explicit value automatically get the new default.
 - `SettingsRoutes.ts:84-117` — flag is NOT in the user-updatable allowlist (read-only via UI).
@@ -56,8 +56,8 @@ Discovery already completed. Allowed APIs and signatures established:
 - DO NOT call `/api/how-it-works` for an onboarding explainer — wrong endpoint.
 - DO NOT add new viewer CSS files — all styles in `src/ui/viewer-template.html`.
 - DO NOT add new viewer routes for stats unless strictly needed — extend `/api/stats` instead.
-- DO NOT seed `CLAUDE_MEM_WELCOME_HINT_ENABLED` in `install.ts` — defaults already handle it.
-- DO NOT pass imperatives ("you should run X") in the SessionStart hint — Claude will try to execute. Use third-person narration ("`/learn-codebase` is available if…").
+- DO NOT seed `CODEX_MEM_WELCOME_HINT_ENABLED` in `install.ts` — defaults already handle it.
+- DO NOT pass imperatives ("you should run X") in the SessionStart hint — Codex will try to execute. Use third-person narration ("`/learn-codebase` is available if…").
 
 ---
 
@@ -68,9 +68,9 @@ Discovery already completed. Allowed APIs and signatures established:
 ### Tasks
 
 1. Create `src/services/worker/onboarding-explainer.md` — single canonical content. ~150 words, three sections:
-   - **What it does:** Every Read/Edit/Bash Claude makes turns into a compressed observation. Observations get summarized at session end. Relevant ones get auto-injected into future prompts.
+   - **What it does:** Every Read/Edit/Bash Codex makes turns into a compressed observation. Observations get summarized at session end. Relevant ones get auto-injected into future prompts.
    - **When it kicks in:** Memory injection starts on your second session in a project. *(verbatim timing line)*
-   - **Where data lives:** Everything stays in ~/.claude-mem on this machine. *(verbatim privacy line)*
+   - **Where data lives:** Everything stays in ~/.codex-mem on this machine. *(verbatim privacy line)*
 
 2. Add new route `GET /api/onboarding/explainer` in `src/services/worker/http/routes/SearchRoutes.ts`:
    - Read the markdown file at boot (cache like `cachedSkillMd` pattern in `Server.ts:18-33`).
@@ -80,7 +80,7 @@ Discovery already completed. Allowed APIs and signatures established:
 3. Create `plugin/skills/how-it-works/SKILL.md`:
    - Copy frontmatter shape from `plugin/skills/mem-search/SKILL.md:1-4`.
    - `name: how-it-works`
-   - `description: Explain how claude-mem captures observations, when memory injection kicks in, and where data lives. Use when the user asks "how does claude-mem work?" or "what is this thing doing?".`
+   - `description: Explain how codex-mem captures observations, when memory injection kicks in, and where data lives. Use when the user asks "how does codex-mem work?" or "what is this thing doing?".`
    - Body: same content as the markdown explainer (or fetch `/api/onboarding/explainer` at runtime).
    - Wire into `scripts/build-hooks.js` verification list (lines 336-348) so build fails if the file is missing.
 
@@ -99,14 +99,14 @@ Discovery already completed. Allowed APIs and signatures established:
 
 ## Phase 2 — SessionStart Welcome Hint Rewrite
 
-**Why:** Current copy reads as a marketing intercept inside Claude's context, leads with imperatives Claude tries to execute, and doesn't set the truthful "today seeds, tomorrow injects" expectation.
+**Why:** Current copy reads as a marketing intercept inside Codex's context, leads with imperatives Codex tries to execute, and doesn't set the truthful "today seeds, tomorrow injects" expectation.
 
 ### Tasks
 
 1. Rewrite `WELCOME_HINT_TEMPLATE` at `src/services/worker/http/routes/SearchRoutes.ts:14-27`. Target:
 
    ```
-   # claude-mem status
+   # codex-mem status
 
    This project has no memory yet. The current session will seed it; subsequent sessions will receive auto-injected context for relevant past work.
 
@@ -120,10 +120,10 @@ Discovery already completed. Allowed APIs and signatures established:
    This message disappears once the first observation lands.
    ```
 
-   Constraints: third-person narration referring to "the user", not imperatives directed at Claude. Title is "status", not "Welcome".
+   Constraints: third-person narration referring to "the user", not imperatives directed at Codex. Title is "status", not "Welcome".
 
 2. **Pin the default with a test.** In a new file `tests/shared/welcome-hint-default.test.ts`:
-   - Assert `SettingsDefaultsManager.getAllDefaults().CLAUDE_MEM_WELCOME_HINT_ENABLED === 'true'`.
+   - Assert `SettingsDefaultsManager.getAllDefaults().CODEX_MEM_WELCOME_HINT_ENABLED === 'true'`.
    - Assert that an empty settings file resolves to `'true'`.
    - Assert that an explicit `'false'` is preserved through `loadFromFile`.
 
@@ -135,13 +135,13 @@ Discovery already completed. Allowed APIs and signatures established:
 
 - `bun test tests/shared/welcome-hint-default.test.ts` passes.
 - `bun test tests/worker/` (or whichever file holds the welcome-hint tests) passes.
-- Manual: in a fresh project with zero observations, start a Claude Code session — SessionStart context includes the new status note. New text contains the verbatim timing line and points at `{viewer_url}` and `/how-it-works`.
+- Manual: in a fresh project with zero observations, start a Codex Code session — SessionStart context includes the new status note. New text contains the verbatim timing line and points at `{viewer_url}` and `/how-it-works`.
 - Manual: in a project with observations, the hint does NOT appear (gating still works).
 
 ### Anti-pattern guards
 
-- Do NOT use the word "Welcome" or any second-person imperatives ("you should…", "go to…"). Claude will try to "help" by executing them.
-- Do NOT exceed ~10 lines — this is injected into Claude's context for every fresh-project session.
+- Do NOT use the word "Welcome" or any second-person imperatives ("you should…", "go to…"). Codex will try to "help" by executing them.
+- Do NOT exceed ~10 lines — this is injected into Codex's context for every fresh-project session.
 
 ---
 
@@ -156,17 +156,17 @@ Discovery already completed. Allowed APIs and signatures established:
    ```
    ${pc.green('✓')} Worker running at ${pc.underline(`http://localhost:${actualPort}`)}
 
-   ${pc.bold('First success:')} keep that URL open in a browser, then open Claude Code in any project. Observations stream in as Claude reads, edits, and runs commands.
+   ${pc.bold('First success:')} keep that URL open in a browser, then open Codex Code in any project. Observations stream in as Codex reads, edits, and runs commands.
 
    ${pc.bold('Two paths from here:')}
      ${pc.cyan('A.')} Just start working. Memory builds passively from your first prompt. (Recommended.)
-     ${pc.cyan('B.')} Front-load it: open Claude Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).
+     ${pc.cyan('B.')} Front-load it: open Codex Code and run ${pc.bold('/learn-codebase')} to ingest the whole repo (~5 min, optional).
 
    Memory injection starts on your second session in a project.
-   Everything stays in ${pc.cyan('~/.claude-mem')} on this machine.
+   Everything stays in ${pc.cyan('~/.codex-mem')} on this machine.
 
-   ${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CLAUDE_MEM_WELCOME_HINT_ENABLED=false')}
-   ${pc.dim('Note: close all Claude Code sessions before uninstalling, or ~/.claude-mem will be recreated by active hooks.')}
+   ${pc.dim('How it works: /how-it-works   ·   Disable first-session hint: CODEX_MEM_WELCOME_HINT_ENABLED=false')}
+   ${pc.dim('Note: close all Codex Code sessions before uninstalling, or ~/.codex-mem will be recreated by active hooks.')}
    ```
 
    Worker-not-ready branch: keep the existing `pc.yellow('!')` warning + retry hint, then append the same "First success" / "Two paths" / timing / privacy lines (substituting `workerPort` for `actualPort`).
@@ -180,8 +180,8 @@ Discovery already completed. Allowed APIs and signatures established:
 ### Verification
 
 - `npm run build` succeeds.
-- Manual interactive run: `npx claude-mem install` in a fresh dir shows the new Next Steps block inside the clack box.
-- Manual non-interactive run: `CI=true npx claude-mem install` (or pipe through cat) shows the same content with 2-space indent and no clack boxes.
+- Manual interactive run: `npx codex-mem install` in a fresh dir shows the new Next Steps block inside the clack box.
+- Manual non-interactive run: `CI=true npx codex-mem install` (or pipe through cat) shows the same content with 2-space indent and no clack boxes.
 - Update `tests/install-non-tty.test.ts` regex assertions to match the new strings (existing pattern: `expect(installSource).toContain(...)`).
 
 ### Anti-pattern guards
@@ -244,16 +244,16 @@ Discovery already completed. Allowed APIs and signatures established:
    If a stats fetch hook doesn't already exist, add one (`useStats()` at `src/ui/viewer/hooks/useStats.ts`) that polls `/api/stats` on mount and on each new SSE observation.
 
 2. **WelcomeCard.tsx rewrite** (`src/ui/viewer/components/WelcomeCard.tsx`):
-   - Bump localStorage key to `claude-mem-welcome-dismissed-v2` (keep helpers in same file). v1 dismissals should NOT carry over — the card is meaningfully different.
+   - Bump localStorage key to `codex-mem-welcome-dismissed-v2` (keep helpers in same file). v1 dismissals should NOT carry over — the card is meaningfully different.
    - Branch on `observationCount === 0`:
      - **Empty state:**
        - Headline: "No observations yet."
-       - Body: "Open Claude Code in any project — entries stream in here as Claude reads, edits, and runs commands."
+       - Body: "Open Codex Code in any project — entries stream in here as Codex reads, edits, and runs commands."
        - Live status row with a `<span class="welcome-card-status-dot" data-connected={isConnected ? 'true' : 'false'} />` and label "Connected to worker · waiting for activity" / "Reconnecting…" based on `isConnected`.
        - Footer: "How it works" link + dismiss button (existing behavior).
      - **Has-data state:**
-       - Headline: "claude-mem"
-       - Body: "Persistent memory across Claude Code sessions."
+       - Headline: "codex-mem"
+       - Body: "Persistent memory across Codex Code sessions."
        - Stat row: `${observationCount} observations · ${projectCount} projects · since ${formatDate(firstObservationAt)}`.
        - Two example prompts (cut from four):
          - `<code>ask:</code> did we already solve X?`
@@ -272,7 +272,7 @@ Discovery already completed. Allowed APIs and signatures established:
 
 - `npm run build-and-sync` succeeds; viewer bundle rebuilds.
 - Open viewer in a fresh-install state: empty card shows, dot animates (or is solid green if connected).
-- In Claude Code, do one Read in a project. The viewer card flips to has-data state without a manual refresh, stat row populates.
+- In Codex Code, do one Read in a project. The viewer card flips to has-data state without a manual refresh, stat row populates.
 - Dismiss persists across reload (localStorage v2 key).
 - Header "Show help" button still re-opens the card.
 - Tests: a small unit test for `getStoredWelcomeDismissed` / `setStoredWelcomeDismissed` against the new v2 key (extend the helper logic — pure functions are easy to test even without React Testing Library).
@@ -302,7 +302,7 @@ Discovery already completed. Allowed APIs and signatures established:
    # expect 3+ matches
    ```
 
-2. Same for the privacy line (`Everything stays in ~/.claude-mem on this machine.`).
+2. Same for the privacy line (`Everything stays in ~/.codex-mem on this machine.`).
 
 3. Confirm `/how-it-works` slash reference appears in install.ts and SearchRoutes.ts; SKILL.md exists at `plugin/skills/how-it-works/SKILL.md`.
 
@@ -325,18 +325,18 @@ Discovery already completed. Allowed APIs and signatures established:
 
 1. Fresh install:
    ```bash
-   rm -rf ~/.claude-mem
-   npx claude-mem install
+   rm -rf ~/.codex-mem
+   npx codex-mem install
    ```
    Verify: install Next Steps shows the new "Two paths" + first-success + timing + privacy + `/how-it-works` block.
 
 2. Open the viewer at the printed URL. Verify: empty state shows, dot is green (connected) or red+pulsing (disconnected briefly).
 
-3. Open Claude Code in any project. Type a prompt that causes one Read.
-   - Verify in Claude Code: SessionStart context contains the new status note, NOT a "Welcome" block. Claude does not act on the bullets — at most relays them.
+3. Open Codex Code in any project. Type a prompt that causes one Read.
+   - Verify in Codex Code: SessionStart context contains the new status note, NOT a "Welcome" block. Codex does not act on the bullets — at most relays them.
    - Verify in viewer: card flips to has-data state, stat row populates, observation appears in the feed.
 
-4. End the session. Start a second Claude Code session in the same project.
+4. End the session. Start a second Codex Code session in the same project.
    - Verify: SessionStart context this time contains injected past observations (not the welcome hint, since `observationCount > 0`).
 
 5. Click the "How it works" link from the viewer card. Verify: it loads `/api/onboarding/explainer` markdown.

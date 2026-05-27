@@ -11,7 +11,7 @@ import type { PostgresObservationGenerationJob } from '../../storage/postgres/ge
 
 // SessionGenerationPolicy decides WHEN to enqueue work for the BullMQ event
 // and summary lanes. It is configurable via:
-//   - CLAUDE_MEM_SERVER_SESSION_POLICY env var (per-process default)
+//   - CODEX_MEM_SERVER_SESSION_POLICY env var (per-process default)
 //   - per-call override (per-team settings can plug in here later)
 //
 // Three policies are supported:
@@ -43,13 +43,13 @@ export interface SessionGenerationPolicyOptions {
 export function resolveSessionGenerationPolicy(
   options: SessionGenerationPolicyOptions = {},
 ): { policy: ServerSessionGenerationPolicy; debounceWindowMs: number } {
-  const envPolicy = (process.env.CLAUDE_MEM_SERVER_SESSION_POLICY ?? '').trim().toLowerCase();
+  const envPolicy = (process.env.CODEX_MEM_SERVER_SESSION_POLICY ?? '').trim().toLowerCase();
   const policy: ServerSessionGenerationPolicy = options.policy
     ?? (envPolicy === 'debounce' || envPolicy === 'end-of-session' || envPolicy === 'per-event'
       ? envPolicy
       : 'per-event');
   const debounceWindowMs = options.debounceWindowMs
-    ?? (Number.parseInt(process.env.CLAUDE_MEM_SERVER_SESSION_DEBOUNCE_MS ?? '', 10)
+    ?? (Number.parseInt(process.env.CODEX_MEM_SERVER_SESSION_DEBOUNCE_MS ?? '', 10)
       || DEFAULT_DEBOUNCE_MS);
   return {
     policy,

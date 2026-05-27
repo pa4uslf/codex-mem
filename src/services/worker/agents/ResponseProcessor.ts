@@ -4,7 +4,7 @@ import { parseAgentXml, type ParsedObservation, type ParsedSummary } from '../..
 import { ingestSummary } from '../http/shared.js';
 import { updateCursorContextForProject } from '../../integrations/CursorHooksInstaller.js';
 import { notifyTelegram } from '../../integrations/TelegramNotifier.js';
-import { updateFolderClaudeMdFiles } from '../../../utils/claude-md-utils.js';
+import { updateFolderCodexMdFiles } from '../../../utils/codex-md-utils.js';
 import { getWorkerPort } from '../../../shared/worker-utils.js';
 import { SettingsDefaultsManager } from '../../../shared/SettingsDefaultsManager.js';
 import { USER_SETTINGS_PATH } from '../../../shared/paths.js';
@@ -238,10 +238,10 @@ async function syncAndBroadcastObservations(
   }
 
   const settings = SettingsDefaultsManager.loadFromFile(USER_SETTINGS_PATH);
-  const settingValue: unknown = settings.CLAUDE_MEM_FOLDER_CLAUDEMD_ENABLED;
-  const folderClaudeMdEnabled = settingValue === 'true' || settingValue === true;
+  const settingValue: unknown = settings.CODEX_MEM_FOLDER_CODEXMD_ENABLED;
+  const folderCodexMdEnabled = settingValue === 'true' || settingValue === true;
 
-  if (folderClaudeMdEnabled) {
+  if (folderCodexMdEnabled) {
     const allFilePaths: string[] = [];
     for (const obs of observations) {
       allFilePaths.push(...(obs.files_modified || []));
@@ -249,13 +249,13 @@ async function syncAndBroadcastObservations(
     }
 
     if (allFilePaths.length > 0) {
-      updateFolderClaudeMdFiles(
+      updateFolderCodexMdFiles(
         allFilePaths,
         session.project,
         getWorkerPort(),
         projectRoot
       ).catch(error => {
-        logger.warn('FOLDER_INDEX', 'CLAUDE.md update failed (non-critical)', { project: session.project }, error as Error);
+        logger.warn('FOLDER_INDEX', 'CODEX.md update failed (non-critical)', { project: session.project }, error as Error);
       });
     }
   }

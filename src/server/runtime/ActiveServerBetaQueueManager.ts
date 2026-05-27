@@ -16,7 +16,7 @@ import type {
 } from './types.js';
 
 // ActiveServerBetaQueueManager owns one ServerJobQueue per generation kind.
-// It is wired in only when CLAUDE_MEM_QUEUE_ENGINE=bullmq is set; otherwise
+// It is wired in only when CODEX_MEM_QUEUE_ENGINE=bullmq is set; otherwise
 // create-server-beta-service.ts keeps the disabled adapter in place.
 //
 // This boundary intentionally does not start any Worker processors here.
@@ -38,7 +38,7 @@ export class ActiveServerBetaQueueManager implements ServerBetaQueueManager {
   ) {
     if (config.engine !== 'bullmq') {
       throw new Error(
-        `ActiveServerBetaQueueManager requires CLAUDE_MEM_QUEUE_ENGINE=bullmq (got ${config.engine}); ` +
+        `ActiveServerBetaQueueManager requires CODEX_MEM_QUEUE_ENGINE=bullmq (got ${config.engine}); ` +
           'do not instantiate when bullmq is not selected.',
       );
     }

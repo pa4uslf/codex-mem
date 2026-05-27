@@ -248,7 +248,7 @@ describe('BullMqObservationQueueEngine', () => {
       tool_name: 'Read',
       toolUseId: 'tool-1',
     });
-    const queue = result.queues.get('claude_mem_session_1')!;
+    const queue = result.queues.get('codex_mem_session_1')!;
     queue.jobs[0].state = 'failed';
 
     const replacement = await engine.enqueue(1, 'content-session', {
@@ -352,7 +352,7 @@ describe('BullMqObservationQueueEngine', () => {
     await iterator.next();
     await iterator.next();
 
-    const queue = result.queues.get('claude_mem_session_1')!;
+    const queue = result.queues.get('codex_mem_session_1')!;
     const failedJob = queue.jobs[0];
     const releasedJob = queue.jobs[1];
     failedJob.failMoveToWait = true;
@@ -388,12 +388,12 @@ describe('BullMqObservationQueueEngine', () => {
 
     const first = await iterator.next();
     expect(first.value.tool_name).toBe('Read');
-    expect(result.queues.get('claude_mem_session_1')!.jobs[0].state).toBe('active');
+    expect(result.queues.get('codex_mem_session_1')!.jobs[0].state).toBe('active');
 
     await engine.close();
     engine = null;
 
-    expect(result.queues.get('claude_mem_session_1')!.jobs[0].state).toBe('waiting');
+    expect(result.queues.get('codex_mem_session_1')!.jobs[0].state).toBe('waiting');
 
     controller.abort();
     await iterator.return?.();
@@ -423,7 +423,7 @@ describe('BullMqObservationQueueEngine', () => {
     await iterator.next();
     await iterator.next();
 
-    const queue = result.queues.get('claude_mem_session_1')!;
+    const queue = result.queues.get('codex_mem_session_1')!;
     const failedJob = queue.jobs[0];
     const releasedJob = queue.jobs[1];
     failedJob.failMoveToWait = true;
@@ -457,7 +457,7 @@ describe('BullMqObservationQueueEngine', () => {
     });
     await iterator.next();
 
-    const queue = result.queues.get('claude_mem_session_1')!;
+    const queue = result.queues.get('codex_mem_session_1')!;
     queue.failObliterate = true;
     await expect(engine.clearPendingForSession(1)).rejects.toThrow('obliterate failed');
 
@@ -488,7 +488,7 @@ describe('BullMqObservationQueueEngine', () => {
     engine = secondProcess.engine;
 
     expect(await engine.getTotalQueueDepth()).toBe(1);
-    expect(secondProcess.queues.get('claude_mem_session_7')).toBeDefined();
+    expect(secondProcess.queues.get('codex_mem_session_7')).toBeDefined();
   });
 
   test('clearPendingForSession prunes empty sessions from the Redis registry', async () => {
@@ -534,15 +534,15 @@ describe('BullMqObservationQueueEngine', () => {
       }),
     }));
 
-    await expect(engine.assertHealthy()).rejects.toThrow('CLAUDE_MEM_QUEUE_ENGINE=bullmq requires Redis/Valkey');
+    await expect(engine.assertHealthy()).rejects.toThrow('CODEX_MEM_QUEUE_ENGINE=bullmq requires Redis/Valkey');
   });
 
-  const redisIntegrationTest = process.env.CLAUDE_MEM_RUN_REDIS_QUEUE_TESTS === 'true'
+  const redisIntegrationTest = process.env.CODEX_MEM_RUN_REDIS_QUEUE_TESTS === 'true'
     ? test
     : test.skip;
 
   redisIntegrationTest('releases active jobs and discovers registry with real Redis', async () => {
-    const redisUrl = process.env.CLAUDE_MEM_REDIS_URL ?? 'redis://127.0.0.1:6379';
+    const redisUrl = process.env.CODEX_MEM_REDIS_URL ?? 'redis://127.0.0.1:6379';
     const prefix = `cm_test_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const parsedRedisUrl = new URL(redisUrl);
     const redisConnection = {

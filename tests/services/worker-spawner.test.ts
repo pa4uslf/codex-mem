@@ -10,7 +10,7 @@ describe('ensureWorkerStarted validation guards', () => {
   });
 
   it('returns false when workerScriptPath does not exist on disk', async () => {
-    const bogusPath = '/tmp/__claude-mem-test-nonexistent-worker-script-' + Date.now() + '.cjs';
+    const bogusPath = '/tmp/__codex-mem-test-nonexistent-worker-script-' + Date.now() + '.cjs';
     const result = await ensureWorkerStarted(39002, bogusPath);
     expect(result).toBe(false);
   });

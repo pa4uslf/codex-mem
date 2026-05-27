@@ -5,7 +5,7 @@
 // expect, and verifies the ServerBetaClient (which the MCP tools use) hits
 // those endpoints end-to-end.
 //
-// Postgres-gated: requires CLAUDE_MEM_TEST_POSTGRES_URL.
+// Postgres-gated: requires CODEX_MEM_TEST_POSTGRES_URL.
 
 import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from 'bun:test';
 import pg from 'pg';
@@ -22,7 +22,7 @@ import { DisabledServerBetaQueueManager } from '../../../src/server/runtime/type
 import { ServerBetaClient } from '../../../src/services/hooks/server-beta-client.js';
 import { logger } from '../../../src/utils/logger.js';
 
-const testDatabaseUrl = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const testDatabaseUrl = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 function quoteIdentifier(name: string): string {
   return `"${name.replaceAll('"', '""')}"`;
@@ -36,7 +36,7 @@ function newApiKey(): { raw: string; hash: string } {
 
 describe('Phase 8 MCP-backing REST endpoints (/v1/memories, /v1/search, /v1/context, /v1/jobs/:id)', () => {
   if (!testDatabaseUrl) {
-    it.skip('requires CLAUDE_MEM_TEST_POSTGRES_URL', () => {});
+    it.skip('requires CODEX_MEM_TEST_POSTGRES_URL', () => {});
     return;
   }
 

@@ -1,18 +1,18 @@
-# How Claude-Mem Uses Hooks: A Lifecycle-Driven Architecture
+# How Codex-Mem Uses Hooks: A Lifecycle-Driven Architecture
 
 ## Core Principle
-**Observe the main Claude Code session from the outside, process observations in the background, inject context at the right time.**
+**Observe the main Codex Code session from the outside, process observations in the background, inject context at the right time.**
 
 ---
 
 ## The Big Picture
 
-Claude-Mem is fundamentally a **hook-driven system**. Every piece of functionality happens in response to lifecycle events:
+Codex-Mem is fundamentally a **hook-driven system**. Every piece of functionality happens in response to lifecycle events:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              CLAUDE CODE SESSION                         │
-│  (Main session - user interacting with Claude)          │
+│              CODEX CODE SESSION                         │
+│  (Main session - user interacting with Codex)          │
 │                                                          │
 │  SessionStart → UserPromptSubmit → Tool Use → Stop      │
 │     ↓ ↓ ↓            ↓               ↓          ↓        │
@@ -20,7 +20,7 @@ Claude-Mem is fundamentally a **hook-driven system**. Every piece of functionali
 └─────────────────────────────────────────────────────────┘
     ↓ ↓ ↓             ↓               ↓          ↓
 ┌─────────────────────────────────────────────────────────┐
-│                  CLAUDE-MEM SYSTEM                       │
+│                  CODEX-MEM SYSTEM                       │
 │                                                          │
 │  Smart      Worker      Context    New        Obs       │
 │  Install    Start       Inject     Session    Capture   │
@@ -28,10 +28,10 @@ Claude-Mem is fundamentally a **hook-driven system**. Every piece of functionali
 ```
 
 <Note>
-As of Claude Code 2.1.0 (ultrathink update), SessionStart hooks no longer display user-visible messages. Context is silently injected via `hookSpecificOutput.additionalContext`.
+As of Codex Code 2.1.0 (ultrathink update), SessionStart hooks no longer display user-visible messages. Context is silently injected via `hookSpecificOutput.additionalContext`.
 </Note>
 
-**Key insight:** Claude-Mem doesn't interrupt or modify Claude Code's behavior. It observes from the outside and provides value through lifecycle hooks.
+**Key insight:** Codex-Mem doesn't interrupt or modify Codex Code's behavior. It observes from the outside and provides value through lifecycle hooks.
 
 ---
 
@@ -39,18 +39,18 @@ As of Claude Code 2.1.0 (ultrathink update), SessionStart hooks no longer displa
 
 ### The Non-Invasive Requirement
 
-Claude-Mem had several architectural constraints:
+Codex-Mem had several architectural constraints:
 
-1. **Can't modify Claude Code**: It's a closed-source binary
+1. **Can't modify Codex Code**: It's a closed-source binary
 2. **Must be fast**: Can't slow down the main session
-3. **Must be reliable**: Can't break Claude Code if it fails
+3. **Must be reliable**: Can't break Codex Code if it fails
 4. **Must be portable**: Works on any project without configuration
 
 **Solution:** External command hooks configured via settings.json
 
 ### The Hook System Advantage
 
-Claude Code's hook system provides exactly what we need:
+Codex Code's hook system provides exactly what we need:
 
 <CardGroup cols={2}>
   <Card title="Lifecycle Events" icon="clock">
@@ -74,20 +74,20 @@ Claude Code's hook system provides exactly what we need:
 
 ## The Hook Scripts
 
-Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup is handled out-of-band by `npx claude-mem install` (and `npx claude-mem repair`); the Setup hook only runs a sub-100ms `version-check.js` to flag stale installs. SessionStart runs 2 hooks in sequence: worker-service start, then context-hook.
+Codex-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup is handled out-of-band by `npx codex-mem install` (and `npx codex-mem repair`); the Setup hook only runs a sub-100ms `version-check.js` to flag stale installs. SessionStart runs 2 hooks in sequence: worker-service start, then context-hook.
 
 ### Setup Hook: Version Check
 
 **Purpose:** Detect stale installs caused by external plugin upgrades and prompt the user to repair.
 
-**Note:** Runtime installation (Bun, uv, `bun install` in the plugin cache) is performed by `npx claude-mem install` and `npx claude-mem repair` — the Setup hook itself never installs anything.
+**Note:** Runtime installation (Bun, uv, `bun install` in the plugin cache) is performed by `npx codex-mem install` and `npx codex-mem repair` — the Setup hook itself never installs anything.
 
-**When:** Claude Code Setup phase, before every session.
+**When:** Codex Code Setup phase, before every session.
 
 **What it does:**
 1. Reads the `.install-version` marker written by the npx installer.
 2. Compares it against the currently loaded plugin version.
-3. On mismatch, writes `run: npx claude-mem repair` to stderr.
+3. On mismatch, writes `run: npx codex-mem repair` to stderr.
 4. Always exits 0 (non-blocking, sub-100ms).
 
 **Configuration:**
@@ -97,7 +97,7 @@ Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup 
     "Setup": [{
       "hooks": [{
         "type": "command",
-        "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/version-check.js",
+        "command": "node ${CODEX_PLUGIN_ROOT}/scripts/version-check.js",
         "timeout": 60
       }]
     }]
@@ -108,9 +108,9 @@ Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup 
 **Key Features:**
 - ✅ Sub-100ms version-marker check (no I/O beyond reading the marker)
 - ✅ Always exit 0 — never blocks a session
-- ✅ Clear repair instructions on stderr when the plugin was upgraded externally (e.g. `claude plugin update`)
+- ✅ Clear repair instructions on stderr when the plugin was upgraded externally (e.g. `codex plugin update`)
 
-**Source:** `scripts/version-check.js`. The matching installer logic lives in `npx claude-mem install` / `npx claude-mem repair`, which install Bun + uv globally, run `bun install` in the plugin cache, and write the `.install-version` marker — all behind a visible clack spinner.
+**Source:** `scripts/version-check.js`. The matching installer logic lives in `npx codex-mem install` / `npx codex-mem repair`, which install Bun + uv globally, run `bun install` in the plugin cache, and write the `.install-version` marker — all behind a visible clack spinner.
 
 ---
 
@@ -118,7 +118,7 @@ Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup 
 
 **Purpose:** Inject relevant context from previous sessions
 
-**When:** Claude Code starts (runs after the worker-start SessionStart entry)
+**When:** Codex Code starts (runs after the worker-start SessionStart entry)
 
 **What it does:**
 1. Extracts project name from current working directory
@@ -131,11 +131,11 @@ Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup 
 - ✅ Runs on startup, clear, and compact
 - ✅ 300-second timeout (allows for npm install if needed)
 - ✅ Progressive disclosure format (index, not full details)
-- ✅ Configurable observation count via `CLAUDE_MEM_CONTEXT_OBSERVATIONS`
+- ✅ Configurable observation count via `CODEX_MEM_CONTEXT_OBSERVATIONS`
 
 **Output format:**
 ```markdown
-# [claude-mem] recent context
+# [codex-mem] recent context
 
 **Legend:** 🎯 session-request | 🔴 gotcha | 🟡 problem-solution ...
 
@@ -157,7 +157,7 @@ Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup 
 
 **Purpose:** Initialize session tracking when user submits a prompt
 
-**When:** Before Claude processes the user's message
+**When:** Before Codex processes the user's message
 
 **What it does:**
 1. Reads user prompt and session ID from stdin
@@ -173,7 +173,7 @@ Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup 
     "UserPromptSubmit": [{
       "hooks": [{
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/new-hook.js"
+        "command": "${CODEX_PLUGIN_ROOT}/scripts/new-hook.js"
       }]
     }]
   }
@@ -189,7 +189,7 @@ Claude-Mem uses lifecycle hook scripts across 5 lifecycle events. Runtime setup 
 
 **Database operations:**
 ```sql
-INSERT INTO sdk_sessions (claude_session_id, project, user_prompt, ...)
+INSERT INTO sdk_sessions (codex_session_id, project, user_prompt, ...)
 VALUES (?, ?, ?, ...)
 
 INSERT INTO user_prompts (session_id, prompt, prompt_number, ...)
@@ -220,7 +220,7 @@ VALUES (?, ?, ?, ...)
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/save-hook.js"
+        "command": "${CODEX_PLUGIN_ROOT}/scripts/save-hook.js"
       }]
     }]
   }
@@ -265,11 +265,11 @@ VALUES (?, ?, ?, ?, ...)
 
 **Purpose:** Generate AI-powered session summaries during the session
 
-**When:** When Claude stops (triggered by Stop lifecycle event)
+**When:** When Codex stops (triggered by Stop lifecycle event)
 
 **What it does:**
 1. Gathers session observations from database
-2. Sends to Claude Agent SDK for summarization
+2. Sends to Codex CLI for summarization
 3. Processes response and extracts structured summary
 4. Stores in session_summaries table
 
@@ -280,7 +280,7 @@ VALUES (?, ?, ?, ?, ...)
     "Stop": [{
       "hooks": [{
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/summary-hook.js"
+        "command": "${CODEX_PLUGIN_ROOT}/scripts/summary-hook.js"
       }]
     }]
   }
@@ -291,7 +291,7 @@ VALUES (?, ?, ?, ?, ...)
 - ✅ Triggered by Stop lifecycle event
 - ✅ Multiple summaries per session (v4.2.0+)
 - ✅ Summaries are checkpoints, not endings
-- ✅ Uses Claude Agent SDK for AI compression
+- ✅ Uses Codex CLI for AI compression
 
 **Summary structure:**
 ```xml
@@ -320,7 +320,7 @@ VALUES (?, ?, ?, ?, ...)
 
 **Purpose:** Mark sessions as completed when they end
 
-**When:** Claude Code session ends (not on `/clear`)
+**When:** Codex Code session ends (not on `/clear`)
 
 **What it does:**
 1. Marks session as completed in database
@@ -334,7 +334,7 @@ VALUES (?, ?, ?, ?, ...)
     "SessionEnd": [{
       "hooks": [{
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/scripts/cleanup-hook.js"
+        "command": "${CODEX_PLUGIN_ROOT}/scripts/cleanup-hook.js"
       }]
     }]
   }
@@ -383,26 +383,26 @@ Worker sees completion → Finishes processing → Exits naturally
 ```mermaid
 sequenceDiagram
     participant User
-    participant Claude
+    participant Codex
     participant Hooks
     participant Worker
     participant DB
 
-    User->>Claude: Start Claude Code
-    Claude->>Hooks: SessionStart hook
+    User->>Codex: Start Codex Code
+    Codex->>Hooks: SessionStart hook
     Hooks->>DB: Query recent context
     DB-->>Hooks: Session summaries + observations
-    Hooks-->>Claude: Inject context
-    Note over Claude: Context available for session
+    Hooks-->>Codex: Inject context
+    Note over Codex: Context available for session
 
-    User->>Claude: Submit prompt
-    Claude->>Hooks: UserPromptSubmit hook
+    User->>Codex: Submit prompt
+    Codex->>Hooks: UserPromptSubmit hook
     Hooks->>DB: Create session record
     Hooks->>Worker: Start worker (if not running)
     Worker-->>DB: Ready to process
 
-    Claude->>Claude: Execute tools
-    Claude->>Hooks: PostToolUse (multiple times)
+    Codex->>Codex: Execute tools
+    Codex->>Hooks: PostToolUse (multiple times)
     Hooks->>DB: Queue observations
     Note over Worker: Polls queue, processes observations
 
@@ -411,8 +411,8 @@ sequenceDiagram
     Worker->>Hooks: Trigger summary hook
     Hooks->>DB: Store session summary
 
-    User->>Claude: Finish
-    Claude->>Hooks: SessionEnd hook
+    User->>Codex: Finish
+    Codex->>Hooks: SessionEnd hook
     Hooks->>DB: Mark session complete
     Worker->>DB: Check completion
     Worker->>Worker: Finish processing
@@ -432,7 +432,7 @@ sequenceDiagram
 | **SessionEnd** | On exit | No | 120s | Log only |
 
 <Note>
-As of Claude Code 2.1.0 (ultrathink update), SessionStart hooks no longer display user-visible messages. Context is silently injected via `hookSpecificOutput.additionalContext`.
+As of Codex Code 2.1.0 (ultrathink update), SessionStart hooks no longer display user-visible messages. Context is silently injected via `hookSpecificOutput.additionalContext`.
 </Note>
 
 ---
@@ -458,7 +458,7 @@ As of Claude Code 2.1.0 (ultrathink update), SessionStart hooks no longer displa
 ┌─────────────────────────────────────────────────────────┐
 │                 WORKER (Slow)                            │
 │  1. Poll queue every 1s                                 │
-│  2. Process observation via Claude SDK (5-30s)          │
+│  2. Process observation via Codex CLI (5-30s)          │
 │  3. Parse and store results                             │
 │  4. Mark observation processed                          │
 └─────────────────────────────────────────────────────────┘
@@ -495,7 +495,7 @@ npm run worker:stop
 
 ### Worker HTTP API
 
-**Technology:** Express.js REST API on the worker's per-user port (default `37700 + (uid % 100)`, override via `CLAUDE_MEM_WORKER_PORT`)
+**Technology:** Express.js REST API on the worker's per-user port (default `37700 + (uid % 100)`, override via `CODEX_MEM_WORKER_PORT`)
 
 **Endpoints:**
 
@@ -554,7 +554,7 @@ Hook (capture) → Queue (buffer) → Worker (process)
 
 ### Pattern 3: Graceful Degradation
 
-**Principle:** Memory system failure shouldn't break Claude Code
+**Principle:** Memory system failure shouldn't break Codex Code
 
 ```typescript
 try {
@@ -577,8 +577,8 @@ try {
 **Principle:** Core functionality works without memory, memory enhances it
 
 ```
-Without memory: Claude Code works normally
-With memory:    Claude Code + context from past sessions
+Without memory: Codex Code works normally
+With memory:    Codex Code + context from past sessions
 Memory broken:  Falls back to working normally
 ```
 
@@ -591,7 +591,7 @@ Memory broken:  Falls back to working normally
 Enable detailed hook execution logs:
 
 ```bash
-claude --debug
+codex --debug
 ```
 
 **Output:**
@@ -601,7 +601,7 @@ claude --debug
 [DEBUG] Found 1 hook matchers in settings
 [DEBUG] Matched 1 hooks for query "Write"
 [DEBUG] Found 1 hook commands to execute
-[DEBUG] Executing hook command: ${CLAUDE_PLUGIN_ROOT}/scripts/save-hook.js with timeout 60000ms
+[DEBUG] Executing hook command: ${CODEX_PLUGIN_ROOT}/scripts/save-hook.js with timeout 60000ms
 [DEBUG] Hook command completed with status 0: {"continue":true,"suppressOutput":true}
 ```
 
@@ -642,7 +642,7 @@ claude --debug
     **Symptoms:** PostToolUse hook runs but observations missing
 
     **Debugging:**
-    1. Check database: `sqlite3 ~/.claude-mem/claude-mem.db "SELECT * FROM observation_queue"`
+    1. Check database: `sqlite3 ~/.codex-mem/codex-mem.db "SELECT * FROM observation_queue"`
     2. Verify session exists: `SELECT * FROM sdk_sessions`
     3. Check worker status: `npm run worker:status`
     4. View worker logs: `npm run worker:logs`
@@ -668,8 +668,8 @@ echo '{
   "tool_output": {"success": true}
 }' | node plugin/scripts/save-hook.js
 
-# Test with actual Claude Code
-claude --debug
+# Test with actual Codex Code
+codex --debug
 /hooks  # View registered hooks
 # Submit prompt and watch debug output
 ```
@@ -696,13 +696,13 @@ claude --debug
 
 **Why the Setup hook stays fast:**
 - The Setup hook only reads the `.install-version` marker — no `npm install`, no spawned subprocesses.
-- All heavy lifting (Bun + uv install, `bun install` inside the plugin cache) happens in `npx claude-mem install` / `npx claude-mem repair`, which run with a visible clack spinner outside the session lifecycle.
-- On marker mismatch the hook prints a one-line `run: npx claude-mem repair` hint to stderr and exits 0; the user opts into the slow path explicitly.
+- All heavy lifting (Bun + uv install, `bun install` inside the plugin cache) happens in `npx codex-mem install` / `npx codex-mem repair`, which run with a visible clack spinner outside the session lifecycle.
+- On marker mismatch the hook prints a one-line `run: npx codex-mem repair` hint to stderr and exits 0; the user opts into the slow path explicitly.
 
 ### Database Performance
 
 **Schema optimizations:**
-- Indexes on `project`, `created_at_epoch`, `claude_session_id`
+- Indexes on `project`, `created_at_epoch`, `codex_session_id`
 - FTS5 virtual tables for full-text search
 - WAL mode for concurrent reads/writes
 
@@ -714,9 +714,9 @@ WHERE project = ?
 ORDER BY created_at_epoch DESC
 LIMIT 10
 
--- Fast: Uses index on claude_session_id
+-- Fast: Uses index on codex_session_id
 SELECT * FROM sdk_sessions
-WHERE claude_session_id = ?
+WHERE codex_session_id = ?
 LIMIT 1
 
 -- Fast: FTS5 full-text search
@@ -728,7 +728,7 @@ LIMIT 20
 
 ### Worker Throughput
 
-**Bottleneck:** Claude API latency (5-30s per observation)
+**Bottleneck:** Codex API latency (5-30s per observation)
 
 **Mitigation:**
 - Process observations sequentially (simpler, more predictable)
@@ -751,7 +751,7 @@ LIMIT 20
 **Mitigations:**
 1. **Frozen at startup:** Hook configuration captured at start, changes require review
 2. **User review required:** `/hooks` menu shows changes, requires approval
-3. **Plugin isolation:** `${CLAUDE_PLUGIN_ROOT}` prevents path traversal
+3. **Plugin isolation:** `${CODEX_PLUGIN_ROOT}` prevents path traversal
 4. **Input validation:** Hooks validate stdin schema before processing
 
 ### Data Privacy
@@ -763,7 +763,7 @@ LIMIT 20
 - Session summaries
 
 **Privacy guarantees:**
-- All data stored locally in `~/.claude-mem/claude-mem.db`
+- All data stored locally in `~/.codex-mem/codex-mem.db`
 - No cloud uploads (API calls only for AI compression)
 - SQLite file permissions: user-only read/write
 - No analytics or telemetry
@@ -771,8 +771,8 @@ LIMIT 20
 ### API Key Protection
 
 **Configuration:**
-- Anthropic API key in `~/.anthropic/api_key` or `ANTHROPIC_API_KEY` env var
-- Worker inherits environment from Claude Code
+- Codex API key in `~/.codex/api_key` or `CODEX_API_KEY` env var
+- Worker inherits environment from Codex Code
 - Never logged or stored in database
 
 ---
@@ -781,7 +781,7 @@ LIMIT 20
 
 1. **Hooks are interfaces**: They define clean boundaries between systems
 2. **Non-blocking is critical**: Hooks must return fast, workers do the heavy lifting
-3. **Graceful degradation**: Memory system can fail without breaking Claude Code
+3. **Graceful degradation**: Memory system can fail without breaking Codex Code
 4. **Queue-based decoupling**: Capture and processing happen independently
 5. **Progressive disclosure**: Context injection uses index-first approach
 6. **Lifecycle alignment**: Each hook has a clear, single purpose
@@ -790,11 +790,11 @@ LIMIT 20
 
 ## Further Reading
 
-- [Claude Code Hooks Reference](https://docs.claude.com/claude-code/hooks) - Official documentation
+- [Codex Code Hooks Reference](https://docs.codex.com/codex-code/hooks) - Official documentation
 - [Progressive Disclosure](progressive-disclosure) - Context priming philosophy
 - [Architecture Evolution](architecture-evolution) - v3 to v4 journey
 - [Worker Service Design](architecture/worker-service) - Background processing details
 
 ---
 
-*The hook-driven architecture enables Claude-Mem to be both powerful and invisible. Users never notice the memory system working - it just makes Claude smarter over time.*
+*The hook-driven architecture enables Codex-Mem to be both powerful and invisible. Users never notice the memory system working - it just makes Codex smarter over time.*

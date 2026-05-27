@@ -149,7 +149,7 @@ describe('extractLastMessage - Gemini CLI 0.37.0 transcript format', () => {
     });
   });
 
-  describe('JSONL format (Claude Code) — no regression', () => {
+  describe('JSONL format (Codex Code) — no regression', () => {
     it('still extracts assistant messages from JSONL transcripts', async () => {
       setup();
       try {

@@ -18,7 +18,7 @@ async function fullI18nSetup(): Promise<void> {
     outputDir: "./docs/i18n",
     pattern: "README.{lang}.md",
     preserveCode: true,
-    model: "sonnet",
+    model: "gpt-5",
     maxBudgetUsd: 5.0, // Cap spending at $5
     verbose: true,
   });

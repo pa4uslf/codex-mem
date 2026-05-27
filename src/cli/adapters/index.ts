@@ -1,5 +1,5 @@
 import type { PlatformAdapter } from '../types.js';
-import { claudeCodeAdapter } from './claude-code.js';
+import { codexCodeAdapter } from './codex-code.js';
 import { codexAdapter } from './codex.js';
 import { cursorAdapter } from './cursor.js';
 import { geminiCliAdapter } from './gemini-cli.js';
@@ -8,7 +8,7 @@ import { windsurfAdapter } from './windsurf.js';
 
 export function getPlatformAdapter(platform: string): PlatformAdapter {
   switch (platform) {
-    case 'claude-code': return claudeCodeAdapter;
+    case 'codex-code': return codexCodeAdapter;
     case 'codex': return codexAdapter;
     case 'cursor': return cursorAdapter;
     case 'gemini':
@@ -19,4 +19,4 @@ export function getPlatformAdapter(platform: string): PlatformAdapter {
   }
 }
 
-export { claudeCodeAdapter, codexAdapter, cursorAdapter, geminiCliAdapter, rawAdapter, windsurfAdapter };
+export { codexCodeAdapter, codexAdapter, cursorAdapter, geminiCliAdapter, rawAdapter, windsurfAdapter };

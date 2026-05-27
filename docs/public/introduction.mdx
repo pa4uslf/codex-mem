@@ -1,35 +1,35 @@
 ---
 title: "Introduction"
-description: "Persistent memory compression system for Claude Code"
+description: "Persistent memory compression system for Codex Code"
 ---
 
-# Claude-Mem
+# Codex-Mem
 
-**Persistent memory compression system for Claude Code**
+**Persistent memory compression system for Codex Code**
 
-Claude-Mem seamlessly preserves context across sessions by automatically capturing tool usage observations, generating semantic summaries, and making them available to future sessions. This enables Claude to maintain continuity of knowledge about projects even after sessions end or reconnect.
+Codex-Mem seamlessly preserves context across sessions by automatically capturing tool usage observations, generating semantic summaries, and making them available to future sessions. This enables Codex to maintain continuity of knowledge about projects even after sessions end or reconnect.
 
 ## Quick Start
 
 Install with a single command:
 
 ```bash
-npx claude-mem install
+npx codex-mem install
 ```
 
-Or install from the plugin marketplace inside Claude Code:
+Or install from the plugin marketplace inside Codex Code:
 
 ```bash
-/plugin marketplace add thedotmack/claude-mem
-/plugin install claude-mem
+/plugin marketplace add thedotmack/codex-mem
+/plugin install codex-mem
 ```
 
-Restart Claude Code. Context from previous sessions will automatically appear in new sessions.
+Restart Codex Code. Context from previous sessions will automatically appear in new sessions.
 
 ## Key Features
 
 - 🧠 **Persistent Memory** - Context survives across sessions
-- 📁 **Folder Context Files** - Auto-generated `CLAUDE.md` in project folders with activity timelines
+- 📁 **Folder Context Files** - Auto-generated `CODEX.md` in project folders with activity timelines
 - 🌐 **Multilingual Modes** - Supports 28 languages (Spanish, Chinese, French, Japanese, etc.)
 - 🎭 **Mode System** - Switch between workflows (Code, Email Investigation, Chill)
 - 🔍 **MCP Search Tools** - Query your project history with natural language
@@ -57,7 +57,7 @@ Restart Claude Code. Context from previous sessions will automatically appear in
 └─────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ Worker Processes → Extract learnings via Claude Agent SDK   │
+│ Worker Processes → Extract learnings via Codex CLI   │
 └─────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -78,9 +78,9 @@ See [Architecture Overview](architecture/overview) for details.
 ## System Requirements
 
 - **Node.js**: 20.0.0 or higher
-- **Bun** ≥ 1.0 (auto-installed by `npx claude-mem install` if missing)
+- **Bun** ≥ 1.0 (auto-installed by `npx codex-mem install` if missing)
 - **uv** (auto-installed if missing — provides Python for Chroma)
-- **Claude Code** (or another supported IDE: Cursor, Gemini CLI, Windsurf, OpenCode, Codex CLI, OpenClaw)
+- **Codex Code** (or another supported IDE: Cursor, Gemini CLI, Windsurf, OpenCode, Codex CLI, OpenClaw)
 - **SQLite 3** — bundled via `bun:sqlite`
 
 ## Next Steps
@@ -90,10 +90,10 @@ See [Architecture Overview](architecture/overview) for details.
     Quick start & advanced installation
   </Card>
   <Card title="Getting Started" icon="rocket" href="/usage/getting-started">
-    Learn how Claude-Mem works automatically
+    Learn how Codex-Mem works automatically
   </Card>
   <Card title="Folder Context" icon="folder-open" href="/usage/folder-context">
-    Auto-generated folder CLAUDE.md files
+    Auto-generated folder CODEX.md files
   </Card>
   <Card title="Search Tools" icon="magnifying-glass" href="/usage/search-tools">
     Query your project history

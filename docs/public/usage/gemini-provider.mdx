@@ -1,11 +1,11 @@
 ---
 title: "Gemini Provider"
-description: "Use Google's Gemini API as an alternative to Claude for observation extraction"
+description: "Use Google's Gemini API as an alternative to Codex for observation extraction"
 ---
 
 # Gemini Provider
 
-Claude-mem supports Google's Gemini API as an alternative to the Claude Agent SDK for extracting observations from your sessions. This can significantly reduce costs since Gemini offers a generous free tier.
+Codex-mem supports Google's Gemini API as an alternative to the Codex CLI for extracting observations from your sessions. This can significantly reduce costs since Gemini offers a generous free tier.
 
 <Warning>
 **Free Tier Rate Limits**: Without billing enabled, Gemini has strict rate limits (5-10 RPM). Enable billing on your Google Cloud project to unlock 1000-4000 RPM while still using the free quota.
@@ -14,7 +14,7 @@ Claude-mem supports Google's Gemini API as an alternative to the Claude Agent SD
 ## Why Use Gemini?
 
 - **Cost savings**: The free tier covers most individual usage patterns
-- **Same quality**: Gemini extracts observations using the same XML format as Claude
+- **Same quality**: Gemini extracts observations using the same XML format as Codex
 - **Errors throw clearly**: 429s, 5xx, and network failures throw — leaving messages pending so they can be retried
 - **Hot-swappable**: Switch providers without restarting the worker
 
@@ -37,10 +37,10 @@ Claude-mem supports Google's Gemini API as an alternative to the Claude Agent SD
 
 | Setting | Values | Default | Description |
 |---------|--------|---------|-------------|
-| `CLAUDE_MEM_PROVIDER` | `claude`, `gemini` | `claude` | AI provider for observation extraction |
-| `CLAUDE_MEM_GEMINI_API_KEY` | string | — | Your Gemini API key |
-| `CLAUDE_MEM_GEMINI_MODEL` | `gemini-2.5-flash-lite`, `gemini-2.5-flash`, `gemini-3-flash-preview` | `gemini-2.5-flash-lite` | Gemini model to use |
-| `CLAUDE_MEM_GEMINI_BILLING_ENABLED` | `true`, `false` | `false` | Skip rate limiting if billing is enabled on Google Cloud |
+| `CODEX_MEM_PROVIDER` | `codex`, `gemini` | `codex` | AI provider for observation extraction |
+| `CODEX_MEM_GEMINI_API_KEY` | string | — | Your Gemini API key |
+| `CODEX_MEM_GEMINI_MODEL` | `gemini-2.5-flash-lite`, `gemini-2.5-flash`, `gemini-3-flash-preview` | `gemini-2.5-flash-lite` | Gemini model to use |
+| `CODEX_MEM_GEMINI_BILLING_ENABLED` | `true`, `false` | `false` | Skip rate limiting if billing is enabled on Google Cloud |
 
 ### Using the Settings UI
 
@@ -54,14 +54,14 @@ Settings are applied immediately—no restart required.
 
 ### Manual Configuration
 
-Edit `~/.claude-mem/settings.json`:
+Edit `~/.codex-mem/settings.json`:
 
 ```json
 {
-  "CLAUDE_MEM_PROVIDER": "gemini",
-  "CLAUDE_MEM_GEMINI_API_KEY": "your-api-key-here",
-  "CLAUDE_MEM_GEMINI_MODEL": "gemini-2.5-flash-lite",
-  "CLAUDE_MEM_GEMINI_BILLING_ENABLED": "true"
+  "CODEX_MEM_PROVIDER": "gemini",
+  "CODEX_MEM_GEMINI_API_KEY": "your-api-key-here",
+  "CODEX_MEM_GEMINI_MODEL": "gemini-2.5-flash-lite",
+  "CODEX_MEM_GEMINI_BILLING_ENABLED": "true"
 }
 ```
 
@@ -83,7 +83,7 @@ The settings file takes precedence over the environment variable.
 
 ## Provider Switching
 
-You can switch between Claude and Gemini at any time:
+You can switch between Codex and Gemini at any time:
 
 - **No restart required**: Changes take effect on the next observation
 - **Conversation history preserved**: When switching mid-session, the new provider sees the full conversation context
@@ -99,13 +99,13 @@ You can switch between Claude and Gemini at any time:
 
 ```json
 {
-  "CLAUDE_MEM_PROVIDER": "gemini"
+  "CODEX_MEM_PROVIDER": "gemini"
 }
 ```
 
 ## Error Behavior
 
-If Gemini is selected and the API errors, claude-mem logs the failure and re-throws so the message stays pending for later retry. There is no Claude SDK fallback — earlier docs claimed automatic Claude fallback, but the wiring was never actually engaged in production (#2087). To switch providers, change `CLAUDE_MEM_PROVIDER` in settings.
+If Gemini is selected and the API errors, codex-mem logs the failure and re-throws so the message stays pending for later retry. There is no Codex CLI fallback — earlier docs claimed automatic Codex fallback, but the wiring was never actually engaged in production (#2087). To switch providers, change `CODEX_MEM_PROVIDER` in settings.
 
 **Throwing conditions:**
 - Rate limiting (HTTP 429)
@@ -119,7 +119,7 @@ If Gemini is selected and the API errors, claude-mem logs the failure and re-thr
 ### "Gemini API key not configured"
 
 Either:
-- Set `CLAUDE_MEM_GEMINI_API_KEY` in `~/.claude-mem/settings.json`, or
+- Set `CODEX_MEM_GEMINI_API_KEY` in `~/.codex-mem/settings.json`, or
 - Set the `GEMINI_API_KEY` environment variable
 
 ### Rate Limiting
@@ -134,7 +134,7 @@ Google has two rate limit tiers for free usage:
 | gemini-2.5-flash | 5 | 250K |
 | gemini-3-flash-preview | 5 | 250K |
 
-Claude-mem enforces these limits automatically with built-in delays between requests. Processing may be slower but stays within limits.
+Codex-mem enforces these limits automatically with built-in delays between requests. Processing may be slower but stays within limits.
 
 **With billing enabled (still free tier):**
 
@@ -145,18 +145,18 @@ Claude-mem enforces these limits automatically with built-in delays between requ
 | gemini-3-flash-preview | 1,000 | 1M |
 
 <Tip>
-**Recommended**: Enable billing on your Google Cloud project to unlock much higher rate limits. You won't be charged unless you exceed the generous free quota. This allows claude-mem to process observations instantly instead of waiting between requests.
+**Recommended**: Enable billing on your Google Cloud project to unlock much higher rate limits. You won't be charged unless you exceed the generous free quota. This allows codex-mem to process observations instantly instead of waiting between requests.
 </Tip>
 
 If you hit rate limits:
-- Claude-mem automatically falls back to Claude SDK
-- Or switch back to Claude as your primary provider
+- Codex-mem automatically falls back to Codex CLI
+- Or switch back to Codex as your primary provider
 
 ### Observation Quality
 
 If observations seem lower quality with Gemini:
-- Note that Claude typically produces slightly higher quality observations
-- Consider using Gemini for cost savings and Claude for important projects
+- Note that Codex typically produces slightly higher quality observations
+- Consider using Gemini for cost savings and Codex for important projects
 
 ## Next Steps
 

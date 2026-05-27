@@ -13,7 +13,7 @@ import {
   markGenerationFailed,
 } from '../../../src/server/generation/processGeneratedResponse.js';
 
-const testDatabaseUrl = process.env.CLAUDE_MEM_TEST_POSTGRES_URL;
+const testDatabaseUrl = process.env.CODEX_MEM_TEST_POSTGRES_URL;
 
 function quoteIdentifier(name: string): string {
   return `"${name.replaceAll('"', '""')}"`;
@@ -21,7 +21,7 @@ function quoteIdentifier(name: string): string {
 
 describe('processGeneratedResponse + markGenerationFailed', () => {
   if (!testDatabaseUrl) {
-    it.skip('requires CLAUDE_MEM_TEST_POSTGRES_URL for Postgres integration', () => {});
+    it.skip('requires CODEX_MEM_TEST_POSTGRES_URL for Postgres integration', () => {});
     return;
   }
 

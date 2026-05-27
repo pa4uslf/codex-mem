@@ -5,40 +5,40 @@ import {
 } from '../../src/services/integrations/CodexCliInstaller.js';
 
 describe('Codex CLI installer config repair', () => {
-  it('adds claude-mem plugin enablement when missing', () => {
-    const result = setTomlPluginEnabled('model = "gpt-5.5"\n', 'claude-mem@claude-mem-local', true);
+  it('adds codex-mem plugin enablement when missing', () => {
+    const result = setTomlPluginEnabled('model = "gpt-5.5"\n', 'codex-mem@codex-mem-local', true);
 
-    expect(result).toContain('[plugins."claude-mem@claude-mem-local"]');
+    expect(result).toContain('[plugins."codex-mem@codex-mem-local"]');
     expect(result).toContain('enabled = true');
   });
 
   it('updates existing plugin enablement in place', () => {
     const input = [
-      '[plugins."claude-mem@thedotmack"]',
+      '[plugins."codex-mem@thedotmack"]',
       'enabled = true',
       '',
-      '[marketplaces.claude-mem-local]',
+      '[marketplaces.codex-mem-local]',
       'source_type = "git"',
       '',
     ].join('\n');
 
-    const result = setTomlPluginEnabled(input, 'claude-mem@thedotmack', false);
+    const result = setTomlPluginEnabled(input, 'codex-mem@thedotmack', false);
 
-    expect(result).toContain('[plugins."claude-mem@thedotmack"]\nenabled = false');
-    expect(result).toContain('[marketplaces.claude-mem-local]');
+    expect(result).toContain('[plugins."codex-mem@thedotmack"]\nenabled = false');
+    expect(result).toContain('[marketplaces.codex-mem-local]');
   });
 
   it('inserts enabled into an existing plugin section without touching the next section', () => {
     const input = [
-      '[plugins."claude-mem@claude-mem-local"]',
+      '[plugins."codex-mem@codex-mem-local"]',
       '',
       '[hooks.state]',
       '',
     ].join('\n');
 
-    const result = setTomlPluginEnabled(input, 'claude-mem@claude-mem-local', true);
+    const result = setTomlPluginEnabled(input, 'codex-mem@codex-mem-local', true);
 
-    expect(result).toContain('[plugins."claude-mem@claude-mem-local"]\nenabled = true\n');
+    expect(result).toContain('[plugins."codex-mem@codex-mem-local"]\nenabled = true\n');
     expect(result).toContain('[hooks.state]');
   });
 
@@ -47,7 +47,7 @@ describe('Codex CLI installer config repair', () => {
       '[features]',
       'shell_snapshot = true',
       '',
-      '[plugins."claude-mem@claude-mem-local"]',
+      '[plugins."codex-mem@codex-mem-local"]',
       'enabled = true',
       '',
     ].join('\n');
@@ -55,7 +55,7 @@ describe('Codex CLI installer config repair', () => {
     const result = setTomlFeatureEnabled(input, 'hooks', true);
 
     expect(result).toContain('[features]\nhooks = true\nshell_snapshot = true');
-    expect(result).toContain('[plugins."claude-mem@claude-mem-local"]');
+    expect(result).toContain('[plugins."codex-mem@codex-mem-local"]');
     expect(result).not.toContain('codex_hooks');
   });
 });

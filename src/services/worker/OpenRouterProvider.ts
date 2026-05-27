@@ -148,7 +148,7 @@ export class OpenRouterProvider {
     const { apiKey, model, siteUrl, appName } = this.getOpenRouterConfig();
 
     if (!apiKey) {
-      throw new Error('OpenRouter API key not configured. Set CLAUDE_MEM_OPENROUTER_API_KEY in settings or OPENROUTER_API_KEY environment variable.');
+      throw new Error('OpenRouter API key not configured. Set CODEX_MEM_OPENROUTER_API_KEY in settings or OPENROUTER_API_KEY environment variable.');
     }
 
     if (!session.memorySessionId) {
@@ -369,8 +369,8 @@ export class OpenRouterProvider {
   private truncateHistory(history: ConversationMessage[]): ConversationMessage[] {
     const settings = SettingsDefaultsManager.loadFromFile(USER_SETTINGS_PATH);
 
-    const MAX_CONTEXT_MESSAGES = parseInt(settings.CLAUDE_MEM_OPENROUTER_MAX_CONTEXT_MESSAGES) || DEFAULT_MAX_CONTEXT_MESSAGES;
-    const MAX_ESTIMATED_TOKENS = parseInt(settings.CLAUDE_MEM_OPENROUTER_MAX_TOKENS) || DEFAULT_MAX_ESTIMATED_TOKENS;
+    const MAX_CONTEXT_MESSAGES = parseInt(settings.CODEX_MEM_OPENROUTER_MAX_CONTEXT_MESSAGES) || DEFAULT_MAX_CONTEXT_MESSAGES;
+    const MAX_ESTIMATED_TOKENS = parseInt(settings.CODEX_MEM_OPENROUTER_MAX_TOKENS) || DEFAULT_MAX_ESTIMATED_TOKENS;
 
     if (history.length <= MAX_CONTEXT_MESSAGES) {
       const totalTokens = history.reduce((sum, m) => sum + this.estimateTokens(m.content), 0);
@@ -411,7 +411,7 @@ export class OpenRouterProvider {
     }));
   }
 
-  private async queryOpenRouterMultiTurn(
+  async queryOpenRouterMultiTurn(
     history: ConversationMessage[],
     apiKey: string,
     model: string,
@@ -438,10 +438,10 @@ export class OpenRouterProvider {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': siteUrl || 'https://github.com/thedotmack/claude-mem',
-            'X-Title': appName || 'claude-mem',
+            'HTTP-Referer': siteUrl || 'https://github.com/thedotmack/codex-mem',
+            'X-Title': appName || 'codex-mem',
             'Content-Type': 'application/json',
-            ...(priorRequestId ? { 'x-claude-mem-prior-request-id': priorRequestId } : {}),
+            ...(priorRequestId ? { 'x-codex-mem-prior-request-id': priorRequestId } : {}),
           },
           body: JSON.stringify({
             model,
@@ -525,12 +525,12 @@ export class OpenRouterProvider {
     const settingsPath = USER_SETTINGS_PATH;
     const settings = SettingsDefaultsManager.loadFromFile(settingsPath);
 
-    const apiKey = settings.CLAUDE_MEM_OPENROUTER_API_KEY || getCredential('OPENROUTER_API_KEY') || '';
+    const apiKey = settings.CODEX_MEM_OPENROUTER_API_KEY || getCredential('OPENROUTER_API_KEY') || '';
 
-    const model = settings.CLAUDE_MEM_OPENROUTER_MODEL || 'xiaomi/mimo-v2-flash:free';
+    const model = settings.CODEX_MEM_OPENROUTER_MODEL || 'xiaomi/mimo-v2-flash:free';
 
-    const siteUrl = settings.CLAUDE_MEM_OPENROUTER_SITE_URL || '';
-    const appName = settings.CLAUDE_MEM_OPENROUTER_APP_NAME || 'claude-mem';
+    const siteUrl = settings.CODEX_MEM_OPENROUTER_SITE_URL || '';
+    const appName = settings.CODEX_MEM_OPENROUTER_APP_NAME || 'codex-mem';
 
     return { apiKey, model, siteUrl, appName };
   }
@@ -539,11 +539,31 @@ export class OpenRouterProvider {
 export function isOpenRouterAvailable(): boolean {
   const settingsPath = USER_SETTINGS_PATH;
   const settings = SettingsDefaultsManager.loadFromFile(settingsPath);
-  return !!(settings.CLAUDE_MEM_OPENROUTER_API_KEY || getCredential('OPENROUTER_API_KEY'));
+  return !!(settings.CODEX_MEM_OPENROUTER_API_KEY || getCredential('OPENROUTER_API_KEY'));
 }
 
 export function isOpenRouterSelected(): boolean {
   const settingsPath = USER_SETTINGS_PATH;
   const settings = SettingsDefaultsManager.loadFromFile(settingsPath);
-  return settings.CLAUDE_MEM_PROVIDER === 'openrouter';
+  return settings.CODEX_MEM_PROVIDER === 'openrouter';
+}
+
+export async function queryOpenRouterText(prompt: string, options: {
+  apiKey: string;
+  model: string;
+  siteUrl?: string;
+  appName?: string;
+}): Promise<string> {
+  if (!options.apiKey) {
+    throw new Error('OpenRouter API key not configured.');
+  }
+  const provider = new OpenRouterProvider({} as DatabaseManager, {} as SessionManager);
+  const result = await provider.queryOpenRouterMultiTurn(
+    [{ role: 'user', content: prompt }],
+    options.apiKey,
+    options.model,
+    options.siteUrl,
+    options.appName,
+  );
+  return result.content;
 }

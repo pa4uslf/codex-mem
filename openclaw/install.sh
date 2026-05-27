@@ -178,8 +178,8 @@ check_port_37777() {
   return 1
 }
 
-is_claude_mem_installed() {
-  if find_claude_mem_install_dir 2>/dev/null; then
+is_codex_mem_installed() {
+  if find_codex_mem_install_dir 2>/dev/null; then
     return 0
   fi
   return 1
@@ -316,7 +316,7 @@ print_banner() {
   echo -e "${COLOR_MAGENTA}${COLOR_BOLD}"
   cat << 'BANNER'
    ┌─────────────────────────────────────────┐
-   │    claude-mem  ×  OpenClaw              │
+   │    codex-mem  ×  OpenClaw              │
    │    Persistent Memory Plugin Installer   │
    └─────────────────────────────────────────┘
 BANNER
@@ -534,7 +534,7 @@ check_openclaw() {
   if ! find_openclaw; then
     error "OpenClaw gateway not found"
     error ""
-    error "The claude-mem plugin requires an OpenClaw gateway to be installed."
+    error "The codex-mem plugin requires an OpenClaw gateway to be installed."
     error "Please install OpenClaw first:"
     error ""
     error "  npm install -g openclaw"
@@ -555,8 +555,8 @@ run_openclaw() {
   fi
 }
 
-CLAUDE_MEM_REPO="https://github.com/thedotmack/claude-mem.git"
-CLAUDE_MEM_BRANCH="${CLI_BRANCH:-main}"
+CODEX_MEM_REPO="https://github.com/thedotmack/codex-mem.git"
+CODEX_MEM_BRANCH="${CLI_BRANCH:-main}"
 PLUGIN_FRESHLY_INSTALLED=""
 
 resolve_extension_dir() {
@@ -566,7 +566,7 @@ resolve_extension_dir() {
     existing_path="$(node -e "
       try {
         const c = require('$oc_config');
-        const p = c?.plugins?.installs?.['claude-mem']?.installPath;
+        const p = c?.plugins?.installs?.['codex-mem']?.installPath;
         if (p) console.log(p);
       } catch {}
     " 2>/dev/null)" || true
@@ -579,7 +579,7 @@ resolve_extension_dir() {
       try {
         const c = require('$oc_config');
         const paths = c?.plugins?.load?.paths || [];
-        const p = paths.find(p => p.endsWith('/claude-mem'));
+        const p = paths.find(p => p.endsWith('/codex-mem'));
         if (p) console.log(p);
       } catch {}
     " 2>/dev/null)" || true
@@ -588,19 +588,19 @@ resolve_extension_dir() {
       return
     fi
   fi
-  echo "${HOME}/.openclaw/extensions/claude-mem"
+  echo "${HOME}/.openclaw/extensions/codex-mem"
 }
 
-CLAUDE_MEM_EXTENSION_DIR=""
+CODEX_MEM_EXTENSION_DIR=""
 
 install_plugin() {
   check_git
 
-  CLAUDE_MEM_EXTENSION_DIR="$(resolve_extension_dir)"
+  CODEX_MEM_EXTENSION_DIR="$(resolve_extension_dir)"
 
-  local existing_plugin_dir="$CLAUDE_MEM_EXTENSION_DIR"
+  local existing_plugin_dir="$CODEX_MEM_EXTENSION_DIR"
   if [[ -d "$existing_plugin_dir" ]]; then
-    info "Removing existing claude-mem plugin at ${existing_plugin_dir}..."
+    info "Removing existing codex-mem plugin at ${existing_plugin_dir}..."
     rm -rf "$existing_plugin_dir"
   fi
 
@@ -608,23 +608,23 @@ install_plugin() {
   build_dir="$(mktemp -d)"
   register_cleanup_dir "$build_dir"
 
-  info "Cloning claude-mem repository (branch: ${CLAUDE_MEM_BRANCH})..."
-  if ! git clone --depth 1 --branch "$CLAUDE_MEM_BRANCH" "$CLAUDE_MEM_REPO" "$build_dir/claude-mem" 2>&1; then
-    error "Failed to clone claude-mem repository"
+  info "Cloning codex-mem repository (branch: ${CODEX_MEM_BRANCH})..."
+  if ! git clone --depth 1 --branch "$CODEX_MEM_BRANCH" "$CODEX_MEM_REPO" "$build_dir/codex-mem" 2>&1; then
+    error "Failed to clone codex-mem repository"
     error "Check your internet connection and try again."
     exit 1
   fi
 
-  local plugin_src="${build_dir}/claude-mem/openclaw"
+  local plugin_src="${build_dir}/codex-mem/openclaw"
 
   info "Building TypeScript plugin..."
   if ! (cd "$plugin_src" && NODE_ENV=development npm install --ignore-scripts 2>&1 && npx tsc 2>&1); then
-    error "Failed to build the claude-mem OpenClaw plugin"
+    error "Failed to build the codex-mem OpenClaw plugin"
     error "Make sure Node.js and npm are installed."
     exit 1
   fi
 
-  local installable_dir="${build_dir}/claude-mem-installable"
+  local installable_dir="${build_dir}/codex-mem-installable"
   mkdir -p "${installable_dir}/dist"
 
   cp "${plugin_src}/dist/index.js" "${installable_dir}/dist/"
@@ -633,7 +633,7 @@ install_plugin() {
 
   INSTALLER_PACKAGE_DIR="$installable_dir" node -e "
     const pkg = {
-      name: 'claude-mem',
+      name: 'codex-mem',
       version: '1.0.0',
       type: 'module',
       main: 'dist/index.js',
@@ -649,20 +649,20 @@ install_plugin() {
       const fs = require('fs');
       const configPath = process.env.INSTALLER_CONFIG_FILE;
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      const entry = config?.plugins?.entries?.['claude-mem'];
-      const allowHasClaudeMem = Array.isArray(config?.plugins?.allow) && config.plugins.allow.includes('claude-mem');
-      if (entry || config?.plugins?.slots?.memory === 'claude-mem' || allowHasClaudeMem) {
+      const entry = config?.plugins?.entries?.['codex-mem'];
+      const allowHasCodexMem = Array.isArray(config?.plugins?.allow) && config.plugins.allow.includes('codex-mem');
+      if (entry || config?.plugins?.slots?.memory === 'codex-mem' || allowHasCodexMem) {
         // Save the config block so we can restore it after install
         process.stdout.write(JSON.stringify(entry?.config || {}));
         // Remove the stale entry so OpenClaw CLI can run
-        if (entry) delete config.plugins.entries['claude-mem'];
+        if (entry) delete config.plugins.entries['codex-mem'];
         // Also remove stale allowlist reference — this alone can block ALL CLI commands
         if (Array.isArray(config?.plugins?.allow)) {
-          config.plugins.allow = config.plugins.allow.filter((x) => x !== 'claude-mem');
+          config.plugins.allow = config.plugins.allow.filter((x) => x !== 'codex-mem');
         }
         // Also remove the slot reference — if the slot points to a plugin
         // that isn't in entries, OpenClaw's config validator rejects ALL commands
-        if (config?.plugins?.slots?.memory === 'claude-mem') {
+        if (config?.plugins?.slots?.memory === 'codex-mem') {
           delete config.plugins.slots.memory;
         }
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
@@ -670,17 +670,17 @@ install_plugin() {
     " 2>/dev/null) || true
   fi
 
-  info "Installing claude-mem plugin into OpenClaw..."
+  info "Installing codex-mem plugin into OpenClaw..."
   if ! run_openclaw plugins install "$installable_dir" 2>&1; then
-    error "Failed to install claude-mem plugin"
+    error "Failed to install codex-mem plugin"
     error "Try manually: ${OPENCLAW_PATH} plugins install <path>"
     exit 1
   fi
 
-  info "Enabling claude-mem plugin..."
-  if ! run_openclaw plugins enable claude-mem 2>&1; then
-    error "Failed to enable claude-mem plugin"
-    error "Try manually: ${OPENCLAW_PATH} plugins enable claude-mem"
+  info "Enabling codex-mem plugin..."
+  if ! run_openclaw plugins enable codex-mem 2>&1; then
+    error "Failed to enable codex-mem plugin"
+    error "Try manually: ${OPENCLAW_PATH} plugins enable codex-mem"
     exit 1
   fi
 
@@ -691,15 +691,15 @@ install_plugin() {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
       if (!config.plugins) config.plugins = {};
       if (!Array.isArray(config.plugins.allow)) config.plugins.allow = [];
-      if (!config.plugins.allow.includes('claude-mem')) {
-        config.plugins.allow.push('claude-mem');
+      if (!config.plugins.allow.includes('codex-mem')) {
+        config.plugins.allow.push('codex-mem');
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-        console.log('Added claude-mem to plugins.allow');
+        console.log('Added codex-mem to plugins.allow');
       } else {
-        console.log('claude-mem already in plugins.allow');
+        console.log('codex-mem already in plugins.allow');
       }
     " 2>&1; then
-      warn "Failed to write plugins.allow — claude-mem may need manual allowlisting"
+      warn "Failed to write plugins.allow — codex-mem may need manual allowlisting"
     fi
   else
     info "OpenClaw config not yet materialized; will ensure allowlist in post-install"
@@ -710,10 +710,10 @@ install_plugin() {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
         if (!config.plugins) config.plugins = {};
         if (!Array.isArray(config.plugins.allow)) config.plugins.allow = [];
-        if (!config.plugins.allow.includes('claude-mem')) {
-          config.plugins.allow.push('claude-mem');
+        if (!config.plugins.allow.includes('codex-mem')) {
+          config.plugins.allow.push('codex-mem');
           fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-          console.log('Added claude-mem to plugins.allow (post-materialization)');
+          console.log('Added codex-mem to plugins.allow (post-materialization)');
         }
       " 2>&1; then
         warn "Failed to write plugins.allow after materialization — configure manually"
@@ -728,17 +728,17 @@ install_plugin() {
       const configPath = process.env.INSTALLER_CONFIG_FILE;
       const savedConfig = JSON.parse(process.env.INSTALLER_SAVED_CONFIG);
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      if (config?.plugins?.entries?.['claude-mem']) {
-        config.plugins.entries['claude-mem'].config = savedConfig;
+      if (config?.plugins?.entries?.['codex-mem']) {
+        config.plugins.entries['codex-mem'].config = savedConfig;
         fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
       }
     " 2>/dev/null || warn "Could not restore previous plugin config — configure manually"
   fi
 
-  success "claude-mem plugin installed and enabled"
+  success "codex-mem plugin installed and enabled"
 
-  local extension_dir="$CLAUDE_MEM_EXTENSION_DIR"
-  local repo_root="${build_dir}/claude-mem"
+  local extension_dir="$CODEX_MEM_EXTENSION_DIR"
+  local repo_root="${build_dir}/codex-mem"
 
   if [[ -d "$extension_dir" && -d "${repo_root}/plugin" ]]; then
     info "Copying core plugin files to ${extension_dir}..."
@@ -770,13 +770,13 @@ configure_memory_slot() {
   mkdir -p "$config_dir"
 
   if [[ ! -f "$config_file" ]]; then
-    info "Creating OpenClaw configuration with claude-mem memory slot..."
+    info "Creating OpenClaw configuration with codex-mem memory slot..."
     INSTALLER_CONFIG_FILE="$config_file" node -e "
       const config = {
         plugins: {
-          slots: { memory: 'claude-mem' },
+          slots: { memory: 'codex-mem' },
           entries: {
-            'claude-mem': {
+            'codex-mem': {
               enabled: true,
               config: {
                 workerPort: 37777,
@@ -788,11 +788,11 @@ configure_memory_slot() {
       };
       require('fs').writeFileSync(process.env.INSTALLER_CONFIG_FILE, JSON.stringify(config, null, 2));
     "
-    success "Created ${config_file} with memory slot set to claude-mem"
+    success "Created ${config_file} with memory slot set to codex-mem"
     return 0
   fi
 
-  info "Updating OpenClaw configuration to use claude-mem memory slot..."
+  info "Updating OpenClaw configuration to use codex-mem memory slot..."
 
   INSTALLER_CONFIG_FILE="$config_file" node -e "
     const fs = require('fs');
@@ -804,12 +804,12 @@ configure_memory_slot() {
     if (!config.plugins.slots) config.plugins.slots = {};
     if (!config.plugins.entries) config.plugins.entries = {};
 
-    // Set memory slot to claude-mem
-    config.plugins.slots.memory = 'claude-mem';
+    // Set memory slot to codex-mem
+    config.plugins.slots.memory = 'codex-mem';
 
-    // Ensure claude-mem entry exists and is enabled
-    if (!config.plugins.entries['claude-mem']) {
-      config.plugins.entries['claude-mem'] = {
+    // Ensure codex-mem entry exists and is enabled
+    if (!config.plugins.entries['codex-mem']) {
+      config.plugins.entries['codex-mem'] = {
         enabled: true,
         config: {
           workerPort: 37777,
@@ -817,12 +817,12 @@ configure_memory_slot() {
         }
       };
     } else {
-      config.plugins.entries['claude-mem'].enabled = true;
+      config.plugins.entries['codex-mem'].enabled = true;
       // Remove unrecognized keys that cause OpenClaw config validation errors
       const allowedKeys = new Set(['enabled', 'config']);
-      for (const key of Object.keys(config.plugins.entries['claude-mem'])) {
+      for (const key of Object.keys(config.plugins.entries['codex-mem'])) {
         if (!allowedKeys.has(key)) {
-          delete config.plugins.entries['claude-mem'][key];
+          delete config.plugins.entries['codex-mem'][key];
         }
       }
     }
@@ -830,7 +830,7 @@ configure_memory_slot() {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
   "
 
-  success "Memory slot set to claude-mem in ${config_file}"
+  success "Memory slot set to codex-mem in ${config_file}"
 }
 
 AI_PROVIDER=""
@@ -858,9 +858,9 @@ setup_ai_provider() {
 
   if [[ -n "$CLI_PROVIDER" ]]; then
     case "$CLI_PROVIDER" in
-      claude)
-        AI_PROVIDER="claude"
-        success "Selected via --provider: Claude Max Plan (CLI authentication)"
+      codex)
+        AI_PROVIDER="codex"
+        success "Selected via --provider: Codex Max Plan (CLI authentication)"
         ;;
       gemini)
         AI_PROVIDER="gemini"
@@ -868,7 +868,7 @@ setup_ai_provider() {
         if [[ -n "$AI_PROVIDER_API_KEY" ]]; then
           success "Selected via --provider: Gemini (API key set via --api-key)"
         else
-          warn "Selected via --provider: Gemini (no API key — add later in ~/.claude-mem/settings.json)"
+          warn "Selected via --provider: Gemini (no API key — add later in ~/.codex-mem/settings.json)"
         fi
         ;;
       openrouter)
@@ -877,12 +877,12 @@ setup_ai_provider() {
         if [[ -n "$AI_PROVIDER_API_KEY" ]]; then
           success "Selected via --provider: OpenRouter (API key set via --api-key)"
         else
-          warn "Selected via --provider: OpenRouter (no API key — add later in ~/.claude-mem/settings.json)"
+          warn "Selected via --provider: OpenRouter (no API key — add later in ~/.codex-mem/settings.json)"
         fi
         ;;
       *)
         error "Unknown provider: ${CLI_PROVIDER}"
-        error "Valid providers: claude, gemini, openrouter"
+        error "Valid providers: codex, gemini, openrouter"
         exit 1
         ;;
     esac
@@ -890,14 +890,14 @@ setup_ai_provider() {
   fi
 
   if [[ "$NON_INTERACTIVE" == "true" ]]; then
-    info "Non-interactive mode: defaulting to Claude Max Plan (no API key needed)"
-    AI_PROVIDER="claude"
+    info "Non-interactive mode: defaulting to Codex Max Plan (no API key needed)"
+    AI_PROVIDER="codex"
     return 0
   fi
 
-  echo -e "  Choose your AI provider for claude-mem:"
+  echo -e "  Choose your AI provider for codex-mem:"
   echo ""
-  echo -e "  ${COLOR_BOLD}1)${COLOR_RESET} Claude Max Plan ${COLOR_GREEN}(recommended)${COLOR_RESET}"
+  echo -e "  ${COLOR_BOLD}1)${COLOR_RESET} Codex Max Plan ${COLOR_GREEN}(recommended)${COLOR_RESET}"
   echo -e "     Uses your existing subscription, no API key needed"
   echo ""
   echo -e "  ${COLOR_BOLD}2)${COLOR_RESET} Gemini"
@@ -915,8 +915,8 @@ setup_ai_provider() {
 
     case "$choice" in
       1)
-        AI_PROVIDER="claude"
-        success "Selected: Claude Max Plan (CLI authentication)"
+        AI_PROVIDER="codex"
+        success "Selected: Codex Max Plan (CLI authentication)"
         break
         ;;
       2)
@@ -926,7 +926,7 @@ setup_ai_provider() {
         read_tty -rs AI_PROVIDER_API_KEY
         echo ""
         if [[ -z "$AI_PROVIDER_API_KEY" ]]; then
-          warn "No API key provided — you can add it later in ~/.claude-mem/settings.json"
+          warn "No API key provided — you can add it later in ~/.codex-mem/settings.json"
         else
           success "Gemini API key set ($(mask_api_key "$AI_PROVIDER_API_KEY"))"
         fi
@@ -939,7 +939,7 @@ setup_ai_provider() {
         read_tty -rs AI_PROVIDER_API_KEY
         echo ""
         if [[ -z "$AI_PROVIDER_API_KEY" ]]; then
-          warn "No API key provided — you can add it later in ~/.claude-mem/settings.json"
+          warn "No API key provided — you can add it later in ~/.codex-mem/settings.json"
         else
           success "OpenRouter API key set ($(mask_api_key "$AI_PROVIDER_API_KEY"))"
         fi
@@ -953,7 +953,7 @@ setup_ai_provider() {
 }
 
 write_settings() {
-  local settings_dir="${HOME}/.claude-mem"
+  local settings_dir="${HOME}/.codex-mem"
   local settings_file="${settings_dir}/settings.json"
 
   mkdir -p "$settings_dir"
@@ -971,53 +971,53 @@ write_settings() {
 
     // All defaults from SettingsDefaultsManager.ts
     const defaults = {
-      CLAUDE_MEM_MODEL: 'claude-sonnet-4-6',
-      CLAUDE_MEM_CONTEXT_OBSERVATIONS: '50',
-      CLAUDE_MEM_WORKER_PORT: '37777',
-      CLAUDE_MEM_WORKER_HOST: '127.0.0.1',
-      CLAUDE_MEM_SKIP_TOOLS: 'ListMcpResourcesTool,SlashCommand,Skill,TodoWrite,AskUserQuestion',
-      CLAUDE_MEM_PROVIDER: 'claude',
-      CLAUDE_MEM_CLAUDE_AUTH_METHOD: 'cli',
-      CLAUDE_MEM_GEMINI_API_KEY: '',
-      CLAUDE_MEM_GEMINI_MODEL: 'gemini-2.5-flash-lite',
-      CLAUDE_MEM_GEMINI_RATE_LIMITING_ENABLED: 'true',
-      CLAUDE_MEM_OPENROUTER_API_KEY: '',
-      CLAUDE_MEM_OPENROUTER_MODEL: 'xiaomi/mimo-v2-flash:free',
-      CLAUDE_MEM_OPENROUTER_SITE_URL: '',
-      CLAUDE_MEM_OPENROUTER_APP_NAME: 'claude-mem',
-      CLAUDE_MEM_OPENROUTER_MAX_CONTEXT_MESSAGES: '20',
-      CLAUDE_MEM_OPENROUTER_MAX_TOKENS: '100000',
-      CLAUDE_MEM_DATA_DIR: path.join(homedir, '.claude-mem'),
-      CLAUDE_MEM_LOG_LEVEL: 'INFO',
-      CLAUDE_MEM_PYTHON_VERSION: '3.13',
-      CLAUDE_CODE_PATH: '',
-      CLAUDE_MEM_MODE: 'code',
-      CLAUDE_MEM_CONTEXT_SHOW_READ_TOKENS: 'true',
-      CLAUDE_MEM_CONTEXT_SHOW_WORK_TOKENS: 'true',
-      CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT: 'true',
-      CLAUDE_MEM_CONTEXT_SHOW_SAVINGS_PERCENT: 'true',
-      CLAUDE_MEM_CONTEXT_OBSERVATION_TYPES: 'bugfix,feature,refactor,discovery,decision,change',
-      CLAUDE_MEM_CONTEXT_OBSERVATION_CONCEPTS: 'how-it-works,why-it-exists,what-changed,problem-solution,gotcha,pattern,trade-off',
-      CLAUDE_MEM_CONTEXT_FULL_COUNT: '5',
-      CLAUDE_MEM_CONTEXT_FULL_FIELD: 'narrative',
-      CLAUDE_MEM_CONTEXT_SESSION_COUNT: '10',
-      CLAUDE_MEM_CONTEXT_SHOW_LAST_SUMMARY: 'true',
-      CLAUDE_MEM_CONTEXT_SHOW_LAST_MESSAGE: 'false',
-      CLAUDE_MEM_FOLDER_CLAUDEMD_ENABLED: 'false',
-      CLAUDE_MEM_EXCLUDED_PROJECTS: '',
-      CLAUDE_MEM_FOLDER_MD_EXCLUDE: '[]'
+      CODEX_MEM_MODEL: 'codex-sonnet-4-6',
+      CODEX_MEM_CONTEXT_OBSERVATIONS: '50',
+      CODEX_MEM_WORKER_PORT: '37777',
+      CODEX_MEM_WORKER_HOST: '127.0.0.1',
+      CODEX_MEM_SKIP_TOOLS: 'ListMcpResourcesTool,SlashCommand,Skill,TodoWrite,AskUserQuestion',
+      CODEX_MEM_PROVIDER: 'codex',
+      CODEX_MEM_CODEX_AUTH_METHOD: 'cli',
+      CODEX_MEM_GEMINI_API_KEY: '',
+      CODEX_MEM_GEMINI_MODEL: 'gemini-2.5-flash-lite',
+      CODEX_MEM_GEMINI_RATE_LIMITING_ENABLED: 'true',
+      CODEX_MEM_OPENROUTER_API_KEY: '',
+      CODEX_MEM_OPENROUTER_MODEL: 'xiaomi/mimo-v2-flash:free',
+      CODEX_MEM_OPENROUTER_SITE_URL: '',
+      CODEX_MEM_OPENROUTER_APP_NAME: 'codex-mem',
+      CODEX_MEM_OPENROUTER_MAX_CONTEXT_MESSAGES: '20',
+      CODEX_MEM_OPENROUTER_MAX_TOKENS: '100000',
+      CODEX_MEM_DATA_DIR: path.join(homedir, '.codex-mem'),
+      CODEX_MEM_LOG_LEVEL: 'INFO',
+      CODEX_MEM_PYTHON_VERSION: '3.13',
+      CODEX_CODE_PATH: '',
+      CODEX_MEM_MODE: 'code',
+      CODEX_MEM_CONTEXT_SHOW_READ_TOKENS: 'true',
+      CODEX_MEM_CONTEXT_SHOW_WORK_TOKENS: 'true',
+      CODEX_MEM_CONTEXT_SHOW_SAVINGS_AMOUNT: 'true',
+      CODEX_MEM_CONTEXT_SHOW_SAVINGS_PERCENT: 'true',
+      CODEX_MEM_CONTEXT_OBSERVATION_TYPES: 'bugfix,feature,refactor,discovery,decision,change',
+      CODEX_MEM_CONTEXT_OBSERVATION_CONCEPTS: 'how-it-works,why-it-exists,what-changed,problem-solution,gotcha,pattern,trade-off',
+      CODEX_MEM_CONTEXT_FULL_COUNT: '5',
+      CODEX_MEM_CONTEXT_FULL_FIELD: 'narrative',
+      CODEX_MEM_CONTEXT_SESSION_COUNT: '10',
+      CODEX_MEM_CONTEXT_SHOW_LAST_SUMMARY: 'true',
+      CODEX_MEM_CONTEXT_SHOW_LAST_MESSAGE: 'false',
+      CODEX_MEM_FOLDER_CODEXMD_ENABLED: 'false',
+      CODEX_MEM_EXCLUDED_PROJECTS: '',
+      CODEX_MEM_FOLDER_MD_EXCLUDE: '[]'
     };
 
     // Build provider-specific overrides safely from environment variables
-    const overrides = { CLAUDE_MEM_PROVIDER: provider };
-    if (provider === 'claude') {
-      overrides.CLAUDE_MEM_CLAUDE_AUTH_METHOD = 'cli';
+    const overrides = { CODEX_MEM_PROVIDER: provider };
+    if (provider === 'codex') {
+      overrides.CODEX_MEM_CODEX_AUTH_METHOD = 'cli';
     } else if (provider === 'gemini') {
-      overrides.CLAUDE_MEM_GEMINI_API_KEY = apiKey;
-      overrides.CLAUDE_MEM_GEMINI_MODEL = 'gemini-2.5-flash-lite';
+      overrides.CODEX_MEM_GEMINI_API_KEY = apiKey;
+      overrides.CODEX_MEM_GEMINI_MODEL = 'gemini-2.5-flash-lite';
     } else if (provider === 'openrouter') {
-      overrides.CLAUDE_MEM_OPENROUTER_API_KEY = apiKey;
-      overrides.CLAUDE_MEM_OPENROUTER_MODEL = 'xiaomi/mimo-v2-flash:free';
+      overrides.CODEX_MEM_OPENROUTER_API_KEY = apiKey;
+      overrides.CODEX_MEM_OPENROUTER_MODEL = 'xiaomi/mimo-v2-flash:free';
     }
 
     const settings = Object.assign(defaults, overrides);
@@ -1047,41 +1047,41 @@ write_settings() {
   success "Settings written to ${settings_file}"
 }
 
-CLAUDE_MEM_INSTALL_DIR=""
+CODEX_MEM_INSTALL_DIR=""
 
-find_claude_mem_install_dir() {
+find_codex_mem_install_dir() {
   local resolved_dir
   resolved_dir="$(resolve_extension_dir)"
   local -a search_paths=(
     "$resolved_dir"
-    "${HOME}/.openclaw/extensions/claude-mem"
-    "${HOME}/.claude/plugins/marketplaces/thedotmack"
-    "${HOME}/.openclaw/plugins/claude-mem"
+    "${HOME}/.openclaw/extensions/codex-mem"
+    "${HOME}/.codex/plugins/marketplaces/thedotmack"
+    "${HOME}/.openclaw/plugins/codex-mem"
   )
 
   for candidate in "${search_paths[@]}"; do
     if [[ -f "${candidate}/plugin/scripts/worker-service.cjs" ]]; then
-      CLAUDE_MEM_INSTALL_DIR="$candidate"
+      CODEX_MEM_INSTALL_DIR="$candidate"
       return 0
     fi
   done
 
   local -a roots=(
     "${HOME}/.openclaw"
-    "${HOME}/.claude/plugins"
+    "${HOME}/.codex/plugins"
   )
   for root in "${roots[@]}"; do
     if [[ -d "$root" ]]; then
       local found
       found="$(find "$root" -name "worker-service.cjs" -path "*/plugin/scripts/*" 2>/dev/null | head -n 1)" || true
       if [[ -n "$found" ]]; then
-        CLAUDE_MEM_INSTALL_DIR="${found%/plugin/scripts/worker-service.cjs}"
+        CODEX_MEM_INSTALL_DIR="${found%/plugin/scripts/worker-service.cjs}"
         return 0
       fi
     fi
   done
 
-  CLAUDE_MEM_INSTALL_DIR=""
+  CODEX_MEM_INSTALL_DIR=""
   return 1
 }
 
@@ -1094,20 +1094,20 @@ WORKER_REPORTED_PID=""
 WORKER_UPTIME=""
 
 start_worker() {
-  info "Starting claude-mem worker service..."
+  info "Starting codex-mem worker service..."
 
-  if ! find_claude_mem_install_dir; then
-    error "Cannot find claude-mem plugin installation directory"
+  if ! find_codex_mem_install_dir; then
+    error "Cannot find codex-mem plugin installation directory"
     error "Expected worker-service.cjs in one of:"
-    error "  ~/.openclaw/extensions/claude-mem/plugin/scripts/"
-    error "  ~/.claude/plugins/marketplaces/thedotmack/plugin/scripts/"
+    error "  ~/.openclaw/extensions/codex-mem/plugin/scripts/"
+    error "  ~/.codex/plugins/marketplaces/thedotmack/plugin/scripts/"
     error ""
     error "Try reinstalling the plugin and re-running this installer."
     return 1
   fi
 
-  local worker_script="${CLAUDE_MEM_INSTALL_DIR}/plugin/scripts/worker-service.cjs"
-  local log_dir="${HOME}/.claude-mem/logs"
+  local worker_script="${CODEX_MEM_INSTALL_DIR}/plugin/scripts/worker-service.cjs"
+  local log_dir="${HOME}/.codex-mem/logs"
   local log_date
   log_date="$(date +%Y-%m-%d)"
   local log_file="${log_dir}/worker-${log_date}.log"
@@ -1121,12 +1121,12 @@ start_worker() {
     fi
   fi
 
-  CLAUDE_MEM_WORKER_PORT=37777 nohup "$BUN_PATH" "$worker_script" \
+  CODEX_MEM_WORKER_PORT=37777 nohup "$BUN_PATH" "$worker_script" \
     >> "$log_file" 2>&1 &
   WORKER_PID=$!
 
-  local pid_file="${HOME}/.claude-mem/worker.pid"
-  mkdir -p "${HOME}/.claude-mem"
+  local pid_file="${HOME}/.codex-mem/worker.pid"
+  mkdir -p "${HOME}/.codex-mem"
   INSTALLER_PID_FILE="$pid_file" INSTALLER_WORKER_PID="$WORKER_PID" node -e "
     const info = {
       pid: parseInt(process.env.INSTALLER_WORKER_PID, 10),
@@ -1175,7 +1175,7 @@ verify_health() {
     warn "Worker health check timed out after ${max_attempts} attempts"
     warn "The worker may still be starting up. Check status with:"
     warn "  curl http://127.0.0.1:37777/api/health"
-    warn "  Or check logs: ~/.claude-mem/logs/"
+    warn "  Or check logs: ~/.codex-mem/logs/"
     return 1
   fi
 
@@ -1208,7 +1208,7 @@ setup_observation_feed() {
   echo ""
   echo -e "  ${COLOR_BOLD}Real-Time Observation Feed${COLOR_RESET}"
   echo ""
-  echo "  claude-mem can stream AI-compressed observations to a messaging"
+  echo "  codex-mem can stream AI-compressed observations to a messaging"
   echo "  channel in real time. Every time an agent learns something,"
   echo "  you'll see it in your chat."
   echo ""
@@ -1216,7 +1216,7 @@ setup_observation_feed() {
   if [[ "$NON_INTERACTIVE" == "true" ]]; then
     info "Non-interactive mode: skipping observation feed setup"
     info "Configure later in ~/.openclaw/openclaw.json under"
-    info "  plugins.entries.claude-mem.config.observationFeed"
+    info "  plugins.entries.codex-mem.config.observationFeed"
     return 0
   fi
 
@@ -1230,7 +1230,7 @@ setup_observation_feed() {
     info "Skipped observation feed setup."
     info "You can configure it later by re-running this installer or"
     info "editing ~/.openclaw/openclaw.json under"
-    info "  plugins.entries.claude-mem.config.observationFeed"
+    info "  plugins.entries.codex-mem.config.observationFeed"
     return 0
   fi
 
@@ -1342,9 +1342,9 @@ write_observation_feed_config() {
     jq --arg channel "$FEED_CHANNEL" --arg target "$FEED_TARGET_ID" '
       .plugins //= {} |
       .plugins.entries //= {} |
-      .plugins.entries["claude-mem"] //= {"enabled": true, "config": {}} |
-      .plugins.entries["claude-mem"].config //= {} |
-      .plugins.entries["claude-mem"].config.observationFeed = {
+      .plugins.entries["codex-mem"] //= {"enabled": true, "config": {}} |
+      .plugins.entries["codex-mem"].config //= {} |
+      .plugins.entries["codex-mem"].config.observationFeed = {
         "enabled": true,
         "channel": $channel,
         "to": $target
@@ -1365,9 +1365,9 @@ with open(config_path) as f:
 
 config.setdefault('plugins', {})
 config['plugins'].setdefault('entries', {})
-config['plugins']['entries'].setdefault('claude-mem', {'enabled': True, 'config': {}})
-config['plugins']['entries']['claude-mem'].setdefault('config', {})
-config['plugins']['entries']['claude-mem']['config']['observationFeed'] = {
+config['plugins']['entries'].setdefault('codex-mem', {'enabled': True, 'config': {}})
+config['plugins']['entries']['codex-mem'].setdefault('config', {})
+config['plugins']['entries']['codex-mem']['config']['observationFeed'] = {
     'enabled': True,
     'channel': channel,
     'to': target_id
@@ -1390,14 +1390,14 @@ with open(config_path, 'w') as f:
 
       if (!config.plugins) config.plugins = {};
       if (!config.plugins.entries) config.plugins.entries = {};
-      if (!config.plugins.entries['claude-mem']) {
-        config.plugins.entries['claude-mem'] = { enabled: true, config: {} };
+      if (!config.plugins.entries['codex-mem']) {
+        config.plugins.entries['codex-mem'] = { enabled: true, config: {} };
       }
-      if (!config.plugins.entries['claude-mem'].config) {
-        config.plugins.entries['claude-mem'].config = {};
+      if (!config.plugins.entries['codex-mem'].config) {
+        config.plugins.entries['codex-mem'].config = {};
       }
 
-      config.plugins.entries['claude-mem'].config.observationFeed = {
+      config.plugins.entries['codex-mem'].config.observationFeed = {
         enabled: true,
         channel: channel,
         to: targetId
@@ -1416,16 +1416,16 @@ with open(config_path, 'w') as f:
   echo ""
   info "Restart your OpenClaw gateway to activate the observation feed."
   info "You should see these log lines:"
-  echo "  [claude-mem] Observation feed starting — channel: ${FEED_CHANNEL}, target: ${FEED_TARGET_ID}"
+  echo "  [codex-mem] Observation feed starting — channel: ${FEED_CHANNEL}, target: ${FEED_TARGET_ID}"
   echo ""
-  info "After restarting, run /claude-mem-feed in any OpenClaw chat to verify"
+  info "After restarting, run /codex-mem-feed in any OpenClaw chat to verify"
   info "the feed is connected."
 }
 
 print_completion_summary() {
   local provider_display=""
   case "$AI_PROVIDER" in
-    claude)    provider_display="Claude Max Plan (CLI authentication)" ;;
+    codex)    provider_display="Codex Max Plan (CLI authentication)" ;;
     gemini)    provider_display="Gemini (gemini-2.5-flash-lite)" ;;
     openrouter) provider_display="OpenRouter (xiaomi/mimo-v2-flash:free)" ;;
     *)         provider_display="$AI_PROVIDER" ;;
@@ -1442,9 +1442,9 @@ print_completion_summary() {
   echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  OpenClaw gateway detected"
 
   if [[ -n "$WORKER_VERSION" ]]; then
-    echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  claude-mem v${COLOR_BOLD}${WORKER_VERSION}${COLOR_RESET} installed and running"
+    echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  codex-mem v${COLOR_BOLD}${WORKER_VERSION}${COLOR_RESET} installed and running"
   else
-    echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  claude-mem plugin installed and enabled"
+    echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  codex-mem plugin installed and enabled"
   fi
 
   echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  Memory slot configured"
@@ -1455,7 +1455,7 @@ print_completion_summary() {
     echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  AI provider: ${COLOR_BOLD}${provider_display}${COLOR_RESET}"
   fi
 
-  echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  Settings written to ~/.claude-mem/settings.json"
+  echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  Settings written to ~/.codex-mem/settings.json"
 
   if [[ -n "$WORKER_PID" ]] && kill -0 "$WORKER_PID" 2>/dev/null; then
     echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  Worker running on port ${COLOR_BOLD}37777${COLOR_RESET} (PID: ${WORKER_PID})"
@@ -1464,7 +1464,7 @@ print_completion_summary() {
     uptime_formatted="$(format_uptime_ms "$WORKER_UPTIME")"
     echo -e "  ${COLOR_GREEN}✓${COLOR_RESET}  Worker running on port ${COLOR_BOLD}37777${COLOR_RESET} (PID: ${WORKER_REPORTED_PID}, uptime: ${uptime_formatted})"
   else
-    echo -e "  ${COLOR_YELLOW}⚠${COLOR_RESET}  Worker may not be running — check logs at ~/.claude-mem/logs/"
+    echo -e "  ${COLOR_YELLOW}⚠${COLOR_RESET}  Worker may not be running — check logs at ~/.codex-mem/logs/"
   fi
 
   if [[ "$WORKER_INITIALIZED" != "true" ]] && { [[ -n "$WORKER_REPORTED_PID" ]] || { [[ -n "$WORKER_PID" ]] && kill -0 "$WORKER_PID" 2>/dev/null; }; }; then
@@ -1476,17 +1476,17 @@ print_completion_summary() {
   else
     echo -e "  ${COLOR_YELLOW}─${COLOR_RESET}  Observation feed: not configured (optional)"
     echo -e "     Configure later in ~/.openclaw/openclaw.json under"
-    echo -e "     plugins.entries.claude-mem.config.observationFeed"
+    echo -e "     plugins.entries.codex-mem.config.observationFeed"
   fi
 
   echo ""
   echo -e "  ${COLOR_BOLD}What's next?${COLOR_RESET}"
   echo ""
   echo -e "  ${COLOR_CYAN}1.${COLOR_RESET} Restart your OpenClaw gateway to load the plugin"
-  echo -e "  ${COLOR_CYAN}2.${COLOR_RESET} Verify with ${COLOR_BOLD}/claude-mem-status${COLOR_RESET} in any OpenClaw chat"
+  echo -e "  ${COLOR_CYAN}2.${COLOR_RESET} Verify with ${COLOR_BOLD}/codex-mem-status${COLOR_RESET} in any OpenClaw chat"
   echo -e "  ${COLOR_CYAN}3.${COLOR_RESET} Check the viewer UI at ${COLOR_BOLD}http://localhost:37777${COLOR_RESET}"
   if [[ "$FEED_CONFIGURED" == "true" ]]; then
-    echo -e "  ${COLOR_CYAN}4.${COLOR_RESET} Run ${COLOR_BOLD}/claude-mem-feed${COLOR_RESET} to check feed status"
+    echo -e "  ${COLOR_CYAN}4.${COLOR_RESET} Run ${COLOR_BOLD}/codex-mem-feed${COLOR_RESET} to check feed status"
   fi
   echo ""
   echo -e "  ${COLOR_BOLD}To re-run this installer:${COLOR_RESET}"
@@ -1519,10 +1519,10 @@ main() {
   check_openclaw
 
   echo ""
-  info "${COLOR_BOLD}[3/8]${COLOR_RESET} Installing claude-mem plugin..."
+  info "${COLOR_BOLD}[3/8]${COLOR_RESET} Installing codex-mem plugin..."
 
-  if [[ "$UPGRADE_MODE" == "true" ]] && is_claude_mem_installed; then
-    success "claude-mem already installed at ${CLAUDE_MEM_INSTALL_DIR}"
+  if [[ "$UPGRADE_MODE" == "true" ]] && is_codex_mem_installed; then
+    success "codex-mem already installed at ${CODEX_MEM_INSTALL_DIR}"
     info "Upgrade mode: skipping clone/build/register, updating settings only"
   else
     install_plugin
@@ -1548,8 +1548,8 @@ main() {
     info "Checking if the existing service is healthy..."
     if verify_health; then
       local expected_version=""
-      if [[ -n "$CLAUDE_MEM_INSTALL_DIR" ]] || find_claude_mem_install_dir; then
-        expected_version="$(INSTALLER_PKG="${CLAUDE_MEM_INSTALL_DIR}/package.json" node -e "
+      if [[ -n "$CODEX_MEM_INSTALL_DIR" ]] || find_codex_mem_install_dir; then
+        expected_version="$(INSTALLER_PKG="${CODEX_MEM_INSTALL_DIR}/package.json" node -e "
           try { process.stdout.write(JSON.parse(require('fs').readFileSync(process.env.INSTALLER_PKG, 'utf8')).version || ''); }
           catch(e) {}
         " 2>/dev/null)" || true
@@ -1586,7 +1586,7 @@ main() {
             kill "$WORKER_REPORTED_PID" 2>/dev/null || true
             sleep 1
           fi
-          local pid_file="${HOME}/.claude-mem/worker.pid"
+          local pid_file="${HOME}/.codex-mem/worker.pid"
           if [[ -f "$pid_file" ]]; then
             local file_pid
             file_pid="$(INSTALLER_PID_FILE="$pid_file" node -e "
@@ -1631,14 +1631,14 @@ main() {
     else
       warn "Port 37777 is occupied but not responding to health checks"
       warn "Another process may be using this port. Stop it and re-run the installer,"
-      warn "or change CLAUDE_MEM_WORKER_PORT in ~/.claude-mem/settings.json"
+      warn "or change CODEX_MEM_WORKER_PORT in ~/.codex-mem/settings.json"
     fi
   else
     if start_worker; then
       verify_health || true
     else
       warn "Worker startup failed — you can start it manually later"
-      warn "  cd ~/.openclaw/extensions/claude-mem && bun plugin/scripts/worker-service.cjs"
+      warn "  cd ~/.openclaw/extensions/codex-mem && bun plugin/scripts/worker-service.cjs"
     fi
   fi
 

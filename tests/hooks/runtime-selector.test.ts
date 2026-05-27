@@ -33,10 +33,10 @@ import {
 describe('runtime-selector', () => {
   beforeEach(() => {
     mockSettings = {
-      CLAUDE_MEM_RUNTIME: 'worker',
-      CLAUDE_MEM_SERVER_BETA_URL: '',
-      CLAUDE_MEM_SERVER_BETA_API_KEY: '',
-      CLAUDE_MEM_SERVER_BETA_PROJECT_ID: '',
+      CODEX_MEM_RUNTIME: 'worker',
+      CODEX_MEM_SERVER_BETA_URL: '',
+      CODEX_MEM_SERVER_BETA_API_KEY: '',
+      CODEX_MEM_SERVER_BETA_PROJECT_ID: '',
     };
     warnLogs.length = 0;
   });
@@ -46,7 +46,7 @@ describe('runtime-selector', () => {
   });
 
   it('selectRuntime returns server-beta when settings say so', () => {
-    mockSettings.CLAUDE_MEM_RUNTIME = 'server-beta';
+    mockSettings.CODEX_MEM_RUNTIME = 'server-beta';
     expect(selectRuntime()).toBe('server-beta');
   });
 
@@ -56,19 +56,19 @@ describe('runtime-selector', () => {
   });
 
   it('resolveRuntimeContext falls back to worker when api key is missing', () => {
-    mockSettings.CLAUDE_MEM_RUNTIME = 'server-beta';
-    mockSettings.CLAUDE_MEM_SERVER_BETA_URL = 'http://localhost:1234';
-    mockSettings.CLAUDE_MEM_SERVER_BETA_PROJECT_ID = 'p1';
+    mockSettings.CODEX_MEM_RUNTIME = 'server-beta';
+    mockSettings.CODEX_MEM_SERVER_BETA_URL = 'http://localhost:1234';
+    mockSettings.CODEX_MEM_SERVER_BETA_PROJECT_ID = 'p1';
     const ctx = resolveRuntimeContext();
     expect(ctx.runtime).toBe('worker');
     expect(warnLogs.some(l => l.msg.includes('missing_api_key'))).toBe(true);
   });
 
   it('resolveRuntimeContext returns server-beta context when fully configured', () => {
-    mockSettings.CLAUDE_MEM_RUNTIME = 'server-beta';
-    mockSettings.CLAUDE_MEM_SERVER_BETA_URL = 'http://localhost:1234';
-    mockSettings.CLAUDE_MEM_SERVER_BETA_API_KEY = 'cmem_xyz';
-    mockSettings.CLAUDE_MEM_SERVER_BETA_PROJECT_ID = 'project-uuid';
+    mockSettings.CODEX_MEM_RUNTIME = 'server-beta';
+    mockSettings.CODEX_MEM_SERVER_BETA_URL = 'http://localhost:1234';
+    mockSettings.CODEX_MEM_SERVER_BETA_API_KEY = 'cmem_xyz';
+    mockSettings.CODEX_MEM_SERVER_BETA_PROJECT_ID = 'project-uuid';
     const ctx = resolveRuntimeContext();
     expect(ctx.runtime).toBe('server-beta');
     if (ctx.runtime === 'server-beta') {
@@ -78,9 +78,9 @@ describe('runtime-selector', () => {
   });
 
   it('buildServerBetaContext returns null when project id missing', () => {
-    mockSettings.CLAUDE_MEM_RUNTIME = 'server-beta';
-    mockSettings.CLAUDE_MEM_SERVER_BETA_URL = 'http://localhost:1234';
-    mockSettings.CLAUDE_MEM_SERVER_BETA_API_KEY = 'cmem_xyz';
+    mockSettings.CODEX_MEM_RUNTIME = 'server-beta';
+    mockSettings.CODEX_MEM_SERVER_BETA_URL = 'http://localhost:1234';
+    mockSettings.CODEX_MEM_SERVER_BETA_API_KEY = 'cmem_xyz';
     expect(buildServerBetaContext()).toBeNull();
     expect(warnLogs.some(l => l.msg.includes('missing_project_id'))).toBe(true);
   });

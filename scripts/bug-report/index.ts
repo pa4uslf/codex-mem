@@ -1,8 +1,7 @@
-import {
-  query,
-  type SDKMessage,
-  type SDKResultMessage,
-} from "@anthropic-ai/claude-agent-sdk";
+import { spawn } from "child_process";
+import { mkdtemp, readFile, rm } from "fs/promises";
+import { tmpdir } from "os";
+import { join } from "path";
 import {
   collectDiagnostics,
   formatDiagnostics,
@@ -40,56 +39,7 @@ export async function generateBugReport(
       input.stepsToReproduce
     );
 
-    let generatedMarkdown = "";
-    let charCount = 0;
-    const startTime = Date.now();
-
-    const stream = query({
-      prompt,
-      options: {
-        model: "sonnet",
-        systemPrompt: `You are a GitHub issue formatter. Format bug reports clearly and professionally.`,
-        permissionMode: "bypassPermissions",
-        allowDangerouslySkipPermissions: true,
-        includePartialMessages: true,
-      },
-    });
-
-    const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-    let spinnerIdx = 0;
-
-    for await (const message of stream) {
-      if (message.type === "stream_event") {
-        const event = message.event as { type: string; delta?: { type: string; text?: string } };
-        if (event.type === "content_block_delta" && event.delta?.type === "text_delta" && event.delta.text) {
-          generatedMarkdown += event.delta.text;
-          charCount += event.delta.text.length;
-
-          const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-          const spinner = spinnerFrames[spinnerIdx++ % spinnerFrames.length];
-          process.stdout.write(`\r   ${spinner} Generating... ${charCount} chars (${elapsed}s)`);
-        }
-      }
-
-      if (message.type === "assistant") {
-        for (const block of message.message.content) {
-          if (block.type === "text" && !generatedMarkdown) {
-            generatedMarkdown = block.text;
-            charCount = generatedMarkdown.length;
-          }
-        }
-      }
-
-      if (message.type === "result") {
-        const result = message as SDKResultMessage;
-        if (result.subtype === "success" && !generatedMarkdown && result.result) {
-          generatedMarkdown = result.result;
-          charCount = generatedMarkdown.length;
-        }
-      }
-    }
-
-    process.stdout.write("\r" + " ".repeat(60) + "\r");
+    const generatedMarkdown = await runCodexExec(prompt);
 
     const titleMatch = generatedMarkdown.match(/^#\s+(.+)$/m);
     const title = titleMatch ? titleMatch[1] : "Bug Report";
@@ -100,8 +50,48 @@ export async function generateBugReport(
       success: true,
     };
   } catch (error) {
-    console.error("Agent SDK failed, using template fallback:", error);
+    console.error("Codex CLI generation failed, using template fallback:", error);
     return generateTemplateFallback(input);
+  }
+}
+
+async function runCodexExec(prompt: string): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), "codex-mem-bug-report-"));
+  const outputPath = join(dir, "last-message.md");
+  try {
+    const args = [
+      "exec",
+      "--json",
+      "--sandbox",
+      "read-only",
+      "--skip-git-repo-check",
+      "--output-last-message",
+      outputPath,
+      "-",
+    ];
+
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(process.env.CODEX_CODE_PATH || "codex", args, {
+        stdio: ["pipe", "ignore", "pipe"],
+      });
+      let stderr = "";
+      child.stderr.on("data", chunk => {
+        stderr += chunk.toString();
+      });
+      child.on("error", reject);
+      child.on("close", code => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`codex exec failed with exit code ${code}${stderr ? `: ${stderr.trim()}` : ""}`));
+        }
+      });
+      child.stdin.end(prompt);
+    });
+
+    return (await readFile(outputPath, "utf-8")).trim();
+  } finally {
+    await rm(dir, { recursive: true, force: true });
   }
 }
 
@@ -111,7 +101,7 @@ function buildPrompt(
   expectedBehavior?: string,
   stepsToReproduce?: string
 ): string {
-  let prompt = `You are a GitHub issue formatter. Given system diagnostics and a user's bug description, create a well-structured GitHub issue for the claude-mem repository.
+  let prompt = `You are a GitHub issue formatter. Given system diagnostics and a user's bug description, create a well-structured GitHub issue for the codex-mem repository.
 
 SYSTEM DIAGNOSTICS:
 ${diagnostics}

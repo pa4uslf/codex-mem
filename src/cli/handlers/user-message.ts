@@ -12,7 +12,7 @@ export const userMessageHandler: EventHandler = {
   async execute(input: NormalizedHookInput): Promise<HookResult> {
     const port = getWorkerPort();
     const project = basename(input.cwd ?? process.cwd());
-    const colorsParam = input.platform === 'claude-code' ? '&colors=true' : '';
+    const colorsParam = input.platform === 'codex-code' ? '&colors=true' : '';
 
     const result = await executeWithWorkerFallback<string>(
       `/api/context/inject?project=${encodeURIComponent(project)}${colorsParam}`,
@@ -25,7 +25,7 @@ export const userMessageHandler: EventHandler = {
 
     const output = typeof result === 'string' ? result : '';
     process.stderr.write(
-      "\n\n" + String.fromCodePoint(0x1F4DD) + " Claude-Mem Context Loaded\n\n" +
+      "\n\n" + String.fromCodePoint(0x1F4DD) + " Codex-Mem Context Loaded\n\n" +
       output +
       "\n\n" + String.fromCodePoint(0x1F4A1) + " Wrap any message with <private> ... </private> to prevent storing sensitive information.\n" +
       "\n" + String.fromCodePoint(0x1F4AC) + " Community https://discord.gg/J4wttp9vDu" +

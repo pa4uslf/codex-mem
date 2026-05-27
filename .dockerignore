@@ -2,6 +2,6 @@ node_modules/
 .git/
 logs/
 evals/swebench/runs/
-.docker-claude-mem-data/
+.docker-codex-mem-data/
 .venv
 .venv-*

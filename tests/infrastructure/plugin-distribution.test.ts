@@ -58,7 +58,7 @@ describe('Plugin Distribution - Required Files', () => {
   const requiredFiles = [
     'plugin/hooks/hooks.json',
     'plugin/hooks/codex-hooks.json',
-    'plugin/.claude-plugin/plugin.json',
+    'plugin/.codex-legacy-plugin/plugin.json',
     'plugin/.codex-plugin/plugin.json',
     'plugin/.mcp.json',
     'plugin/skills/mem-search/SKILL.md',
@@ -86,9 +86,9 @@ describe('Plugin Distribution - Codex Marketplace', () => {
     const mcp = JSON.parse(readFileSync(mcpPath, 'utf-8'));
     const command = mcp.mcpServers['mcp-search'].args.join(' ');
 
-    expect(command).toContain('.codex/plugins/cache/claude-mem-local/claude-mem');
-    expect(command).toContain('plugins/cache/thedotmack/claude-mem');
-    expect(command).toContain('claude-mem: mcp server not found');
+    expect(command).toContain('.codex/plugins/cache/codex-mem-local/codex-mem');
+    expect(command).toContain('plugins/cache/thedotmack/codex-mem');
+    expect(command).toContain('codex-mem: mcp server not found');
   });
 });
 
@@ -100,13 +100,13 @@ describe('Plugin Distribution - hooks.json Integrity', () => {
     expect(parsed.hooks).toBeDefined();
   });
 
-  it('should reference CLAUDE_PLUGIN_ROOT in all hook commands', () => {
+  it('should reference CODEX_PLUGIN_ROOT in all hook commands', () => {
     for (const command of commandHooksFrom('plugin/hooks/hooks.json')) {
-      expect(command).toContain('CLAUDE_PLUGIN_ROOT');
+      expect(command).toContain('CODEX_PLUGIN_ROOT');
     }
   });
 
-  it('should include CLAUDE_PLUGIN_ROOT fallback in all hook commands (#1215)', () => {
+  it('should include CODEX_PLUGIN_ROOT fallback in all hook commands (#1215)', () => {
     const expectedFallbackPath = '$_C/plugins/marketplaces/thedotmack/plugin';
 
     for (const command of commandHooksFrom('plugin/hooks/hooks.json')) {
@@ -115,7 +115,7 @@ describe('Plugin Distribution - hooks.json Integrity', () => {
   });
 
   it('should try cache path before marketplaces fallback in all hook commands (#1533)', () => {
-    const cachePath = '$_C/plugins/cache/thedotmack/claude-mem';
+    const cachePath = '$_C/plugins/cache/thedotmack/codex-mem';
     const marketplacesPath = '$_C/plugins/marketplaces/thedotmack/plugin';
 
     for (const command of commandHooksFrom('plugin/hooks/hooks.json')) {
@@ -130,14 +130,14 @@ describe('Plugin Distribution - Startup Root Resolution', () => {
     for (const relativePath of ['plugin/.mcp.json']) {
       const command = mcpStartupCommandFrom(relativePath);
 
-      expect(command).toContain('${CLAUDE_CONFIG_DIR:-$HOME/.claude}');
-      expect(command).toContain('_E="${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}"');
+      expect(command).toContain('${CODEX_CONFIG_DIR:-$HOME/.codex}');
+      expect(command).toContain('_E="${CODEX_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}"');
       expect(command).toContain('while IFS= read -r _R');
       expect(command).toContain('$_C/plugins/marketplaces/thedotmack/plugin');
-      expect(command).toContain('$_C/plugins/cache/thedotmack/claude-mem');
+      expect(command).toContain('$_C/plugins/cache/thedotmack/codex-mem');
       expect(command).toContain('[ -f "$_Q/scripts/mcp-server.cjs" ]');
       expect(command).not.toContain('"/scripts/mcp-server.cjs"');
-      expect(command.indexOf('$_C/plugins/cache/thedotmack/claude-mem')).toBeLessThan(
+      expect(command.indexOf('$_C/plugins/cache/thedotmack/codex-mem')).toBeLessThan(
         command.indexOf('$_C/plugins/marketplaces/thedotmack/plugin')
       );
     }
@@ -145,27 +145,27 @@ describe('Plugin Distribution - Startup Root Resolution', () => {
 
   it('Codex hook commands should have config-dir based non-empty fallbacks', () => {
     for (const command of commandHooksFrom('plugin/hooks/codex-hooks.json')) {
-      expect(command).toContain('${CLAUDE_CONFIG_DIR:-$HOME/.claude}');
+      expect(command).toContain('${CODEX_CONFIG_DIR:-$HOME/.codex}');
       expect(command).toContain('export PATH=');
       expect(command).toContain('while IFS= read -r _R');
       expect(command).toContain('$_C/plugins/marketplaces/thedotmack/plugin');
-      expect(command).toContain('$_C/plugins/cache/thedotmack/claude-mem');
+      expect(command).toContain('$_C/plugins/cache/thedotmack/codex-mem');
       expect(command).toContain('[ -f "$_Q/scripts/');
       expect(command).toContain('command -v cygpath');
-      expect(command.indexOf('$_C/plugins/cache/thedotmack/claude-mem')).toBeLessThan(
+      expect(command.indexOf('$_C/plugins/cache/thedotmack/codex-mem')).toBeLessThan(
         command.indexOf('$_C/plugins/marketplaces/thedotmack/plugin')
       );
     }
   });
 
-  it('Claude hook commands should have config-dir based non-empty fallbacks', () => {
+  it('Codex hook commands should have config-dir based non-empty fallbacks', () => {
     for (const command of commandHooksFrom('plugin/hooks/hooks.json')) {
-      expect(command).toContain('${CLAUDE_CONFIG_DIR:-$HOME/.claude}');
+      expect(command).toContain('${CODEX_CONFIG_DIR:-$HOME/.codex}');
       expect(command).toContain('while IFS= read -r _R');
       expect(command).toContain('$_C/plugins/marketplaces/thedotmack/plugin');
-      expect(command).toContain('$_C/plugins/cache/thedotmack/claude-mem');
+      expect(command).toContain('$_C/plugins/cache/thedotmack/codex-mem');
       expect(command).toContain('[ -f "$_Q/scripts/');
-      expect(command).not.toContain('$HOME/.claude/plugins/');
+      expect(command).not.toContain('$HOME/.codex/plugins/');
     }
   });
 });
@@ -190,7 +190,7 @@ describe('Plugin Distribution - Build Script Verification', () => {
 
     expect(content).toContain('plugin/skills/mem-search/SKILL.md');
     expect(content).toContain('plugin/hooks/hooks.json');
-    expect(content).toContain('plugin/.claude-plugin/plugin.json');
+    expect(content).toContain('plugin/.codex-legacy-plugin/plugin.json');
   });
 });
 

@@ -33,7 +33,7 @@ describe('Hook Execution E2E', () => {
       onRestart: mock(() => Promise.resolve()),
       workerPath: '/test/worker-service.cjs',
       getAiStatus: () => ({
-        provider: 'claude',
+        provider: 'codex',
         authMethod: 'cli',
         lastInteraction: null,
       }),
@@ -89,7 +89,7 @@ describe('Hook Execution E2E', () => {
         onShutdown: mock(() => Promise.resolve()),
         onRestart: mock(() => Promise.resolve()),
         workerPath: '/test/worker-service.cjs',
-        getAiStatus: () => ({ provider: 'claude', authMethod: 'cli', lastInteraction: null }),
+        getAiStatus: () => ({ provider: 'codex', authMethod: 'cli', lastInteraction: null }),
       };
 
       server = new Server(uninitializedOptions);
@@ -150,7 +150,7 @@ describe('Hook Execution E2E', () => {
         onShutdown: mock(() => Promise.resolve()),
         onRestart: mock(() => Promise.resolve()),
         workerPath: '/test/worker-service.cjs',
-        getAiStatus: () => ({ provider: 'claude', authMethod: 'cli', lastInteraction: null }),
+        getAiStatus: () => ({ provider: 'codex', authMethod: 'cli', lastInteraction: null }),
       };
 
       server = new Server(dynamicOptions);

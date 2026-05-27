@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'fs';
 import { SessionStore } from '../sqlite/SessionStore.js';
 import { logger } from '../../utils/logger.js';
 import { SYSTEM_REMINDER_REGEX } from '../../utils/tag-stripping.js';
-import { CLAUDE_CONFIG_DIR } from '../../shared/paths.js';
+import { CODEX_CONFIG_DIR } from '../../shared/paths.js';
 import type {
   ContextConfig,
   Observation,
@@ -29,7 +29,7 @@ export function queryObservations(
     SELECT
       o.id,
       o.memory_session_id,
-      COALESCE(s.platform_source, 'claude') as platform_source,
+      COALESCE(s.platform_source, 'codex') as platform_source,
       o.type,
       o.title,
       o.subtitle,
@@ -69,7 +69,7 @@ export function querySummaries(
     SELECT
       ss.id,
       ss.memory_session_id,
-      COALESCE(s.platform_source, 'claude') as platform_source,
+      COALESCE(s.platform_source, 'codex') as platform_source,
       ss.request,
       ss.investigated,
       ss.learned,
@@ -101,7 +101,7 @@ export function queryObservationsMulti(
     SELECT
       o.id,
       o.memory_session_id,
-      COALESCE(s.platform_source, 'claude') as platform_source,
+      COALESCE(s.platform_source, 'codex') as platform_source,
       o.type,
       o.title,
       o.subtitle,
@@ -156,7 +156,7 @@ export function querySummariesMulti(
     SELECT
       ss.id,
       ss.memory_session_id,
-      COALESCE(s.platform_source, 'claude') as platform_source,
+      COALESCE(s.platform_source, 'codex') as platform_source,
       ss.request,
       ss.investigated,
       ss.learned,
@@ -246,7 +246,7 @@ export function getPriorSessionMessages(
 
   const priorSessionId = priorSessionObs.memory_session_id;
   const dashedCwd = cwdToDashed(cwd);
-  const transcriptPath = path.join(CLAUDE_CONFIG_DIR, 'projects', dashedCwd, `${priorSessionId}.jsonl`);
+  const transcriptPath = path.join(CODEX_CONFIG_DIR, 'projects', dashedCwd, `${priorSessionId}.jsonl`);
   return extractPriorMessages(transcriptPath);
 }
 

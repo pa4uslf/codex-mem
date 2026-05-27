@@ -3,11 +3,11 @@
 ---
 <h1 align="center">
   <br>
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-dark-mode.webp">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/claude-mem-logo-for-light-mode.webp" alt="Claude-Mem" width="400">
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-dark-mode.webp">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/codex-mem-logo-for-light-mode.webp" alt="Codex-Mem" width="400">
     </picture>
   </a>
   <br>
@@ -45,7 +45,7 @@
   <a href="README.no.md">🇳🇴 Norsk</a>
 </p>
 
-<h4 align="center">為 <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> 打造的持久記憶壓縮系統</h4>
+<h4 align="center">為 <a href="https://codex.com/codex-code" target="_blank">Codex Code</a> 打造的持久記憶壓縮系統</h4>
 
 <p align="center">
   <a href="LICENSE">
@@ -57,17 +57,17 @@
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">
   </a>
-  <a href="https://github.com/thedotmack/awesome-claude-code">
-    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Claude Code">
+  <a href="https://github.com/thedotmack/awesome-codex-code">
+    <img src="https://awesome.re/mentioned-badge.svg" alt="Mentioned in Awesome Codex Code">
   </a>
 </p>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/15496" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg">
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/claude-mem | Trendshift" width="250" height="55"/>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/trendshift-badge.svg" alt="thedotmack/codex-mem | Trendshift" width="250" height="55"/>
     </picture>
   </a>
 </p>
@@ -75,9 +75,9 @@
 <br>
 
 <p align="center">
-  <a href="https://github.com/thedotmack/claude-mem">
+  <a href="https://github.com/thedotmack/codex-mem">
     <picture>
-      <img src="https://raw.githubusercontent.com/thedotmack/claude-mem/main/docs/public/cm-preview.gif" alt="Claude-Mem Preview" width="800">
+      <img src="https://raw.githubusercontent.com/thedotmack/codex-mem/main/docs/public/cm-preview.gif" alt="Codex-Mem Preview" width="800">
     </picture>
   </a>
 </p>
@@ -93,22 +93,22 @@
 </p>
 
 <p align="center">
-  Claude-Mem 透過自動擷取工具使用觀察、產生語意摘要並在未來的工作階段中提供使用，無縫保留跨工作階段的脈絡。這使 Claude 即使在工作階段結束或重新連線後，仍能維持對專案的知識連續性。
+  Codex-Mem 透過自動擷取工具使用觀察、產生語意摘要並在未來的工作階段中提供使用，無縫保留跨工作階段的脈絡。這使 Codex 即使在工作階段結束或重新連線後，仍能維持對專案的知識連續性。
 </p>
 
 ---
 
 ## 快速開始
 
-在終端機中開啟新的 Claude Code 工作階段，並輸入以下指令：
+在終端機中開啟新的 Codex Code 工作階段，並輸入以下指令：
 
 ```
-> /plugin marketplace add thedotmack/claude-mem
+> /plugin marketplace add thedotmack/codex-mem
 
-> /plugin install claude-mem
+> /plugin install codex-mem
 ```
 
-重新啟動 Claude Code。先前工作階段的脈絡將自動出現在新的工作階段中。
+重新啟動 Codex Code。先前工作階段的脈絡將自動出現在新的工作階段中。
 
 **主要功能：**
 
@@ -116,7 +116,7 @@
 - 📊 **漸進式揭露** - 具有 Token 成本可見性的分層記憶擷取
 - 🔍 **技能式搜尋** - 使用 mem-search 技能查詢專案歷史
 - 🖥️ **網頁檢視介面** - 在 http://localhost:37777 即時檢視記憶串流
-- 💻 **Claude Desktop 技能** - 從 Claude Desktop 對話中搜尋記憶
+- 💻 **Codex Desktop 技能** - 從 Codex Desktop 對話中搜尋記憶
 - 🔒 **隱私控制** - 使用 `<private>` 標籤排除敏感內容的儲存
 - ⚙️ **脈絡設定** - 精細控制注入哪些脈絡
 - 🤖 **自動運作** - 無需手動介入
@@ -131,31 +131,31 @@
 
 ### 入門指南
 
-- **[安裝指南](https://docs.claude-mem.ai/installation)** - 快速開始與進階安裝
-- **[使用指南](https://docs.claude-mem.ai/usage/getting-started)** - Claude-Mem 如何自動運作
-- **[搜尋工具](https://docs.claude-mem.ai/usage/search-tools)** - 使用自然語言查詢專案歷史
-- **[Beta 功能](https://docs.claude-mem.ai/beta-features)** - 試用 Endless Mode 等實驗性功能
+- **[安裝指南](https://docs.codex-mem.ai/installation)** - 快速開始與進階安裝
+- **[使用指南](https://docs.codex-mem.ai/usage/getting-started)** - Codex-Mem 如何自動運作
+- **[搜尋工具](https://docs.codex-mem.ai/usage/search-tools)** - 使用自然語言查詢專案歷史
+- **[Beta 功能](https://docs.codex-mem.ai/beta-features)** - 試用 Endless Mode 等實驗性功能
 
 ### 最佳實務
 
-- **[脈絡工程](https://docs.claude-mem.ai/context-engineering)** - AI 代理脈絡最佳化原則
-- **[漸進式揭露](https://docs.claude-mem.ai/progressive-disclosure)** - Claude-Mem 脈絡啟動策略背後的理念
+- **[脈絡工程](https://docs.codex-mem.ai/context-engineering)** - AI 代理脈絡最佳化原則
+- **[漸進式揭露](https://docs.codex-mem.ai/progressive-disclosure)** - Codex-Mem 脈絡啟動策略背後的理念
 
 ### 架構
 
-- **[概覽](https://docs.claude-mem.ai/architecture/overview)** - 系統元件與資料流程
-- **[架構演進](https://docs.claude-mem.ai/architecture-evolution)** - 從 v3 到 v5 的旅程
-- **[Hooks 架構](https://docs.claude-mem.ai/hooks-architecture)** - Claude-Mem 如何使用生命週期掛鉤
-- **[Hooks 參考](https://docs.claude-mem.ai/architecture/hooks)** - 7 個掛鉤腳本說明
-- **[Worker 服務](https://docs.claude-mem.ai/architecture/worker-service)** - HTTP API 與 Bun 管理
-- **[資料庫](https://docs.claude-mem.ai/architecture/database)** - SQLite 結構描述與 FTS5 搜尋
-- **[搜尋架構](https://docs.claude-mem.ai/architecture/search-architecture)** - 使用 Chroma 向量資料庫的混合搜尋
+- **[概覽](https://docs.codex-mem.ai/architecture/overview)** - 系統元件與資料流程
+- **[架構演進](https://docs.codex-mem.ai/architecture-evolution)** - 從 v3 到 v5 的旅程
+- **[Hooks 架構](https://docs.codex-mem.ai/hooks-architecture)** - Codex-Mem 如何使用生命週期掛鉤
+- **[Hooks 參考](https://docs.codex-mem.ai/architecture/hooks)** - 7 個掛鉤腳本說明
+- **[Worker 服務](https://docs.codex-mem.ai/architecture/worker-service)** - HTTP API 與 Bun 管理
+- **[資料庫](https://docs.codex-mem.ai/architecture/database)** - SQLite 結構描述與 FTS5 搜尋
+- **[搜尋架構](https://docs.codex-mem.ai/architecture/search-architecture)** - 使用 Chroma 向量資料庫的混合搜尋
 
 ### 設定與開發
 
-- **[設定](https://docs.claude-mem.ai/configuration)** - 環境變數與設定
-- **[開發](https://docs.claude-mem.ai/development)** - 建置、測試、貢獻
-- **[疑難排解](https://docs.claude-mem.ai/troubleshooting)** - 常見問題與解決方案
+- **[設定](https://docs.codex-mem.ai/configuration)** - 環境變數與設定
+- **[開發](https://docs.codex-mem.ai/development)** - 建置、測試、貢獻
+- **[疑難排解](https://docs.codex-mem.ai/troubleshooting)** - 常見問題與解決方案
 
 ---
 
@@ -170,13 +170,13 @@
 5. **mem-search 技能** - 具有漸進式揭露的自然語言查詢
 6. **Chroma 向量資料庫** - 用於智慧脈絡擷取的混合語意 + 關鍵字搜尋
 
-詳情請參閱[架構概覽](https://docs.claude-mem.ai/architecture/overview)。
+詳情請參閱[架構概覽](https://docs.codex-mem.ai/architecture/overview)。
 
 ---
 
 ## MCP 搜尋工具
 
-Claude-Mem 透過遵循 Token 高效的 **3 層工作流程模式**，以 **4 個 MCP 工具**提供智慧記憶搜尋：
+Codex-Mem 透過遵循 Token 高效的 **3 層工作流程模式**，以 **4 個 MCP 工具**提供智慧記憶搜尋：
 
 **3 層工作流程：**
 
@@ -186,7 +186,7 @@ Claude-Mem 透過遵循 Token 高效的 **3 層工作流程模式**，以 **4 �
 
 **運作方式：**
 
-- Claude 使用 MCP 工具搜尋您的記憶
+- Codex 使用 MCP 工具搜尋您的記憶
 - 從 `search` 開始取得結果索引
 - 使用 `timeline` 檢視特定觀察周圍發生的事情
 - 使用 `get_observations` 擷取相關 ID 的完整詳情
@@ -197,7 +197,7 @@ Claude-Mem 透過遵循 Token 高效的 **3 層工作流程模式**，以 **4 �
 1. **`search`** - 使用全文查詢搜尋記憶索引，依類型/日期/專案過濾
 2. **`timeline`** - 取得特定觀察或查詢周圍的時間脈絡
 3. **`get_observations`** - 依 ID 擷取完整觀察詳情（批次處理多個 ID）
-4. **`__IMPORTANT`** - 工作流程文件（Claude 永遠可見）
+4. **`__IMPORTANT`** - 工作流程文件（Codex 永遠可見）
 
 **使用範例：**
 
@@ -211,22 +211,22 @@ search(query="authentication bug", type="bugfix", limit=10)
 get_observations(ids=[123, 456])
 ```
 
-詳細範例請參閱[搜尋工具指南](https://docs.claude-mem.ai/usage/search-tools)。
+詳細範例請參閱[搜尋工具指南](https://docs.codex-mem.ai/usage/search-tools)。
 
 ---
 
 ## Beta 功能
 
-Claude-Mem 提供具有實驗性功能的 **Beta 通道**，例如 **Endless Mode**（用於延長工作階段的仿生記憶架構）。在 http://localhost:37777 → Settings 的網頁檢視介面中切換穩定版與 Beta 版。
+Codex-Mem 提供具有實驗性功能的 **Beta 通道**，例如 **Endless Mode**（用於延長工作階段的仿生記憶架構）。在 http://localhost:37777 → Settings 的網頁檢視介面中切換穩定版與 Beta 版。
 
-有關 Endless Mode 與如何試用的詳情，請參閱 **[Beta 功能文件](https://docs.claude-mem.ai/beta-features)**。
+有關 Endless Mode 與如何試用的詳情，請參閱 **[Beta 功能文件](https://docs.codex-mem.ai/beta-features)**。
 
 ---
 
 ## 系統需求
 
 - **Node.js**：18.0.0 或更高版本
-- **Claude Code**：具有外掛支援的最新版本
+- **Codex Code**：具有外掛支援的最新版本
 - **Bun**：JavaScript 執行環境與程序管理員（如缺少將自動安裝）
 - **uv**：用於向量搜尋的 Python 套件管理員（如缺少將自動安裝）
 - **SQLite 3**：用於持久儲存（已內建）
@@ -235,23 +235,23 @@ Claude-Mem 提供具有實驗性功能的 **Beta 通道**，例如 **Endless Mod
 
 ## 設定
 
-設定在 `~/.claude-mem/settings.json` 中管理（首次執行時自動以預設值建立）。設定 AI 模型、Worker 連接埠、資料目錄、日誌層級與脈絡注入設定。
+設定在 `~/.codex-mem/settings.json` 中管理（首次執行時自動以預設值建立）。設定 AI 模型、Worker 連接埠、資料目錄、日誌層級與脈絡注入設定。
 
-所有可用設定與範例請參閱 **[設定指南](https://docs.claude-mem.ai/configuration)**。
+所有可用設定與範例請參閱 **[設定指南](https://docs.codex-mem.ai/configuration)**。
 
 ---
 
 ## 開發
 
-建置說明、測試與貢獻工作流程請參閱 **[開發指南](https://docs.claude-mem.ai/development)**。
+建置說明、測試與貢獻工作流程請參閱 **[開發指南](https://docs.codex-mem.ai/development)**。
 
 ---
 
 ## 疑難排解
 
-如遇問題，向 Claude 描述問題，troubleshoot 技能將自動診斷並提供修正。
+如遇問題，向 Codex 描述問題，troubleshoot 技能將自動診斷並提供修正。
 
-常見問題與解決方案請參閱 **[疑難排解指南](https://docs.claude-mem.ai/troubleshooting)**。
+常見問題與解決方案請參閱 **[疑難排解指南](https://docs.codex-mem.ai/troubleshooting)**。
 
 ---
 
@@ -260,7 +260,7 @@ Claude-Mem 提供具有實驗性功能的 **Beta 通道**，例如 **Endless Mod
 使用自動產生器建立完整的錯誤回報：
 
 ```bash
-cd ~/.claude/plugins/marketplaces/thedotmack
+cd ~/.codex/plugins/marketplaces/thedotmack
 npm run bug-report
 ```
 
@@ -274,7 +274,7 @@ npm run bug-report
 4. 更新文件
 5. 提交 Pull Request
 
-貢獻工作流程請參閱[開發指南](https://docs.claude-mem.ai/development)。
+貢獻工作流程請參閱[開發指南](https://docs.codex-mem.ai/development)。
 
 ---
 
@@ -296,12 +296,12 @@ Apache-2.0 allows broad use, modification, distribution, and commercial use, sub
 ## 支援
 
 - **文件**：[docs/](docs/)
-- **Issues**：[GitHub Issues](https://github.com/thedotmack/claude-mem/issues)
-- **儲存庫**：[github.com/thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)
-- **官方 X 帳號**：[@Claude_Memory](https://x.com/Claude_Memory)
+- **Issues**：[GitHub Issues](https://github.com/thedotmack/codex-mem/issues)
+- **儲存庫**：[github.com/thedotmack/codex-mem](https://github.com/thedotmack/codex-mem)
+- **官方 X 帳號**：[@Codex_Memory](https://x.com/Codex_Memory)
 - **官方 Discord**：[加入 Discord](https://discord.com/invite/J4wttp9vDu)
 - **作者**：Alex Newman ([@thedotmack](https://github.com/thedotmack))
 
 ---
 
-**使用 Claude Agent SDK 建置** | **由 Claude Code 驅動** | **以 TypeScript 開發**
+**使用 Codex Agent SDK 建置** | **由 Codex Code 驅動** | **以 TypeScript 開發**

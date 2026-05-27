@@ -6,7 +6,6 @@ import {
   IndexInfo,
   TableNameRow,
   SchemaVersion,
-  SdkSessionRecord,
   ObservationRecord,
   SessionSummaryRecord,
   UserPromptRecord,
@@ -145,7 +144,7 @@ export class SessionStore {
         content_session_id TEXT UNIQUE NOT NULL,
         memory_session_id TEXT UNIQUE,
         project TEXT NOT NULL,
-        platform_source TEXT NOT NULL DEFAULT 'claude',
+        platform_source TEXT NOT NULL DEFAULT 'codex',
         user_prompt TEXT,
         started_at TEXT NOT NULL,
         started_at_epoch INTEGER NOT NULL,
@@ -154,7 +153,7 @@ export class SessionStore {
         status TEXT CHECK(status IN ('active', 'completed', 'failed')) NOT NULL DEFAULT 'active'
       );
 
-      CREATE INDEX IF NOT EXISTS idx_sdk_sessions_claude_id ON sdk_sessions(content_session_id);
+      CREATE INDEX IF NOT EXISTS idx_sdk_sessions_codex_id ON sdk_sessions(content_session_id);
       CREATE INDEX IF NOT EXISTS idx_sdk_sessions_sdk_id ON sdk_sessions(memory_session_id);
       CREATE INDEX IF NOT EXISTS idx_sdk_sessions_project ON sdk_sessions(project);
       CREATE INDEX IF NOT EXISTS idx_sdk_sessions_status ON sdk_sessions(status);
@@ -420,7 +419,7 @@ export class SessionStore {
         FOREIGN KEY(content_session_id) REFERENCES sdk_sessions(content_session_id) ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_user_prompts_claude_session ON user_prompts(content_session_id);
+      CREATE INDEX idx_user_prompts_codex_session ON user_prompts(content_session_id);
       CREATE INDEX idx_user_prompts_created ON user_prompts(created_at_epoch DESC);
       CREATE INDEX idx_user_prompts_prompt_number ON user_prompts(prompt_number);
       CREATE INDEX idx_user_prompts_lookup ON user_prompts(content_session_id, prompt_number);
@@ -530,7 +529,7 @@ export class SessionStore {
 
     this.db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_session ON pending_messages(session_db_id)');
     this.db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_status ON pending_messages(status)');
-    this.db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_claude_session ON pending_messages(content_session_id)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_codex_session ON pending_messages(content_session_id)');
 
     this.db.prepare('INSERT OR IGNORE INTO schema_versions (version, applied_at) VALUES (?, ?)').run(16, new Date().toISOString());
 
@@ -564,16 +563,16 @@ export class SessionStore {
       return false;
     };
 
-    if (safeRenameColumn('sdk_sessions', 'claude_session_id', 'content_session_id')) renamesPerformed++;
+    if (safeRenameColumn('sdk_sessions', 'codex_session_id', 'content_session_id')) renamesPerformed++;
     if (safeRenameColumn('sdk_sessions', 'sdk_session_id', 'memory_session_id')) renamesPerformed++;
 
-    if (safeRenameColumn('pending_messages', 'claude_session_id', 'content_session_id')) renamesPerformed++;
+    if (safeRenameColumn('pending_messages', 'codex_session_id', 'content_session_id')) renamesPerformed++;
 
     if (safeRenameColumn('observations', 'sdk_session_id', 'memory_session_id')) renamesPerformed++;
 
     if (safeRenameColumn('session_summaries', 'sdk_session_id', 'memory_session_id')) renamesPerformed++;
 
-    if (safeRenameColumn('user_prompts', 'claude_session_id', 'content_session_id')) renamesPerformed++;
+    if (safeRenameColumn('user_prompts', 'codex_session_id', 'content_session_id')) renamesPerformed++;
 
     this.db.prepare('INSERT OR IGNORE INTO schema_versions (version, applied_at) VALUES (?, ?)').run(17, new Date().toISOString());
 

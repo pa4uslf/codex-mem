@@ -16,9 +16,9 @@ function stripProjectRoot(filePath: string): string {
     }
   }
 
-  const projectIndex = filePath.indexOf('claude-mem/');
+  const projectIndex = filePath.indexOf('codex-mem/');
   if (projectIndex !== -1) {
-    return filePath.substring(projectIndex + 'claude-mem/'.length);
+    return filePath.substring(projectIndex + 'codex-mem/'.length);
   }
 
   const parts = filePath.split('/');
@@ -45,8 +45,8 @@ export function ObservationCard({ observation }: ObservationCardProps) {
           <span className={`card-type type-${observation.type}`}>
             {observation.type}
           </span>
-          <span className={`card-source source-${observation.platform_source || 'claude'}`}>
-            {observation.platform_source || 'claude'}
+          <span className={`card-source source-${observation.platform_source || 'codex'}`}>
+            {observation.platform_source || 'codex'}
           </span>
           <span className="card-project">{observation.project}</span>
           {observation.merged_into_project && (

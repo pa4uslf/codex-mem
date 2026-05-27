@@ -80,8 +80,8 @@ describe('RateLimitStore', () => {
 
 describe('isApiKeyAuth', () => {
   it('matches verbose getAuthMethodDescription() output', () => {
-    expect(isApiKeyAuth('API key (from ~/.claude-mem/.env)')).toBe(true);
-    expect(isApiKeyAuth('Claude Code OAuth token (read from system keychain at spawn)')).toBe(false);
+    expect(isApiKeyAuth('API key (from ~/.codex-mem/.env)')).toBe(true);
+    expect(isApiKeyAuth('Codex Code OAuth token (read from system keychain at spawn)')).toBe(false);
   });
 
   it('matches concise tokens', () => {
@@ -105,7 +105,7 @@ describe('shouldAbortForQuota — api_key auth', () => {
 
   it('never aborts even at seven_day_opus 0.99', () => {
     store.set({ rateLimitType: 'seven_day_opus', utilization: 0.99 });
-    const decision = shouldAbortForQuota('API key (from ~/.claude-mem/.env)', store, FIXED_NOW);
+    const decision = shouldAbortForQuota('API key (from ~/.codex-mem/.env)', store, FIXED_NOW);
     expect(decision.abort).toBe(false);
   });
 
@@ -121,7 +121,7 @@ describe('shouldAbortForQuota — api_key auth', () => {
 });
 
 describe('shouldAbortForQuota — cli/oauth auth', () => {
-  const cliAuth = 'Claude Code OAuth token (read from system keychain at spawn)';
+  const cliAuth = 'Codex Code OAuth token (read from system keychain at spawn)';
   let store: RateLimitStore;
   beforeEach(() => {
     store = freshStore();

@@ -21,8 +21,8 @@ import { IS_WINDOWS, writeJsonFileAtomic } from '../src/npx-cli/utils/paths.js';
  *
  * Per CodeRabbit on PR #2281: the prior implementation was a single
  * writeFileSync call that could leave a truncated/corrupt file on a mid-write
- * crash — relevant because callers include disableClaudeAutoMemory's write to
- * ~/.claude/settings.json (a user-owned global config).
+ * crash — relevant because callers include disableCodexAutoMemory's write to
+ * ~/.codex/settings.json (a user-owned global config).
  *
  * The new implementation uses temp file + fsync + rename. These tests verify
  * that contract.
@@ -32,7 +32,7 @@ describe('writeJsonFileAtomic', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), 'claude-mem-atomic-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'codex-mem-atomic-'));
   });
 
   afterEach(() => {
@@ -80,7 +80,7 @@ describe('writeJsonFileAtomic', () => {
     // We verify by spotting the temp file name pattern during a write — but since
     // the write completes synchronously, we infer this from the absence of any
     // leftover temp file in OTHER directories after a normal write.
-    const otherDir = mkdtempSync(join(tmpdir(), 'claude-mem-atomic-other-'));
+    const otherDir = mkdtempSync(join(tmpdir(), 'codex-mem-atomic-other-'));
     try {
       const target = join(tempDir, 'config.json');
       writeJsonFileAtomic(target, { ok: true });
@@ -114,10 +114,10 @@ describe('writeJsonFileAtomic', () => {
       // Symlink creation requires elevated privileges on Windows; skip there.
       return;
     }
-    // Users who keep ~/.claude/settings.json under a dotfiles repo often
+    // Users who keep ~/.codex/settings.json under a dotfiles repo often
     // symlink it. POSIX rename(2) replaces the symlink with the temp file,
     // which would silently break the link — verify we resolve it instead.
-    const realDir = mkdtempSync(join(tmpdir(), 'claude-mem-real-'));
+    const realDir = mkdtempSync(join(tmpdir(), 'codex-mem-real-'));
     try {
       const realTarget = join(realDir, 'real-config.json');
       writeFileSync(realTarget, '{"v":0}');
@@ -153,10 +153,10 @@ describe('writeJsonFileAtomic', () => {
     const linkPath = join(tempDir, 'settings.json');
     symlinkSync(linkTarget, linkPath);
 
-    writeJsonFileAtomic(linkPath, { env: { CLAUDE_CODE_DISABLE_AUTO_MEMORY: '1' } });
+    writeJsonFileAtomic(linkPath, { env: { CODEX_CODE_DISABLE_AUTO_MEMORY: '1' } });
 
     expect(JSON.parse(readFileSync(realTarget, 'utf-8'))).toEqual({
-      env: { CLAUDE_CODE_DISABLE_AUTO_MEMORY: '1' },
+      env: { CODEX_CODE_DISABLE_AUTO_MEMORY: '1' },
     });
     expect(lstatSync(linkPath).isSymbolicLink()).toBe(true);
     expect(realpathSync(linkPath)).toBe(realpathSync(realTarget));

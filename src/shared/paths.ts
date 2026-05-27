@@ -16,18 +16,18 @@ function getDirname(): string {
 const _dirname = getDirname();
 
 export function resolveDataDir(): string {
-  if (process.env.CLAUDE_MEM_DATA_DIR) {
-    return process.env.CLAUDE_MEM_DATA_DIR;
+  if (process.env.CODEX_MEM_DATA_DIR) {
+    return process.env.CODEX_MEM_DATA_DIR;
   }
 
-  const defaultDataDir = join(homedir(), '.claude-mem');
+  const defaultDataDir = join(homedir(), '.codex-mem');
   const settingsPath = join(defaultDataDir, 'settings.json');
   try {
     if (existsSync(settingsPath)) {
       const raw = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       const settings = raw.env ?? raw; 
-      if (settings.CLAUDE_MEM_DATA_DIR) {
-        return settings.CLAUDE_MEM_DATA_DIR;
+      if (settings.CODEX_MEM_DATA_DIR) {
+        return settings.CODEX_MEM_DATA_DIR;
       }
     }
   } catch {
@@ -38,9 +38,9 @@ export function resolveDataDir(): string {
 }
 
 export const DATA_DIR = resolveDataDir();
-export const CLAUDE_CONFIG_DIR = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+export const CODEX_CONFIG_DIR = process.env.CODEX_CONFIG_DIR || join(homedir(), '.codex');
 
-export const MARKETPLACE_ROOT = join(CLAUDE_CONFIG_DIR, 'plugins', 'marketplaces', 'thedotmack');
+export const MARKETPLACE_ROOT = join(CODEX_CONFIG_DIR, 'plugins', 'marketplaces', 'thedotmack');
 
 export const ARCHIVES_DIR = join(DATA_DIR, 'archives');
 export const LOGS_DIR = join(DATA_DIR, 'logs');
@@ -48,16 +48,16 @@ export const TRASH_DIR = join(DATA_DIR, 'trash');
 export const BACKUPS_DIR = join(DATA_DIR, 'backups');
 export const MODES_DIR = join(DATA_DIR, 'modes');
 export const USER_SETTINGS_PATH = join(DATA_DIR, 'settings.json');
-export const DB_PATH = join(DATA_DIR, 'claude-mem.db');
+export const DB_PATH = join(DATA_DIR, 'codex-mem.db');
 export const VECTOR_DB_DIR = join(DATA_DIR, 'vector-db');
 
 export const OBSERVER_SESSIONS_DIR = join(DATA_DIR, 'observer-sessions');
 
 export const OBSERVER_SESSIONS_PROJECT = basename(OBSERVER_SESSIONS_DIR);
 
-export const CLAUDE_SETTINGS_PATH = join(CLAUDE_CONFIG_DIR, 'settings.json');
-export const CLAUDE_COMMANDS_DIR = join(CLAUDE_CONFIG_DIR, 'commands');
-export const CLAUDE_MD_PATH = join(CLAUDE_CONFIG_DIR, 'CLAUDE.md');
+export const CODEX_SETTINGS_PATH = join(CODEX_CONFIG_DIR, 'settings.json');
+export const CODEX_COMMANDS_DIR = join(CODEX_CONFIG_DIR, 'commands');
+export const CODEX_MD_PATH = join(CODEX_CONFIG_DIR, 'CODEX.md');
 
 export function getProjectArchiveDir(projectName: string): string {
   return join(ARCHIVES_DIR, projectName);
@@ -84,9 +84,9 @@ export function ensureModesDir(): void {
   ensureDir(MODES_DIR);
 }
 
-export function ensureAllClaudeDirs(): void {
-  ensureDir(CLAUDE_CONFIG_DIR);
-  ensureDir(CLAUDE_COMMANDS_DIR);
+export function ensureAllCodexDirs(): void {
+  ensureDir(CODEX_CONFIG_DIR);
+  ensureDir(CODEX_COMMANDS_DIR);
 }
 
 export function getCurrentProjectName(): string {
@@ -133,7 +133,7 @@ export const paths = {
   serverBetaPort: () => join(DATA_DIR, '.server-beta.port'),
   serverBetaRuntime: () => join(DATA_DIR, '.server-beta.runtime.json'),
   settings: () => join(DATA_DIR, 'settings.json'),
-  database: () => join(DATA_DIR, 'claude-mem.db'),
+  database: () => join(DATA_DIR, 'codex-mem.db'),
   chroma: () => join(DATA_DIR, 'chroma'),
   combinedCerts: () => join(DATA_DIR, 'combined_certs.pem'),
   transcriptsConfig: () => join(DATA_DIR, 'transcript-watch.json'),

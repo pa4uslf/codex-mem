@@ -6,7 +6,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { logger } from '../../utils/logger.js';
 import { getWorkerPort, workerHttpRequest } from '../../shared/worker-utils.js';
-import { DATA_DIR, MARKETPLACE_ROOT, CLAUDE_CONFIG_DIR } from '../../shared/paths.js';
+import { DATA_DIR, MARKETPLACE_ROOT, CODEX_CONFIG_DIR } from '../../shared/paths.js';
 import {
   readCursorRegistry as readCursorRegistryFromFile,
   writeCursorRegistry as writeCursorRegistryToFile,
@@ -154,7 +154,7 @@ export function configureCursorMcp(target: CursorInstallTarget): number {
 
   if (!mcpServerPath) {
     console.error('Could not find MCP server script');
-    console.error('   Expected at: ~/.claude/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs');
+    console.error('   Expected at: ~/.codex/plugins/marketplaces/thedotmack/plugin/scripts/mcp-server.cjs');
     return 1;
   }
 
@@ -186,7 +186,7 @@ export function configureCursorMcp(target: CursorInstallTarget): number {
       }
     }
 
-    config.mcpServers['claude-mem'] = {
+    config.mcpServers['codex-mem'] = {
       command: 'node',
       args: [mcpServerPath]
     };
@@ -203,7 +203,7 @@ export function configureCursorMcp(target: CursorInstallTarget): number {
 }
 
 export async function installCursorHooks(target: CursorInstallTarget): Promise<number> {
-  console.log(`\nInstalling Claude-Mem Cursor hooks (${target} level)...\n`);
+  console.log(`\nInstalling Codex-Mem Cursor hooks (${target} level)...\n`);
 
   const targetDir = getTargetDir(target);
   if (!targetDir) {
@@ -214,7 +214,7 @@ export async function installCursorHooks(target: CursorInstallTarget): Promise<n
   const workerServicePath = findWorkerServicePath();
   if (!workerServicePath) {
     console.error('Could not find worker-service.cjs');
-    console.error('   Expected at: ~/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs');
+    console.error('   Expected at: ~/.codex/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs');
     return 1;
   }
 
@@ -292,12 +292,12 @@ Hooks installed to: ${targetDir}/hooks.json
 Using unified CLI: bun worker-service.cjs hook cursor <command>
 
 Next steps:
-  1. Start claude-mem worker: claude-mem start
+  1. Start codex-mem worker: codex-mem start
   2. Restart Cursor to load the hooks
   3. Check Cursor Settings → Hooks tab to verify
 
 Context Injection:
-  Context from past sessions is stored in .cursor/rules/claude-mem-context.mdc
+  Context from past sessions is stored in .cursor/rules/codex-mem-context.mdc
   and automatically included in every chat. It updates after each session ends.
 `);
 }
@@ -322,17 +322,17 @@ async function setupProjectContext(targetDir: string, workspaceRoot: string): Pr
   }
 
   if (!contextGenerated) {
-    const rulesFile = path.join(rulesDir, 'claude-mem-context.mdc');
+    const rulesFile = path.join(rulesDir, 'codex-mem-context.mdc');
     const placeholderContent = `---
 alwaysApply: true
-description: "Claude-mem context from past sessions (auto-updated)"
+description: "Codex-mem context from past sessions (auto-updated)"
 ---
 
 # Memory Context from Past Sessions
 
 *No context yet. Complete your first session and context will appear here.*
 
-Use claude-mem's MCP search tools for manual memory queries.
+Use codex-mem's MCP search tools for manual memory queries.
 `;
     writeFileSync(rulesFile, placeholderContent);
     console.log(`  Created placeholder context file (will populate after first session)`);
@@ -364,7 +364,7 @@ async function fetchInitialContextFromWorker(
 }
 
 export function uninstallCursorHooks(target: CursorInstallTarget): number {
-  console.log(`\nUninstalling Claude-Mem Cursor hooks (${target} level)...\n`);
+  console.log(`\nUninstalling Codex-Mem Cursor hooks (${target} level)...\n`);
 
   const targetDir = getTargetDir(target);
   if (!targetDir) {
@@ -413,7 +413,7 @@ function removeCursorHooksFiles(
   }
 
   if (target === 'project') {
-    const contextFile = path.join(targetDir, 'rules', 'claude-mem-context.mdc');
+    const contextFile = path.join(targetDir, 'rules', 'codex-mem-context.mdc');
     if (existsSync(contextFile)) {
       unlinkSync(contextFile);
       console.log(`  Removed context file`);
@@ -429,7 +429,7 @@ function removeCursorHooksFiles(
 }
 
 export function checkCursorHooksStatus(): number {
-  console.log('\nClaude-Mem Cursor Hooks Status\n');
+  console.log('\nCodex-Mem Cursor Hooks Status\n');
 
   const locations: Array<{ name: string; dir: string }> = [
     { name: 'Project', dir: path.join(process.cwd(), '.cursor') },
@@ -493,7 +493,7 @@ export function checkCursorHooksStatus(): number {
       }
 
       if (loc.name === 'Project') {
-        const contextFile = path.join(loc.dir, 'rules', 'claude-mem-context.mdc');
+        const contextFile = path.join(loc.dir, 'rules', 'codex-mem-context.mdc');
         if (existsSync(contextFile)) {
           console.log(`   Context: Active`);
         } else {
@@ -507,27 +507,27 @@ export function checkCursorHooksStatus(): number {
   }
 
   if (!anyInstalled) {
-    console.log('No hooks installed. Run: claude-mem cursor install\n');
+    console.log('No hooks installed. Run: codex-mem cursor install\n');
   }
 
   return 0;
 }
 
-export async function detectClaudeCode(): Promise<boolean> {
+export async function detectCodexCode(): Promise<boolean> {
   try {
-    const { stdout } = await execAsync('which claude || where claude', { timeout: 5000 });
+    const { stdout } = await execAsync('which codex || where codex', { timeout: 5000 });
     if (stdout.trim()) {
       return true;
     }
   } catch (error) {
     if (error instanceof Error) {
-      logger.debug('WORKER', 'Claude CLI not in PATH', {}, error);
+      logger.debug('WORKER', 'Codex CLI not in PATH', {}, error);
     } else {
-      logger.debug('WORKER', 'Claude CLI not in PATH', {}, new Error(String(error)));
+      logger.debug('WORKER', 'Codex CLI not in PATH', {}, new Error(String(error)));
     }
   }
 
-  const pluginDir = path.join(CLAUDE_CONFIG_DIR, 'plugins');
+  const pluginDir = path.join(CODEX_CONFIG_DIR, 'plugins');
   if (existsSync(pluginDir)) {
     return true;
   }
@@ -558,9 +558,9 @@ export async function handleCursorCommand(subcommand: string, args: string[]): P
 
     default: {
       console.log(`
-Claude-Mem Cursor Integration
+Codex-Mem Cursor Integration
 
-Usage: claude-mem cursor <command> [options]
+Usage: codex-mem cursor <command> [options]
 
 Commands:
   setup               Interactive guided setup (recommended for first-time users)
@@ -576,11 +576,11 @@ Commands:
 Examples:
   npm run cursor:setup                   # Interactive wizard (recommended)
   npm run cursor:install                 # Install for current project
-  claude-mem cursor install user         # Install globally for user
-  claude-mem cursor uninstall            # Remove from current project
-  claude-mem cursor status               # Check if hooks are installed
+  codex-mem cursor install user         # Install globally for user
+  codex-mem cursor uninstall            # Remove from current project
+  codex-mem cursor status               # Check if hooks are installed
 
-For more info: https://docs.claude-mem.ai/cursor
+For more info: https://docs.codex-mem.ai/cursor
       `);
       return 0;
     }

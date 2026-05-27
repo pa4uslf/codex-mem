@@ -5,8 +5,8 @@ const { existsSync, readFileSync } = require('fs');
 const path = require('path');
 const os = require('os');
 
-const INSTALLED_PATH = path.join(os.homedir(), '.claude', 'plugins', 'marketplaces', 'thedotmack');
-const CACHE_BASE_PATH = path.join(os.homedir(), '.claude', 'plugins', 'cache', 'thedotmack', 'claude-mem');
+const INSTALLED_PATH = path.join(os.homedir(), '.codex', 'plugins', 'marketplaces', 'thedotmack');
+const CACHE_BASE_PATH = path.join(os.homedir(), '.codex', 'plugins', 'cache', 'thedotmack', 'codex-mem');
 
 // Reject obviously invalid ports before they reach http.request, which would
 // throw with a confusing error like "RangeError: Port should be > 0 and < 65536".
@@ -67,7 +67,7 @@ if (branch && branch !== 'main' && !isForce) {
 
 function getPluginVersion() {
   try {
-    const pluginJsonPath = path.join(__dirname, '..', 'plugin', '.claude-plugin', 'plugin.json');
+    const pluginJsonPath = path.join(__dirname, '..', 'plugin', '.codex-legacy-plugin', 'plugin.json');
     const pluginJson = JSON.parse(readFileSync(pluginJsonPath, 'utf-8'));
     return pluginJson.version;
   } catch (error) {
@@ -77,13 +77,13 @@ function getPluginVersion() {
 }
 
 function detectInstalledVersion(buildVersion) {
-  const dataDir = process.env.CLAUDE_MEM_DATA_DIR || path.join(os.homedir(), '.claude-mem');
+  const dataDir = process.env.CODEX_MEM_DATA_DIR || path.join(os.homedir(), '.codex-mem');
   const settingsPath = path.join(dataDir, 'settings.json');
-  let port = parseWorkerPort(process.env.CLAUDE_MEM_WORKER_PORT);
+  let port = parseWorkerPort(process.env.CODEX_MEM_WORKER_PORT);
   if (!port && existsSync(settingsPath)) {
     try {
       const s = JSON.parse(readFileSync(settingsPath, 'utf8'));
-      const settingsPort = parseWorkerPort(s.CLAUDE_MEM_WORKER_PORT);
+      const settingsPort = parseWorkerPort(s.CODEX_MEM_WORKER_PORT);
       if (settingsPort) port = settingsPort;
     } catch {}
   }
@@ -121,12 +121,12 @@ if (installedMismatch) {
   console.log(`  Installed:  ${installedMismatch.installedVersion}`);
   if (installedMismatch.installedPath) console.log(`  Worker path: ${installedMismatch.installedPath}`);
   console.log('');
-  console.log('Claude Code is pinned to the installed version, so the worker loads from');
+  console.log('Codex Code is pinned to the installed version, so the worker loads from');
   console.log(`its cache dir. Mirroring this build into the installed-version cache so the`);
-  console.log('worker restart picks up new code without a Claude Code session restart.');
+  console.log('worker restart picks up new code without a Codex Code session restart.');
   console.log('');
-  console.log('\x1b[36m%s\x1b[0m', `For a formal version bump, run \`claude plugin update thedotmack/claude-mem\``);
-  console.log('\x1b[36m%s\x1b[0m', `and restart Claude Code so it loads the ${getPluginVersion()} cache dir.`);
+  console.log('\x1b[36m%s\x1b[0m', `For a formal version bump, run \`codex plugin update thedotmack/codex-mem\``);
+  console.log('\x1b[36m%s\x1b[0m', `and restart Codex Code so it loads the ${getPluginVersion()} cache dir.`);
   console.log('');
 }
 
@@ -136,13 +136,13 @@ try {
   const gitignoreExcludes = getGitignoreExcludes(rootDir);
 
   execSync(
-    `rsync -av --delete --exclude=.git --exclude=bun.lock --exclude=package-lock.json --exclude=scripts/package.json --exclude=scripts/node_modules ${gitignoreExcludes} ./ ~/.claude/plugins/marketplaces/thedotmack/`,
+    `rsync -av --delete --exclude=.git --exclude=bun.lock --exclude=package-lock.json --exclude=scripts/package.json --exclude=scripts/node_modules ${gitignoreExcludes} ./ ~/.codex/plugins/marketplaces/thedotmack/`,
     { stdio: 'inherit' }
   );
 
   console.log('Running bun install in marketplace...');
   execSync(
-    'cd ~/.claude/plugins/marketplaces/thedotmack/ && bun install',
+    'cd ~/.codex/plugins/marketplaces/thedotmack/ && bun install',
     { stdio: 'inherit' }
   );
 
@@ -176,13 +176,13 @@ try {
 
   console.log('\n🔄 Triggering worker restart...');
   const http = require('http');
-  const dataDir = process.env.CLAUDE_MEM_DATA_DIR || path.join(os.homedir(), '.claude-mem');
+  const dataDir = process.env.CODEX_MEM_DATA_DIR || path.join(os.homedir(), '.codex-mem');
   const settingsPath = path.join(dataDir, 'settings.json');
   let settingsPort = null;
   if (existsSync(settingsPath)) {
     try {
       const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
-      settingsPort = parseWorkerPort(settings.CLAUDE_MEM_WORKER_PORT);
+      settingsPort = parseWorkerPort(settings.CODEX_MEM_WORKER_PORT);
     } catch {
       // fall through to env / default
     }
@@ -190,7 +190,7 @@ try {
   const uid = typeof process.getuid === 'function' ? process.getuid() : 77;
   const defaultPort = 37700 + (uid % 100);
   const workerPort =
-    parseWorkerPort(process.env.CLAUDE_MEM_WORKER_PORT) ??
+    parseWorkerPort(process.env.CODEX_MEM_WORKER_PORT) ??
     settingsPort ??
     defaultPort;
   const req = http.request({

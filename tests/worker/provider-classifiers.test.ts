@@ -3,7 +3,7 @@ import {
   ClassifiedProviderError,
   isClassified,
 } from '../../src/services/worker/provider-errors.js';
-import { classifyClaudeError } from '../../src/services/worker/ClaudeProvider.js';
+import { classifyCodexError } from '../../src/services/worker/CodexProvider.js';
 import { classifyGeminiError } from '../../src/services/worker/GeminiProvider.js';
 import { classifyOpenRouterError } from '../../src/services/worker/OpenRouterProvider.js';
 
@@ -160,7 +160,7 @@ describe('classifyOpenRouterError', () => {
   });
 });
 
-describe('classifyClaudeError', () => {
+describe('classifyCodexError', () => {
   it('classifies SDK-level OverloadedError as transient', () => {
     class OverloadedError extends Error {
       constructor() {
@@ -168,71 +168,71 @@ describe('classifyClaudeError', () => {
         this.name = 'OverloadedError';
       }
     }
-    const err = classifyClaudeError(new OverloadedError());
+    const err = classifyCodexError(new OverloadedError());
     expect(isClassified(err)).toBe(true);
     expect(err.kind).toBe('transient');
   });
 
   it('classifies 529 status as transient', () => {
     const sdkErr = Object.assign(new Error('overloaded'), { status: 529 });
-    const err = classifyClaudeError(sdkErr);
+    const err = classifyCodexError(sdkErr);
     expect(err.kind).toBe('transient');
   });
 
-  it('classifies anthropic error.type=overloaded_error as transient', () => {
+  it('classifies codex error.type=overloaded_error as transient', () => {
     const sdkErr = Object.assign(new Error('upstream'), {
       error: { type: 'overloaded_error' },
     });
-    const err = classifyClaudeError(sdkErr);
+    const err = classifyCodexError(sdkErr);
     expect(err.kind).toBe('transient');
   });
 
   it('classifies "Invalid API key" message as auth_invalid', () => {
-    const err = classifyClaudeError(new Error('Invalid API key: configure ~/.claude-mem/.env'));
+    const err = classifyCodexError(new Error('Invalid API key: configure ~/.codex-mem/.env'));
     expect(err.kind).toBe('auth_invalid');
   });
 
   it('classifies status=401 as auth_invalid', () => {
     const sdkErr = Object.assign(new Error('unauthorized'), { status: 401 });
-    const err = classifyClaudeError(sdkErr);
+    const err = classifyCodexError(sdkErr);
     expect(err.kind).toBe('auth_invalid');
   });
 
   it('classifies ENOENT spawn error as unrecoverable', () => {
-    const spawnErr = Object.assign(new Error('spawn claude ENOENT'), { code: 'ENOENT' });
-    const err = classifyClaudeError(spawnErr);
+    const spawnErr = Object.assign(new Error('spawn codex ENOENT'), { code: 'ENOENT' });
+    const err = classifyCodexError(spawnErr);
     expect(err.kind).toBe('unrecoverable');
   });
 
-  it('classifies "Claude executable not found" as unrecoverable', () => {
-    const err = classifyClaudeError(new Error('Claude executable not found at $CLAUDE_CODE_PATH'));
+  it('classifies "Codex executable not found" as unrecoverable', () => {
+    const err = classifyCodexError(new Error('Codex executable not found at $CODEX_CODE_PATH'));
     expect(err.kind).toBe('unrecoverable');
   });
 
   it('classifies prompt-too-long as unrecoverable', () => {
-    const err = classifyClaudeError(new Error('Claude session context overflow: prompt is too long'));
+    const err = classifyCodexError(new Error('Codex session context overflow: prompt is too long'));
     expect(err.kind).toBe('unrecoverable');
   });
 
   it('classifies status=429 as rate_limit', () => {
     const sdkErr = Object.assign(new Error('rate limited'), { status: 429 });
-    const err = classifyClaudeError(sdkErr);
+    const err = classifyCodexError(sdkErr);
     expect(err.kind).toBe('rate_limit');
   });
 
   it('classifies "quota exceeded" message as quota_exhausted', () => {
-    const err = classifyClaudeError(new Error('upstream: quota exceeded'));
+    const err = classifyCodexError(new Error('upstream: quota exceeded'));
     expect(err.kind).toBe('quota_exhausted');
   });
 
   it('classifies status=503 as transient', () => {
     const sdkErr = Object.assign(new Error('service unavailable'), { status: 503 });
-    const err = classifyClaudeError(sdkErr);
+    const err = classifyCodexError(sdkErr);
     expect(err.kind).toBe('transient');
   });
 
   it('classifies unknown error as transient (preserve old default)', () => {
-    const err = classifyClaudeError(new Error('something weird happened'));
+    const err = classifyCodexError(new Error('something weird happened'));
     expect(err.kind).toBe('transient');
   });
 });

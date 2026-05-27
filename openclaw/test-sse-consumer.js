@@ -1,5 +1,5 @@
 
-import claudeMemPlugin from "./dist/index.js";
+import codexMemPlugin from "./dist/index.js";
 
 let registeredService = null;
 const registeredCommands = new Map();
@@ -7,10 +7,10 @@ const eventHandlers = new Map();
 const logs = [];
 
 const mockApi = {
-  id: "claude-mem",
-  name: "Claude-Mem (Persistent Memory)",
+  id: "codex-mem",
+  name: "Codex-Mem (Persistent Memory)",
   version: "1.0.0",
-  source: "/test/extensions/claude-mem/dist/index.js",
+  source: "/test/extensions/codex-mem/dist/index.js",
   config: {},
   pluginConfig: {},
   logger: {
@@ -43,34 +43,34 @@ const mockApi = {
   },
 };
 
-claudeMemPlugin(mockApi);
+codexMemPlugin(mockApi);
 
 let failures = 0;
 
 if (!registeredService) {
   console.error("FAIL: No service was registered");
   failures++;
-} else if (registeredService.id !== "claude-mem-observation-feed") {
+} else if (registeredService.id !== "codex-mem-observation-feed") {
   console.error(
-    `FAIL: Service ID is "${registeredService.id}", expected "claude-mem-observation-feed"`
+    `FAIL: Service ID is "${registeredService.id}", expected "codex-mem-observation-feed"`
   );
   failures++;
 } else {
-  console.log("OK: Service registered with id 'claude-mem-observation-feed'");
+  console.log("OK: Service registered with id 'codex-mem-observation-feed'");
 }
 
-if (!registeredCommands.has("claude-mem-feed")) {
-  console.error("FAIL: No 'claude-mem-feed' command registered");
+if (!registeredCommands.has("codex-mem-feed")) {
+  console.error("FAIL: No 'codex-mem-feed' command registered");
   failures++;
 } else {
-  console.log("OK: Command registered with name 'claude-mem-feed'");
+  console.log("OK: Command registered with name 'codex-mem-feed'");
 }
 
-if (!registeredCommands.has("claude-mem-status")) {
-  console.error("FAIL: No 'claude-mem-status' command registered");
+if (!registeredCommands.has("codex-mem-status")) {
+  console.error("FAIL: No 'codex-mem-status' command registered");
   failures++;
 } else {
-  console.log("OK: Command registered with name 'claude-mem-status'");
+  console.log("OK: Command registered with name 'codex-mem-status'");
 }
 
 const expectedEvents = ["before_agent_start", "tool_result_persist", "agent_end", "gateway_start"];

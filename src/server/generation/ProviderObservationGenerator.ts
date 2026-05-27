@@ -50,7 +50,7 @@ export class ServerGenerationScopeViolationError extends Error {
 // Anti-pattern guards verified at the boundary:
 //   - no imports from src/services/worker/*
 //   - no use of WorkerRef / ActiveSession / SessionStore
-//   - no assumption of Claude Code transcript shape
+//   - no assumption of Codex Code transcript shape
 
 export interface ProviderObservationGeneratorOptions {
   pool: PostgresPool;

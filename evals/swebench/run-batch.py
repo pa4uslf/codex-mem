@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Batch orchestrator for SWE-bench evaluation of Claude Code + claude-mem.
+Batch orchestrator for SWE-bench evaluation of Codex Code + codex-mem.
 
 Iterates a list of SWE-bench Verified instances, launches a per-instance Docker
-container (`claude-mem/swebench-agent:latest`) that runs the two-turn
+container (`codex-mem/swebench-agent:latest`) that runs the two-turn
 ingest/fix protocol, and collects all resulting diffs into a single
 `predictions.jsonl` compatible with the upstream SWE-bench harness.
 
 Usage:
     python evals/swebench/run-batch.py \
-        --run-id claude-mem-baseline-001 \
+        --run-id codex-mem-baseline-001 \
         --limit 3 \
         --max-concurrent 2
 
-Rate-limit note: Anthropic API rate limits can bite quickly. The default
+Rate-limit note: Codex API rate limits can bite quickly. The default
 `--max-concurrent` is 4, but it is safer to START WITH 2 and raise the cap
 only after observing no 429s in the logs.
 """
@@ -48,14 +48,14 @@ HIDDEN_AGENT_FIELDS = (
 
 def extract_oauth_credentials() -> Path | None:
     """
-    Extract Claude Code OAuth credentials (from a Max/Pro subscription) to a
+    Extract Codex Code OAuth credentials (from a Max/Pro subscription) to a
     temp file the container can bind-mount. Returns the temp file path, or
     None if extraction failed / no creds present.
 
-    macOS: creds live in the Keychain under service "Claude Code-credentials".
-    Linux: creds live at ~/.claude/.credentials.json.
+    macOS: creds live in the Keychain under service "Codex Code-credentials".
+    Linux: creds live at ~/.codex/.credentials.json.
 
-    CAVEAT: Anthropic Max/Pro subscriptions have usage limits (per ~5h window)
+    CAVEAT: Codex Max/Pro subscriptions have usage limits (per ~5h window)
     and their ToS is framed around individual developer use. Running batch
     evaluation across parallel containers may exhaust the quota quickly or
     raise compliance concerns. This helper exists because the user explicitly
@@ -66,7 +66,7 @@ def extract_oauth_credentials() -> Path | None:
     Keychain/file is untouched).
     """
     temp = tempfile.NamedTemporaryFile(
-        prefix="claude-mem-creds-",
+        prefix="codex-mem-creds-",
         suffix=".json",
         delete=False,
     )
@@ -81,7 +81,7 @@ def extract_oauth_credentials() -> Path | None:
                     "security",
                     "find-generic-password",
                     "-s",
-                    "Claude Code-credentials",
+                    "Codex Code-credentials",
                     "-w",
                 ],
                 capture_output=True,
@@ -98,7 +98,7 @@ def extract_oauth_credentials() -> Path | None:
                 file=sys.stderr,
             )
 
-    creds_file = Path.home() / ".claude" / ".credentials.json"
+    creds_file = Path.home() / ".codex" / ".credentials.json"
     if creds_file.exists():
         temp_path.write_text(creds_file.read_text(encoding="utf-8"), encoding="utf-8")
         temp_path.chmod(stat.S_IRUSR | stat.S_IWUSR)
@@ -106,16 +106,16 @@ def extract_oauth_credentials() -> Path | None:
 
     if platform.system() == "Darwin":
         print(
-            "WARN: Claude Code-credentials not found in macOS Keychain and "
-            "~/.claude/.credentials.json missing. Run `claude login` on the "
-            "host first, or fall back to ANTHROPIC_API_KEY.",
+            "WARN: Codex Code-credentials not found in macOS Keychain and "
+            "~/.codex/.credentials.json missing. Run `codex login` on the "
+            "host first, or fall back to CODEX_API_KEY.",
             file=sys.stderr,
         )
     return None
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run the claude-mem SWE-bench agent on a batch of instances.",
+        description="Run the codex-mem SWE-bench agent on a batch of instances.",
     )
     parser.add_argument(
         "--instance-ids",
@@ -156,7 +156,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--image",
         type=str,
-        default="claude-mem/swebench-agent:latest",
+        default="codex-mem/swebench-agent:latest",
         help="Agent Docker image tag.",
     )
     parser.add_argument(
@@ -170,9 +170,9 @@ def parse_args() -> argparse.Namespace:
         choices=["oauth", "api-key", "auto"],
         default="auto",
         help=(
-            "Auth mode. 'oauth' extracts Claude Max/Pro creds from host "
-            "Keychain (macOS) or ~/.claude/.credentials.json (Linux). "
-            "'api-key' uses ANTHROPIC_API_KEY env. 'auto' prefers oauth, "
+            "Auth mode. 'oauth' extracts Codex Max/Pro creds from host "
+            "Keychain (macOS) or ~/.codex/.credentials.json (Linux). "
+            "'api-key' uses CODEX_API_KEY env. 'auto' prefers oauth, "
             "falls back to api-key."
         ),
     )
@@ -279,19 +279,19 @@ def run_one_instance(
             "--name",
             container_name,
             "-e",
-            "CLAUDE_MEM_OUTPUT_DIR=/scratch",
+            "CODEX_MEM_OUTPUT_DIR=/scratch",
             "-v",
             f"{scratch_dir}:/scratch",
         ]
         if oauth_creds_path is not None:
             cmd += [
                 "-e",
-                "CLAUDE_MEM_CREDENTIALS_FILE=/auth/.credentials.json",
+                "CODEX_MEM_CREDENTIALS_FILE=/auth/.credentials.json",
                 "-v",
                 f"{oauth_creds_path}:/auth/.credentials.json:ro",
             ]
         else:
-            cmd += ["-e", "ANTHROPIC_API_KEY"]
+            cmd += ["-e", "CODEX_API_KEY"]
         cmd += [
             image,
             instance_id,
@@ -426,14 +426,14 @@ def main() -> int:
             return 1
 
     if oauth_creds_path is None:
-        if not os.environ.get("ANTHROPIC_API_KEY"):
+        if not os.environ.get("CODEX_API_KEY"):
             print(
-                "ERROR: no auth available. Either run `claude login` on host "
-                "(for OAuth) or set ANTHROPIC_API_KEY.",
+                "ERROR: no auth available. Either run `codex login` on host "
+                "(for OAuth) or set CODEX_API_KEY.",
                 file=sys.stderr,
             )
             return 1
-        print("Auth: ANTHROPIC_API_KEY (pay-per-call).", file=sys.stderr)
+        print("Auth: CODEX_API_KEY (pay-per-call).", file=sys.stderr)
 
     print(f"Loading dataset {args.dataset} (split=test)...", file=sys.stderr)
     dataset = load_dataset(args.dataset, split="test")
@@ -448,7 +448,7 @@ def main() -> int:
         for key in HIDDEN_AGENT_FIELDS:
             row.pop(key, None)
 
-    model_name_or_path = "claude-opus-4-7+claude-mem"
+    model_name_or_path = "codex-opus-4-7+codex-mem"
 
     print(
         f"Launching {total} instance(s) with max_concurrent={args.max_concurrent}, "

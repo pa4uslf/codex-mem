@@ -21,8 +21,8 @@ export function SummaryCard({ summary }: SummaryCardProps) {
       <header className="summary-card-header">
         <div className="summary-badge-row">
           <span className="card-type summary-badge">Session Summary</span>
-          <span className={`card-source source-${summary.platform_source || 'claude'}`}>
-            {summary.platform_source || 'claude'}
+          <span className={`card-source source-${summary.platform_source || 'codex'}`}>
+            {summary.platform_source || 'codex'}
           </span>
           <span className="summary-project-badge">{summary.project}</span>
         </div>

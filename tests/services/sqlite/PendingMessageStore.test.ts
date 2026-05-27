@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from 'bun:test';
 import type { Database } from 'bun:sqlite';
-import { ClaudeMemDatabase } from '../../../src/services/sqlite/Database.js';
+import { CodexMemDatabase } from '../../../src/services/sqlite/Database.js';
 import { SessionStore } from '../../../src/services/sqlite/SessionStore.js';
 import { PendingMessageStore } from '../../../src/services/sqlite/PendingMessageStore.js';
 import { createSDKSession } from '../../../src/services/sqlite/Sessions.js';
@@ -60,7 +60,7 @@ function rebuildPendingMessagesWithoutToolUseId(db: Database): void {
   db.run('ALTER TABLE pending_messages_without_tool_use_id RENAME TO pending_messages');
   db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_session ON pending_messages(session_db_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_status ON pending_messages(status)');
-  db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_claude_session ON pending_messages(content_session_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_codex_session ON pending_messages(content_session_id)');
 }
 
 function rebuildLegacyPendingMessagesWithDeadColumns(db: Database): void {
@@ -94,7 +94,7 @@ function rebuildLegacyPendingMessagesWithDeadColumns(db: Database): void {
   `);
   db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_session ON pending_messages(session_db_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_status ON pending_messages(status)');
-  db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_claude_session ON pending_messages(content_session_id)');
+  db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_codex_session ON pending_messages(content_session_id)');
   db.run('CREATE INDEX IF NOT EXISTS idx_pending_messages_worker_pid ON pending_messages(worker_pid)');
 }
 
@@ -323,7 +323,7 @@ describe('PendingMessageStore', () => {
   const CONTENT_SESSION_ID = 'test-queue-store';
 
   beforeEach(() => {
-    db = new ClaudeMemDatabase(':memory:').db;
+    db = new CodexMemDatabase(':memory:').db;
     store = new PendingMessageStore(db);
     sessionDbId = createSDKSession(db, CONTENT_SESSION_ID, 'test-project', 'Test prompt');
   });

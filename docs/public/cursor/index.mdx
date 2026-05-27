@@ -7,7 +7,7 @@ description: "Persistent AI memory for Cursor IDE - free tier options available"
 
 > **Your AI stops forgetting. Give Cursor persistent memory.**
 
-Every Cursor session starts fresh - your AI doesn't remember what it worked on yesterday. Claude-mem changes that. Your agent builds cumulative knowledge about your codebase, decisions, and patterns over time.
+Every Cursor session starts fresh - your AI doesn't remember what it worked on yesterday. Codex-mem changes that. Your agent builds cumulative knowledge about your codebase, decisions, and patterns over time.
 
 <CardGroup cols={2}>
   <Card title="Free to Start" icon="dollar-sign">
@@ -20,17 +20,17 @@ Every Cursor session starts fresh - your AI doesn't remember what it worked on y
     Relevant history injected into every chat session
   </Card>
   <Card title="Works Everywhere" icon="check">
-    With or without Claude Code subscription
+    With or without Codex Code subscription
   </Card>
 </CardGroup>
 
 <Info>
-**No Claude Code subscription required.** Use Gemini (free tier) or OpenRouter as your AI provider.
+**No Codex Code subscription required.** Use Gemini (free tier) or OpenRouter as your AI provider.
 </Info>
 
 ## How It Works
 
-Claude-mem integrates with Cursor through native hooks:
+Codex-mem integrates with Cursor through native hooks:
 
 1. **Session hooks** capture tool usage, file edits, and shell commands
 2. **AI extraction** compresses observations into semantic summaries
@@ -41,21 +41,21 @@ Claude-mem integrates with Cursor through native hooks:
 
 Choose the installation method that fits your setup:
 
-### Path A: Cursor-Only Users (No Claude Code)
+### Path A: Cursor-Only Users (No Codex Code)
 
-If you're using Cursor without a Claude Code subscription:
+If you're using Cursor without a Codex Code subscription:
 
 ```bash
 # Clone and build
-git clone https://github.com/thedotmack/claude-mem.git
-cd claude-mem && bun install && bun run build
+git clone https://github.com/thedotmack/codex-mem.git
+cd codex-mem && bun install && bun run build
 
 # Run interactive setup wizard
 bun run cursor:setup
 ```
 
 The setup wizard will:
-- Detect you don't have Claude Code
+- Detect you don't have Codex Code
 - Help you choose and configure a free AI provider (Gemini recommended)
 - Install hooks automatically
 - Start the worker service
@@ -64,20 +64,20 @@ The setup wizard will:
 - [Gemini Setup](/cursor/gemini-setup) - Recommended free option (1500 req/day)
 - [OpenRouter Setup](/cursor/openrouter-setup) - 100+ models including free options
 
-### Path B: Claude Code Users
+### Path B: Codex Code Users
 
-If you have Claude Code installed:
+If you have Codex Code installed:
 
 ```bash
 # Install the plugin (if not already)
-/plugin marketplace add thedotmack/claude-mem
-/plugin install claude-mem
+/plugin marketplace add thedotmack/codex-mem
+/plugin install codex-mem
 
 # Install Cursor hooks
-claude-mem cursor install
+codex-mem cursor install
 ```
 
-The plugin uses Claude's SDK by default but you can switch to Gemini or OpenRouter anytime.
+The plugin uses Codex's SDK by default but you can switch to Gemini or OpenRouter anytime.
 
 ## Prerequisites
 
@@ -102,7 +102,7 @@ The plugin uses Claude's SDK by default but you can switch to Gemini or OpenRout
 
 ## Quick Commands Reference
 
-After installation, these commands are available from the claude-mem directory:
+After installation, these commands are available from the codex-mem directory:
 
 | Command | Description |
 |---------|-------------|
@@ -139,10 +139,10 @@ After setup, verify everything is working:
 |----------|------|------------|----------|
 | Gemini | Free tier | 1500 req/day | Individual use, getting started |
 | OpenRouter | Pay-per-use + free models | Varies by model | Model variety, high volume |
-| Claude SDK | Included with Claude Code | Unlimited | Claude Code subscribers |
+| Codex CLI | Included with Codex Code | Unlimited | Codex Code subscribers |
 
 <Tip>
-**Recommendation:** Start with Gemini's free tier. It handles typical individual usage well. Switch to OpenRouter or Claude SDK if you need higher limits.
+**Recommendation:** Start with Gemini's free tier. It handles typical individual usage well. Switch to OpenRouter or Codex CLI if you need higher limits.
 </Tip>
 
 ## Troubleshooting

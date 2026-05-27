@@ -14,7 +14,7 @@ describe('server storage Zod schemas', () => {
     const now = Date.now();
     const project = ProjectSchema.parse({
       id: 'project-1',
-      name: 'Claude Mem',
+      name: 'Codex Mem',
       createdAtEpoch: now,
       updatedAtEpoch: now
     });
@@ -67,7 +67,7 @@ describe('server storage Zod schemas', () => {
     });
 
     expect(project.metadata).toEqual({});
-    expect(session.platformSource).toBe('claude');
+    expect(session.platformSource).toBe('codex');
     expect(memoryItem.facts).toEqual([]);
     expect(event.payload).toEqual({});
     expect(team.metadata).toEqual({});

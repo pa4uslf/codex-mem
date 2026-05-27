@@ -1,6 +1,6 @@
 # README Translator
 
-Translate README.md files to multiple languages using the Claude Agent SDK. Perfect for build scripts and CI/CD pipelines.
+Translate README.md files to multiple languages using the Codex CLI. Perfect for build scripts and CI/CD pipelines.
 
 ## Installation
 
@@ -14,12 +14,12 @@ npm install -g readme-translator  # for CLI usage
 
 - Node.js 18+
 - **Authentication** (one of the following):
-  - Claude Code installed and authenticated (Pro/Max subscription) - **no API key needed**
-  - `ANTHROPIC_API_KEY` environment variable set (for API-based usage)
-  - AWS Bedrock (`CLAUDE_CODE_USE_BEDROCK=1` + AWS credentials)
-  - Google Vertex AI (`CLAUDE_CODE_USE_VERTEX=1` + GCP credentials)
+  - Codex Code installed and authenticated (Pro/Max subscription) - **no API key needed**
+  - `CODEX_API_KEY` environment variable set (for API-based usage)
+  - AWS Bedrock (`CODEX_CODE_USE_BEDROCK=1` + AWS credentials)
+  - Google Vertex AI (`CODEX_CODE_USE_VERTEX=1` + GCP credentials)
 
-If you have Claude Code installed and logged in with your Pro/Max subscription, the SDK will automatically use that authentication.
+If you have Codex Code installed and logged in with your Pro/Max subscription, the SDK will automatically use that authentication.
 
 ## CLI Usage
 
@@ -41,7 +41,7 @@ translate-readme --list-languages
 | `-o, --output <dir>` | Output directory (default: same as source) |
 | `-p, --pattern <pat>` | Output filename pattern (default: `README.{lang}.md`) |
 | `--no-preserve-code` | Translate code blocks too (not recommended) |
-| `-m, --model <model>` | Claude model to use (default: `sonnet`) |
+| `-m, --model <model>` | Codex model to use (default: `gpt-5`) |
 | `--max-budget <usd>` | Maximum budget in USD |
 | `--use-existing` | Use existing translation file as a reference |
 | `-v, --verbose` | Show detailed progress |
@@ -82,8 +82,8 @@ interface TranslationOptions {
   /** Preserve code blocks without translation */
   preserveCode?: boolean; // default: true
 
-  /** Claude model to use */
-  model?: string; // default: "sonnet"
+  /** Codex model to use */
+  model?: string; // default: "gpt-5"
 
   /** Maximum budget in USD */
   maxBudgetUsd?: number;
@@ -131,7 +131,7 @@ interface TranslationResult {
 
 ### GitHub Actions
 
-Note: CI/CD environments require an API key since Claude Code won't be authenticated there.
+Note: CI/CD environments require an API key since Codex Code won't be authenticated there.
 
 ```yaml
 name: Translate README
@@ -154,7 +154,7 @@ jobs:
       
       - name: Translate README
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          CODEX_API_KEY: ${{ secrets.CODEX_API_KEY }}
         run: |
           translate-readme -v -o ./i18n README.md es fr de ja zh
       

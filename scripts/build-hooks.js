@@ -2,10 +2,47 @@
 
 import { build } from 'esbuild';
 import fs from 'fs';
+import { builtinModules, createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.join(__dirname, '..');
+const require = createRequire(import.meta.url);
+const builtinModuleNames = new Set([
+  ...builtinModules,
+  ...builtinModules.map(moduleName => `node:${moduleName}`),
+]);
+const optionalExternalDependencies = new Set(['pg-native']);
+
+const forceLocalNodeModulesPlugin = {
+  name: 'force-local-node-modules',
+  setup(build) {
+    const externalDependencies = new Set(build.initialOptions.external ?? []);
+
+    build.onResolve({ filter: /.*/ }, args => {
+      if (
+        args.path.startsWith('.') ||
+        args.path.startsWith('/') ||
+        /^[A-Za-z]:/.test(args.path) ||
+        externalDependencies.has(args.path)
+      ) {
+        return;
+      }
+
+      if (args.path.startsWith('bun:') || builtinModuleNames.has(args.path)) {
+        return { path: args.path, external: true };
+      }
+      if (optionalExternalDependencies.has(args.path)) {
+        return { path: args.path, external: true };
+      }
+
+      return {
+        path: require.resolve(args.path, { paths: [rootDir] }),
+      };
+    });
+  },
+};
 
 const WORKER_SERVICE = {
   name: 'worker-service',
@@ -50,7 +87,7 @@ function stripHardcodedDirname(filePath) {
 }
 
 async function buildHooks() {
-  console.log('🔨 Building claude-mem hooks and worker service...\n');
+  console.log('🔨 Building codex-mem hooks and worker service...\n');
 
   try {
     const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
@@ -71,10 +108,10 @@ async function buildHooks() {
 
     console.log('\n📦 Generating plugin package.json...');
     const pluginPackageJson = {
-      name: 'claude-mem-plugin',
+      name: 'codex-mem-plugin',
       version: version,
       private: true,
-      description: 'Runtime dependencies for claude-mem bundled hooks',
+      description: 'Runtime dependencies for codex-mem bundled hooks',
       type: 'module',
       dependencies: {
         'zod': '^4.3.6',
@@ -142,6 +179,7 @@ async function buildHooks() {
       outfile: `${hooksDir}/${WORKER_SERVICE.name}.cjs`,
       minify: true,
       logLevel: 'error', // Suppress warnings (import.meta warning is benign)
+      plugins: [forceLocalNodeModulesPlugin],
       external: [
         'bun:sqlite',
         'zod',
@@ -153,8 +191,8 @@ async function buildHooks() {
       define: {
         '__DEFAULT_PACKAGE_VERSION__': `"${version}"`,
         // Polyfill import.meta.url for ESM deps bundled into CJS output.
-        // @anthropic-ai/claude-agent-sdk's *.mjs files use createRequire(import.meta.url)
-        // and `new URL(rel, import.meta.url)`. We map import.meta.url to a file:// URL
+        // Some ESM dependencies use createRequire(import.meta.url) and
+        // `new URL(rel, import.meta.url)`. We map import.meta.url to a file:// URL
         // (not the raw __filename path) so URL construction preserves its semantics.
         'import.meta.url': '__IMPORT_META_URL__'
       },
@@ -184,6 +222,7 @@ async function buildHooks() {
       outfile: `${hooksDir}/${SERVER_BETA_SERVICE.name}.cjs`,
       minify: true,
       logLevel: 'error',
+      plugins: [forceLocalNodeModulesPlugin],
       external: [
         'bun:sqlite',
         'zod',
@@ -216,6 +255,7 @@ async function buildHooks() {
       outfile: `${hooksDir}/${MCP_SERVER.name}.cjs`,
       minify: true,
       logLevel: 'error',
+      plugins: [forceLocalNodeModulesPlugin],
       external: [
         'bun:sqlite',
         'tree-sitter-cli',
@@ -270,7 +310,7 @@ async function buildHooks() {
     const zodRequireMatch = mcpBundleContent.match(zodRequireRegex);
     if (zodRequireMatch) {
       throw new Error(
-        `mcp-server.cjs contains external ${zodRequireMatch[0]}. Claude Desktop can launch this bundle without plugin node_modules available, so Zod must be bundled into the MCP server.`
+        `mcp-server.cjs contains external ${zodRequireMatch[0]}. Codex Desktop can launch this bundle without plugin node_modules available, so Zod must be bundled into the MCP server.`
       );
     }
 
@@ -291,6 +331,7 @@ async function buildHooks() {
       outfile: `${hooksDir}/${CONTEXT_GENERATOR.name}.cjs`,
       minify: true,
       logLevel: 'error',
+      plugins: [forceLocalNodeModulesPlugin],
       external: ['bun:sqlite', 'zod'],
       define: {
         '__DEFAULT_PACKAGE_VERSION__': `"${version}"`
@@ -318,6 +359,7 @@ async function buildHooks() {
       banner: { js: '#!/usr/bin/env node' },
       minify: true,
       logLevel: 'error',
+      plugins: [forceLocalNodeModulesPlugin],
       external: [
         'fs', 'fs/promises', 'path', 'os', 'child_process', 'url',
         'crypto', 'http', 'https', 'net', 'stream', 'util', 'events',
@@ -348,6 +390,7 @@ async function buildHooks() {
         outfile: `${openclawOutDir}/index.js`,
         minify: true,
         logLevel: 'error',
+        plugins: [forceLocalNodeModulesPlugin],
         external: [
           'fs', 'fs/promises', 'path', 'os', 'child_process', 'url',
           'crypto', 'http', 'https', 'net', 'stream', 'util', 'events',
@@ -373,6 +416,7 @@ async function buildHooks() {
         outfile: `${opencodeOutDir}/index.js`,
         minify: true,
         logLevel: 'error',
+        plugins: [forceLocalNodeModulesPlugin],
         external: [
           'fs', 'fs/promises', 'path', 'os', 'child_process', 'url',
           'crypto', 'http', 'https', 'net', 'stream', 'util', 'events',
@@ -410,7 +454,7 @@ async function buildHooks() {
       'plugin/hooks/hooks.json',
       'plugin/hooks/codex-hooks.json',
       'plugin/scripts/bun-runner.js',
-      'plugin/.claude-plugin/plugin.json',
+      'plugin/.codex-legacy-plugin/plugin.json',
       'plugin/.codex-plugin/plugin.json',
       'plugin/.mcp.json',
       '.codex-plugin/plugin.json',
@@ -428,17 +472,17 @@ async function buildHooks() {
       }
     }
     const codexMarketplace = JSON.parse(fs.readFileSync('.agents/plugins/marketplace.json', 'utf-8'));
-    const claudeMemMarketplaceEntry = (codexMarketplace.plugins ?? []).find((plugin) => plugin.name === 'claude-mem');
-    if (claudeMemMarketplaceEntry?.source?.path !== './plugin') {
-      throw new Error('.agents/plugins/marketplace.json must point claude-mem source.path at ./plugin so Codex loads the bundled plugin root');
+    const codexMemMarketplaceEntry = (codexMarketplace.plugins ?? []).find((plugin) => plugin.name === 'codex-mem');
+    if (codexMemMarketplaceEntry?.source?.path !== './plugin') {
+      throw new Error('.agents/plugins/marketplace.json must point codex-mem source.path at ./plugin so Codex loads the bundled plugin root');
     }
     const bundledMcp = JSON.parse(fs.readFileSync('plugin/.mcp.json', 'utf-8'));
     const mcpSearchCommand = bundledMcp.mcpServers?.['mcp-search']?.args?.join(' ') ?? '';
-    if (!mcpSearchCommand.includes('.codex/plugins/cache/claude-mem-local/claude-mem')) {
+    if (!mcpSearchCommand.includes('.codex/plugins/cache/codex-mem-local/codex-mem')) {
       throw new Error('plugin/.mcp.json mcp-search launcher must include Codex cache fallback for hosts that do not inject PLUGIN_ROOT');
     }
-    if (!mcpSearchCommand.includes('plugins/cache/thedotmack/claude-mem')) {
-      throw new Error('plugin/.mcp.json mcp-search launcher must include Claude cache fallback for hosts that do not inject PLUGIN_ROOT');
+    if (!mcpSearchCommand.includes('plugins/cache/thedotmack/codex-mem')) {
+      throw new Error('plugin/.mcp.json mcp-search launcher must include Codex cache fallback for hosts that do not inject PLUGIN_ROOT');
     }
     console.log('✓ All required distribution files present');
 

@@ -14,7 +14,7 @@ export interface Migration {
 
 let dbInstance: Database | null = null;
 
-export class ClaudeMemDatabase {
+export class CodexMemDatabase {
   public db: Database;
 
   constructor(dbPath: string = DB_PATH) {

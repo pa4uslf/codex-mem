@@ -26,14 +26,14 @@ describe('Context Injection', () => {
 
   describe('tag constants', () => {
     it('exports correct open and close tags', () => {
-      expect(CONTEXT_TAG_OPEN).toBe('<claude-mem-context>');
-      expect(CONTEXT_TAG_CLOSE).toBe('</claude-mem-context>');
+      expect(CONTEXT_TAG_OPEN).toBe('<codex-mem-context>');
+      expect(CONTEXT_TAG_CLOSE).toBe('</codex-mem-context>');
     });
   });
 
   describe('inject into new file', () => {
     it('creates a new file with context tags when file does not exist', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
 
       injectContextIntoMarkdownFile(filePath, 'Hello world');
 
@@ -45,7 +45,7 @@ describe('Context Injection', () => {
     });
 
     it('creates parent directories if they do not exist', () => {
-      const filePath = join(tempDir, 'nested', 'deep', 'CLAUDE.md');
+      const filePath = join(tempDir, 'nested', 'deep', 'CODEX.md');
 
       injectContextIntoMarkdownFile(filePath, 'test content');
 
@@ -53,7 +53,7 @@ describe('Context Injection', () => {
     });
 
     it('writes content wrapped in context tags', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
       const contextContent = '# Recent Activity\n\nSome memory data here.';
 
       injectContextIntoMarkdownFile(filePath, contextContent);
@@ -67,7 +67,7 @@ describe('Context Injection', () => {
   describe('headerLine support', () => {
     it('prepends headerLine when creating a new file', () => {
       const filePath = join(tempDir, 'AGENTS.md');
-      const headerLine = '# Claude-Mem Memory Context';
+      const headerLine = '# Codex-Mem Memory Context';
 
       injectContextIntoMarkdownFile(filePath, 'context data', headerLine);
 
@@ -102,7 +102,7 @@ describe('Context Injection', () => {
 
   describe('replace existing context section', () => {
     it('replaces content between existing context tags', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
       const initialContent = [
         '# Project Instructions',
         '',
@@ -124,7 +124,7 @@ describe('Context Injection', () => {
     });
 
     it('preserves content before and after the context section', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
       const before = '# Header\n\nSome instructions.\n\n';
       const after = '\n\n## Footer\n\nMore content.\n';
       const initialContent = `${before}${CONTEXT_TAG_OPEN}\nold\n${CONTEXT_TAG_CLOSE}${after}`;
@@ -144,7 +144,7 @@ describe('Context Injection', () => {
 
   describe('append to existing file', () => {
     it('appends context section to file without existing tags', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
       writeFileSync(filePath, '# My Project\n\nInstructions here.\n');
 
       injectContextIntoMarkdownFile(filePath, 'appended context');
@@ -158,7 +158,7 @@ describe('Context Injection', () => {
     });
 
     it('separates appended section with a blank line', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
       writeFileSync(filePath, '# Header');
 
       injectContextIntoMarkdownFile(filePath, 'data');
@@ -168,7 +168,7 @@ describe('Context Injection', () => {
     });
 
     it('trims trailing whitespace before appending', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
       writeFileSync(filePath, '# Header\n\n\n   \n');
 
       injectContextIntoMarkdownFile(filePath, 'data');
@@ -180,7 +180,7 @@ describe('Context Injection', () => {
 
   describe('idempotency', () => {
     it('produces same result when called twice with same content', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
 
       injectContextIntoMarkdownFile(filePath, 'stable content');
       const firstWrite = readFileSync(filePath, 'utf-8');
@@ -192,7 +192,7 @@ describe('Context Injection', () => {
     });
 
     it('updates content when called with different data', () => {
-      const filePath = join(tempDir, 'CLAUDE.md');
+      const filePath = join(tempDir, 'CODEX.md');
 
       injectContextIntoMarkdownFile(filePath, 'version 1');
       injectContextIntoMarkdownFile(filePath, 'version 2');

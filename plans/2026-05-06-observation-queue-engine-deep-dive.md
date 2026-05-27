@@ -4,9 +4,9 @@ Date: 2026-05-06
 
 ## Executive decision
 
-If claude-mem replaces its observation queue with one of the two Redis-backed libraries, choose **BullMQ**, not Bee-Queue.
+If codex-mem replaces its observation queue with one of the two Redis-backed libraries, choose **BullMQ**, not Bee-Queue.
 
-That said, the current observation queue is not a generic background job queue. It is a durable, per-session input stream feeding long-lived provider generators. Replacing it with Redis should not be the default local install path unless claude-mem is willing to require, bundle, or supervise Redis. If Redis is not acceptable as a new operational dependency, the better path is to keep the SQLite queue and fix the contract/test drift.
+That said, the current observation queue is not a generic background job queue. It is a durable, per-session input stream feeding long-lived provider generators. Replacing it with Redis should not be the default local install path unless codex-mem is willing to require, bundle, or supervise Redis. If Redis is not acceptable as a new operational dependency, the better path is to keep the SQLite queue and fix the contract/test drift.
 
 Recommended path:
 
@@ -16,14 +16,14 @@ Recommended path:
 4. Add BullMQ as an optional backend for users who explicitly configure Redis.
 5. Do not adopt Bee-Queue.
 
-## Current claude-mem queue shape
+## Current codex-mem queue shape
 
 The active queue path is:
 
 - `src/services/worker/http/shared.ts` and `SessionRoutes.ts` ingest observations/summarize requests.
 - `SessionManager.queueObservation()` and `queueSummarize()` persist rows through `PendingMessageStore.enqueue()`.
 - `SessionQueueProcessor.createIterator()` claims one row at a time and wakes via a per-session `EventEmitter`.
-- Provider loops in `ClaudeProvider`, `GeminiProvider`, and `OpenRouterProvider` consume `sessionManager.getMessageIterator(sessionDbId)`.
+- Provider loops in `CodexProvider`, `GeminiProvider`, and `OpenRouterProvider` consume `sessionManager.getMessageIterator(sessionDbId)`.
 - Parsed agent output is stored through `processAgentResponse()`, then `SessionManager.clearPendingForSession()` clears that session's pending rows.
 
 Key semantics that must survive any replacement:
@@ -84,32 +84,32 @@ Current package/repo facts captured on 2026-05-06:
 - TypeScript types are bundled.
 - A Bun import smoke test succeeded for `import { Queue } from 'bullmq'`.
 
-Strengths for claude-mem:
+Strengths for codex-mem:
 
 - Actively maintained and widely used.
 - Built-in TypeScript API.
 - Redis-backed durability and distributed workers.
 - Built-in stalled-job recovery, retry attempts, fixed/exponential backoff, delays, priorities, FIFO/LIFO, auto-removal, QueueEvents, manual processing APIs, and job ID based dedupe.
-- BullMQ docs explicitly support manual job fetching with `Worker#getNextJob()`, `moveToCompleted()`, `moveToFailed()`, and lock extension. This matters because claude-mem's provider loop is closer to a stream consumer than a normal job processor.
+- BullMQ docs explicitly support manual job fetching with `Worker#getNextJob()`, `moveToCompleted()`, `moveToFailed()`, and lock extension. This matters because codex-mem's provider loop is closer to a stream consumer than a normal job processor.
 
 Costs and risks:
 
 - Redis becomes required for the queue backend. BullMQ docs require a Redis connection to use queues and recommend Redis compatibility 6.2+.
 - Redis must be configured like durable infrastructure, not cache: AOF persistence and `maxmemory-policy=noeviction` are recommended/required for correctness.
 - Connection count increases. BullMQ docs note each class consumes at least one Redis connection; `Worker` and `QueueEvents` need blocking/duplicated connections in some cases.
-- Jobs store data in Redis in clear text unless claude-mem encrypts or avoids sensitive payload fields. Tool input/output can be sensitive.
-- BullMQ job completion/failure semantics do not map directly to claude-mem's current "provider consumes many messages, parses one response, then clears the session" behavior.
-- Per-session FIFO with parallel sessions is not free in OSS BullMQ. A single global queue with worker concurrency > 1 can violate same-session ordering unless we add a scheduler. BullMQ Pro groups would address this, but claude-mem should not depend on Pro.
+- Jobs store data in Redis in clear text unless codex-mem encrypts or avoids sensitive payload fields. Tool input/output can be sensitive.
+- BullMQ job completion/failure semantics do not map directly to codex-mem's current "provider consumes many messages, parses one response, then clears the session" behavior.
+- Per-session FIFO with parallel sessions is not free in OSS BullMQ. A single global queue with worker concurrency > 1 can violate same-session ordering unless we add a scheduler. BullMQ Pro groups would address this, but codex-mem should not depend on Pro.
 - Custom `jobId` is useful for `tool_use_id` dedupe, but BullMQ custom job IDs must not contain `:`. Use a hash or safe delimiter.
-- Manual processing requires lock management. BullMQ docs call out that manually fetched jobs do not get automatic lock renewal like standard processors; claude-mem would need `extendLock()` for long provider calls or a large lock duration.
+- Manual processing requires lock management. BullMQ docs call out that manually fetched jobs do not get automatic lock renewal like standard processors; codex-mem would need `extendLock()` for long provider calls or a large lock duration.
 
 Best BullMQ shape if adopted:
 
 - Prefer **one queue per active session** over one global queue initially:
-  - Queue name: `claude-mem:session:<safe-session-db-id>` or a hashed content-session suffix.
+  - Queue name: `codex-mem:session:<safe-session-db-id>` or a hashed content-session suffix.
   - Worker/manual consumer concurrency: `1`.
   - Preserves per-session FIFO without BullMQ Pro groups.
-  - Active session counts are naturally low for local claude-mem usage.
+  - Active session counts are naturally low for local codex-mem usage.
   - Cleanup queue keys when a session is deleted or after idle timeout.
 - Use `jobId` for observation dedupe:
   - `obs_<sha256(contentSessionId + "\0" + toolUseId)>`.
@@ -118,10 +118,10 @@ Best BullMQ shape if adopted:
 - Keep only bounded failed jobs for debugging.
 - Treat Redis as queue state only; SQLite remains the canonical observation/session store.
 - Add config:
-  - `CLAUDE_MEM_QUEUE_ENGINE=sqlite|bullmq`
-  - `CLAUDE_MEM_REDIS_URL`
-  - `CLAUDE_MEM_QUEUE_REDIS_PREFIX`
-  - `CLAUDE_MEM_QUEUE_ENCRYPT_PAYLOADS=true|false` if sensitive fields are stored.
+  - `CODEX_MEM_QUEUE_ENGINE=sqlite|bullmq`
+  - `CODEX_MEM_REDIS_URL`
+  - `CODEX_MEM_QUEUE_REDIS_PREFIX`
+  - `CODEX_MEM_QUEUE_ENCRYPT_PAYLOADS=true|false` if sensitive fields are stored.
 
 ## Bee-Queue deep dive
 
@@ -143,7 +143,7 @@ Current package/repo facts captured on 2026-05-06:
 - NPM package exposes `./index.d.ts`.
 - A Bun import smoke test succeeded for `import BeeQueue from 'bee-queue'`.
 
-Strengths for claude-mem:
+Strengths for codex-mem:
 
 - Very small and simple.
 - Designed for short, real-time jobs.
@@ -161,7 +161,7 @@ Costs and risks:
 - Delayed retry behavior requires `activateDelayedJobs` on at least one queue instance.
 - The package is newly revived, but not as active/mature as BullMQ for a queue-engine foundation.
 
-Conclusion: Bee-Queue is attractive if the only goal is "small Redis queue for short jobs." claude-mem needs a durable session stream with strict per-session semantics, good TypeScript ergonomics, explicit recovery behavior, and long-term maintenance. Bee-Queue is the wrong tradeoff.
+Conclusion: Bee-Queue is attractive if the only goal is "small Redis queue for short jobs." codex-mem needs a durable session stream with strict per-session semantics, good TypeScript ergonomics, explicit recovery behavior, and long-term maintenance. Bee-Queue is the wrong tradeoff.
 
 ## Scorecard
 
@@ -177,7 +177,7 @@ Conclusion: Bee-Queue is attractive if the only goal is "small Redis queue for s
 | Queue observability | Custom/basic | Strong | Medium |
 | Dependency footprint | Low | Larger | Small |
 | Privacy/data locality | SQLite local file | Redis clear-text unless handled | Redis clear-text unless handled |
-| Best use in claude-mem | Default | Optional advanced backend | Do not use |
+| Best use in codex-mem | Default | Optional advanced backend | Do not use |
 
 ## Migration plan
 
@@ -225,7 +225,7 @@ Phase 2: Add BullMQ backend behind feature flag
 Phase 3: Migration and fallback
 
 - On startup with BullMQ enabled, migrate existing SQLite `pending_messages` rows into BullMQ once, then mark/delete migrated rows.
-- If Redis is unavailable at startup, fail loudly for `CLAUDE_MEM_QUEUE_ENGINE=bullmq`; do not silently drop observations.
+- If Redis is unavailable at startup, fail loudly for `CODEX_MEM_QUEUE_ENGINE=bullmq`; do not silently drop observations.
 - For default `sqlite`, do not require Redis.
 
 Phase 4: Tests
@@ -244,6 +244,6 @@ Phase 4: Tests
 
 Do not do a direct swap from SQLite to either library.
 
-If the product goal is to keep claude-mem easy to install and local-first, invest in the current SQLite queue: clean up the schema/status drift, restore tests, add explicit retries/failure rows if needed, and keep the in-process wakeup path.
+If the product goal is to keep codex-mem easy to install and local-first, invest in the current SQLite queue: clean up the schema/status drift, restore tests, add explicit retries/failure rows if needed, and keep the in-process wakeup path.
 
 If the product goal is to support distributed workers or stronger queue observability, add **BullMQ as an optional backend** through an adapter. It has the right maintenance profile, TypeScript support, recovery primitives, and docs. Bee-Queue is too narrow and too legacy-client-oriented for this role.

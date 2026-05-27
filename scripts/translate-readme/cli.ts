@@ -19,11 +19,11 @@ interface CliArgs {
 
 function printHelp(): void {
   console.log(`
-readme-translator - Translate README.md files using Claude Agent SDK
+readme-translator - Translate README.md files using Codex CLI
 
 AUTHENTICATION:
-  If Claude Code is installed and authenticated (Pro/Max subscription),
-  no API key is needed. Otherwise, set ANTHROPIC_API_KEY environment variable.
+  If Codex Code is installed and authenticated (Pro/Max subscription),
+  no API key is needed. Otherwise, set CODEX_API_KEY environment variable.
 
 USAGE:
   translate-readme [options] <source> <languages...>
@@ -38,7 +38,7 @@ OPTIONS:
   -o, --output <dir>      Output directory (default: same as source)
   -p, --pattern <pat>     Output filename pattern (default: README.{lang}.md)
   --no-preserve-code      Translate code blocks too (not recommended)
-  -m, --model <model>     Claude model to use (default: sonnet)
+  -m, --model <model>     Codex model to use (default: gpt-5)
   --max-budget <usd>      Maximum budget in USD
   --use-existing          Use existing translation file as a reference
   -v, --verbose           Show detailed progress
