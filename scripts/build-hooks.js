@@ -13,7 +13,10 @@ const builtinModuleNames = new Set([
   ...builtinModules,
   ...builtinModules.map(moduleName => `node:${moduleName}`),
 ]);
-const optionalExternalDependencies = new Set(['pg-native']);
+const optionalExternalDependencies = new Set([
+  '@opentelemetry/api',
+  'pg-native',
+]);
 
 const forceLocalNodeModulesPlugin = {
   name: 'force-local-node-modules',
